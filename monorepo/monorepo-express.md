@@ -232,5 +232,298 @@ adicionar dentro do array de nohoist os dois elementos abaixo:
 "**/typeorm"
 ```
 
-## Passo 25:
+## Passo 26:
 Rode o servidor para ver se está tudo ok agora que foi adicionado o banco
+
+## Passo 27:
+Criar pasta
+packages > server > src > database > migrations
+
+## Passo 28:
+Alterar conteúdo de 
+packages > server > ormconfig.json para:
+
+```
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "postgres",
+  "password": "docker",
+  "database": "sampleprojectdb",
+  "entities": ["./src/models/*.ts"],
+  "migrations": ["./src/database/migrations/*.ts"],
+  "cli": {
+    "migrationsDir": "./src/database/migrations"
+  }
+}
+```
+
+# Passo 29:
+alterar conteúdo de 
+packages > server > tsconfig.json
+por:
+
+```
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",                        
+    "rootDir": "./src",  
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
+  },
+  "include": ["./src/**/*"]
+}
+```
+
+## Passo 30:
+Criar pasta
+packages > server > src > models
+
+## Passo 31:
+Criar arquivo
+packages > server > src > models > User.ts
+e dentro colocar:
+
+```
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn
+} from 'typeorm'
+
+@Entity('users')
+class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string
+
+  @Column()
+  name: string
+
+  @Column()
+  email: string
+
+  @Column()
+  type: string
+
+  @Column('boolean')
+  isActive: boolean
+
+  @Column()
+  password: string
+
+  @CreateDateColumn()
+  created_at: Date
+
+  @UpdateDateColumn()
+  updated_at: Date
+}
+
+export default User
+```
+
+## Passo 32: 
+Adicionar scrip em:
+packages > server > package.json
+
+vai ficar assim a tag scripts:
+
+```
+"scripts": {
+  "build": "tsc",
+  "dev:server": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/server.ts",
+  "typeorm": "ts-node-dev ./node_modules/typeorm/cli.js"  
+},
+```
+
+## Passo 33:
+Rodar no terminal em
+packages > server
+
+`yarn typeorm migration:create -n CreateUsers`
+
+## Passo 34:
+Dentro de
+packages > server > src > database > migrations
+alterar métodos up e down por:
+
+```
+public async up(queryRunner: QueryRunner): Promise<void> {
+  await queryRunner.createTable(
+    new Table({
+      name: 'users',
+      columns: [
+        {
+          name: 'id',
+          type: 'uuid',
+          isPrimary: true,
+          generationStrategy: 'uuid',
+          default: 'uuid_generate_v4()'
+        },
+        {
+          name: 'name',
+          type: 'varchar',
+          isNullable: false
+        },
+        {
+          name: 'email',
+          type: 'varchar',
+          isNullable: false,
+          isUnique: true
+        },
+        {
+          name: 'password',
+          type: 'varchar',
+          isNullable: false
+        },
+        {
+          name: 'created_at',
+          type: 'timestamp',
+          default: 'now()'
+        },
+        {
+          name: 'updated_at',
+          type: 'timestamp',
+          default: 'now()'
+        }
+      ]
+    })
+  )
+}
+
+public async down(queryRunner: QueryRunner): Promise<void> {
+  await queryRunner.dropTable('users')
+}
+```
+
+## Passo 35
+no terminal rodar em
+packages > server
+
+`yarn typeorm migration:run`
+
+## Passo 36
+no terminal rodar em
+packages > server
+
+`yarn add reflect-metadata`
+
+## Passo 37
+Adicionar em
+packages > server > src > server.ts
+no começo do arquivo a linha
+
+`import 'reflect-metadata'`
+
+## Passo 38
+Trocar todo o conteúdo de
+packages > server > src > routes > index.ts
+por:
+
+```
+import { Router } from 'express'
+import usersRouter from './users.routes'
+
+const routes = Router()
+routes.use('/users', usersRouter)
+
+export default routes
+```
+
+## Passo 39
+Criar arquivo
+packages > server > src > routes > users.routes.ts
+e dentro colocar:
+
+```
+import { Router } from 'express'
+
+import CreateUserService from '../services/CreateUserService'
+
+const usersRouter = Router()
+
+usersRouter.post('/', async (request, response) => {
+  try {
+    const { name, email, password } = request.body
+
+    const createUser = new CreateUserService()
+
+    const user = await createUser.execute({
+      name,
+      email,
+      password
+    })
+
+    delete user.password
+
+    return response.json(user)
+  } catch (err) {
+    return response.status(400).json({ error: err.message })
+  }
+})
+
+export default usersRouter
+```
+
+## Passo 40
+Criar arquivo
+packages > server > src > services > CreateUserService.ts
+e dentro colocar:
+
+```
+import { getRepository } from 'typeorm'
+
+import { hash } from 'bcryptjs'
+
+import User from '../models/User'
+
+interface Request {
+  name: string
+  email: string
+  password: string
+}
+
+class CreateUserService {
+  public async execute({ name, email, password }: Request): Promise<User> {
+    const usersRepository = getRepository(User)
+
+    const checkUserExists = await usersRepository.findOne({
+      where: { email }
+    })
+
+    if (checkUserExists) {
+      throw new Error(
+        'E-mail já existente na base de dados, tente outro e-mail.'
+      )
+    }
+
+    const hashedPassword = await hash(password, 8)
+
+    const user = usersRepository.create({
+      name,
+      email,
+      type: 'common',
+      isActive: true,
+      password: hashedPassword
+    })
+
+    await usersRepository.save(user)
+
+    return user
+  }
+}
+
+export default CreateUserService
+```
+
+## Passo 38
+No terminal dentro de
+packages > server
+rodar dois comandos:
+
+`yarn add bcryptjs`
+`yarn add @types/bcryptjs -D`
