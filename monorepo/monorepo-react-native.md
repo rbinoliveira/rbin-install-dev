@@ -1,63 +1,69 @@
 # Anotações - Monorepo com React Native
 
-## Passo 33
-Dentro de
-packages
-rodar no terminal:
-```npx react-native init mobile --template react-native-template-typescript```
-
-## Passo 34
-Usar o buscador do vs code para procurar por
-
-../node_modules
-
-e adicionar 
-
-../../ 
-
-antes das importações para as importações refletirem para o node_modules da raiz do projeto.
-
-Obs: só alterar arquivos que tá dentro da pasta mobile e verificar e somente onde tiver ../node_modules, ficando assim após a alteração:
-
-../../../node_modules
-
-## Passo 35
-Dentro de
-packages > mobile > metro.config.js
-adicionar
-
-```const path = require('path');```
-
-fora do modules.exports
-
-e adicionar
-
-```
-projectRoot: path.resolve(__dirname, '.'),
-watchFolders: [path.resolve(__dirname, '../../node_modules')],
+## Criar projeto mobile dentro da pasta packages
+```bash
+  # Abrir pasta packages
+  $ cd packages
+  # Rodar no terminal
+  $ npx react-native init mobile --template react-native-template-typescript
 ```
 
-dentro de modules.exports, antes de transformer.
+## Usar buscador do VS Code para achar ../node_modules
+```bash
+  # No buscador do VS Code procurar por
+  ../node_modules
+  # Quando encontrar adicionar:
+  ../../ 
 
-Dica: ver anexo 4 se ficar com dúvidas
+   OBS:antes das importações para as importações refletirem para o node_modules da raiz do projeto.
 
-## Passo 36
-Dentro de 
-packages > mobile > ios > Podfile
-alterar linha que tem use_react_native para:
+   OBS: só alterar arquivos que tá dentro da pasta mobile e verificar  somente onde tiver ../node_modules, ficando assim após a alteração:
 
-```use_react_native!(:path => '../../../node_modules/react-native')```
+  ../../../node_modules
+ ```
 
-Obs: basta mudar após path => 
+## Adicionar path dentro do arquivo metro.config.js
+```bash
+  # Abrir pastas packages/mobile/metro.config.js para acessar arquivo metro.config.js
+  $  cd packages/mobile/metro.config.js
+  # No arquivo metro.config.js adicionar:
+   const path = require('path');
+   
+  # Fora do modules.exports adicionar:
+  projectRoot: path.resolve(__dirname, '.'),
+  watchFolders: [path.resolve(__dirname, '../../node_modules')],
 
-## Passo 37
-Alterar o nome do projeto mobile para
-@NOME_DO_PROJETO/mobile em
-packages > mobile > package.json
+  # dentro de modules.exports, antes de transformer.
 
-## Passo 38
-Criar pasta
-packages > mobile > src
+  Dica: ver anexo 4 se ficar com dúvidas
+```
+
+## Alterar linha na pasta Podfile
+```bash
+  # Abrir pastas packages/mobile/ios/Podfile
+  $ cd packages/mobile/ios/Podfile
+  # Dentro de Podfile alterar linha que tem use_react_native para:
+  use_react_native!(:path => '../../../node_modules/react-native')
+
+  Obs: basta mudar após path => 
+```
+
+## Alterar nome do projeto em package.json
+```bash
+  # Abrir pastas packages/mobile/package.json  para acessar arquivo package.json
+  $ cd packages/mobile/package.json
+  # Alterar nome do projeto para:
+  @NOME_DO_PROJETO/mobile em
+```
+
+## Criar pastas src dentro da pasta mobile
+```bash
+  # Abrir pastas packages/mobile
+  $ cd packages/mobile
+  # Criar pasta src dentro da pasta mobile
+  $ mkdir src
+  # Caminho das pastas packages/mobile/src
+```
 
 ## Passo 39
 Dentro de

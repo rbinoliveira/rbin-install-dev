@@ -1,6 +1,6 @@
 # Anotações de Monorepo
 
-## Pasta raiz
+## Rodar yarn init na pasta raiz
 
 ```bash
   # Rodar no terminal da raiz:
@@ -240,10 +240,11 @@ Criar arquivo tsconfig.json
 
 Configure os projetos separadamente acessando os links abaixo:
 
-[server](monorepo-express.md)
-[ReactJS](monorepo-react.md)
-[Next](monorepo-next.md)
-[React Native](monorepo-react-native.md)
+- [Server](monorepo-express.md)<br>
+- [ReactJS](monorepo-react.md)<br>
+- [Next](monorepo-next.md)<br>
+- [React Native](monorepo-react-native.md)<br>
+- [Server Complexo](monorepo-express-complexo.md)<br>
 
 Caso precise do axios ou de testes com jest volte para esse tutorial para continuar os próximos passos.
 
