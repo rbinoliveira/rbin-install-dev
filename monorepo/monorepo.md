@@ -169,7 +169,7 @@ Na raiz do projeto criar o arquivo:
 No arquivo package.json adicionar na tag devDependecies o projeto eslint-config.
 Vai ficar mais ou menos assim:
 
-```
+```bash
 "devDependencies": {
   "typescript": "^4.0.2",
   "@NOME_DO_PROJETO/eslint-config": "*"
