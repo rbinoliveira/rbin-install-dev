@@ -2,7 +2,7 @@
 
 ## Eslint geral
 
-```
+```bash
 module.exports = {
   env: {
     browser: true,
@@ -70,7 +70,7 @@ module.exports = {
 
 ## Eslint só para Node com Express
 
-```
+```bash
 module.exports = {
   env: {
     es2020: true,
