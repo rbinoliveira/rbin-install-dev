@@ -152,6 +152,8 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier', 'react', 'react-hooks'],
   rules: {
     'prettier/prettier': 'error',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
     'no-use-before-define': 'off',
     'camelcase': 'off',
     'react-hooks/rules-of-hooks': 'error',
@@ -167,12 +169,6 @@ module.exports = {
       'error',
       {
         'argsIgnorePattern': '_'
-      }
-    ],
-    '@typescript-eslint/explicit-function-return-type': [
-      'error',
-      {
-        'allowExpressions': true
       }
     ],
   },
