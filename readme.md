@@ -12,6 +12,7 @@ que ninguém é obrigado a decorar. Além disso, servirá de tutorial eventualme
 - [Monorepo](monorepo/monorepo.md)
 - [Monorepo - Node.js com Express.js](monorepo/monorepo-express.md)
 - [Monorepo - Node.js com Express.js (arquitetura complexa)](monorepo/monorepo-express-complexo.md)
+- [Monorepo - Next.js](monorepo/monorepo-next.md)
 - [Monorepo - ReactJS](monorepo/monorepo-react.md)
 - [Monorepo - React Native](monorepo/monorepo-react-native.md)
 
