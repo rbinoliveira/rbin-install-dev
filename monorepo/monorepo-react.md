@@ -148,14 +148,14 @@
   yarn add @types/styled-components -D
 ```
 
-## Criar pasta styled
+## Criar pasta styles
 
 ```bash
   # Abrir pastas packages/web/src
   $ cd packages/web/src/
-  # Criar pasta styled
-  $ mkdir styled
-  # caminho das pastas packages/web/src/styled
+  # Criar pasta styles
+  $ mkdir styles
+  # caminho das pastas packages/web/src/styles
 ```
 
 ## Criar arquivo global.ts da pasta web/src
@@ -234,29 +234,29 @@
   export default App
 ```
 
-## Criar pasta SignIn dentro da pasta web
+## Criar pasta SignIn dentro da pasta web/src/pages/SignIn
 
 ```bash
-  # Abrir pastas packages/web
-  $ cd packages/web/
+  # Abrir pastas packages/web/src/pages
+  $ cd packages/web/src/pages
   # Criar a pasta SignIn
   $ mkdir SignIn
-  # Caminho das pastas packages/web/SignIn
+  # Caminho das pastas packages/web/src/pages/SignIn
 ```
 
 ## Criar arquivos index.tsx e styles.ts na pasta SignIn
 
 ```bash
-  # Abrir pastas packages/web/SignIn
-  $ cd packages/web/SignIn
+  # Abrir pastas packages/web/src/pages/SignIn
+  $ cd packages/web/src/pages/SignIn
   # Crie os arquivos abaixo dentro da pasta SignIn
-  - index.tsx e o styles.ts
+   index.tsx e o styles.ts
 ```
 ## Colocar conteúdo no arquivo index.tsx da pasta SignIn
 
 ```bash
-  # Abrir pastas packages/web/SignIn/index.tsx para acessar o arquivo index.tsx
-  $ cd packages/web/SignIn/index.tsx
+  # Abrir pastas packages/web/src/pages/SignIn/index.tsx para acessar o arquivo index.tsx
+  $ cd packages/web/src/pages/SignIn/index.tsx
 
   # Colocar no arquivo index.tsx o seguinte conteúdo:
 
@@ -288,8 +288,8 @@ export default SignIn
 ## Colocar conteúdo no arquivo styles.ts da pasta SignIn
 
 ```bash
-  # Abrir pastas packages/web/SignIn/styles.ts
-  $ cd packages/web/SignIn/styles.ts
+  # Abrir pastas packages/web/src/pages/SignIn/styles.ts
+  $ cd packages/web/src/pages/SignIn/styles.ts
 
   # Adicione no arquivo styles.ts o seguinte conteúdo:
 
@@ -781,7 +781,7 @@ export default SignIn
     &:hover {
       background: ${shade(0.2, '#0078b5')};
     }
-
+  `
 ```
 
 ## Substituir conteúdo do arquivo SignIn/index.tsx 
@@ -967,11 +967,11 @@ export default SignIn
   export default Routes
 ```
 
-## Criar arquivo web/src/Route.tsx
+## Criar arquivo web/src/routes/Route.tsx
 
 ```bash
-  # Abrir pastas packages/web/src
-  $ cd packages/web/src
+  # Abrir pastas packages/web/src/routes
+  $ cd packages/web/src/routes
   # Criar o arquivo Route.tsx
 
   # Dentro do arquivo Route.tsx adicionar:
@@ -1200,7 +1200,7 @@ export default SignIn
   export default Dashboard
 ```
 
-## Criar pasta SignUp
+## Criar pasta pages/SignUp
 ```bash
   # Dentro de packages/web/src/pages
   $ cd packages/web/src/pages
