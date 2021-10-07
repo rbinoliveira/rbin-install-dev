@@ -1,3 +1,4 @@
+```
 {
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
@@ -8,7 +9,6 @@
   "editor.minimap.enabled": false,
   "editor.renderWhitespace": "boundary",
   "editor.tabSize": 2,
-  "explorer.autoReveal": false,
   "terminal.integrated.fontSize": 14.5,
   "workbench.colorTheme": "Dracula",
   "explorer.confirmDelete": false,
@@ -21,3 +21,4 @@
   "extensions.ignoreRecommendations": true,
   "breadcrumbs.enabled": true
 }
+```
