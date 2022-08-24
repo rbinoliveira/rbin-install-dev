@@ -1,14 +1,16 @@
 # Lista de extensões úteis/decorativas
 
-- Omni
-- Colorize
-- Material Icon Theme
-- Rocketseat ReactJS
-- Rocketseat React Native
+- Shades of purple
+- Color highlight
+- vscode-icons
 - Markdown Preview Enhanced
-- Bracket Pair Colorizer 2
 - Live Server
 - ESLint
 - Prettier - Code Formatter
 - vscode-styled-components
 - DotENV
+- Prisma
+- Prisma - Insider
+- Reload
+
+> Instalar também a font JetBrains Mono
