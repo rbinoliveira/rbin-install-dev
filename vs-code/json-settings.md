@@ -27,10 +27,10 @@
 	"editor.rulers": [80,120],
 	"editor.renderLineHighlight": "gutter",
 	"typescript.updateImportsOnFileMove.enabled": "never",
-	"window.zoomLevel": 1,
 	"javascript.updateImportsOnFileMove.enabled": "never",
 	"editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs":"active",
-	"terminal.integrated.fontFamily": "'MesloLGS NF'"
+	"terminal.integrated.fontFamily": "'MesloLGS NF'",
+	"window.zoomLevel": 1
 }
 ```
