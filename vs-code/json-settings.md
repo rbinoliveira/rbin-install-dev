@@ -6,8 +6,8 @@
 	"editor.fontSize": 13,
 	"editor.fontLigatures": true,
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true,
-		"source.addMissingImports": true
+		"source.fixAll.eslint": "explicit",
+		"source.addMissingImports": "explicit"
 	},
 	"[prisma]": {
 		"editor.defaultFormatter": "Prisma.prisma"
@@ -17,7 +17,6 @@
 	"editor.tabSize": 2,
 	"terminal.integrated.fontSize": 14.5,
 	"explorer.confirmDelete": false,
-	"workbench.iconTheme": "vscode-icons",
 	"vsicons.dontShowNewVersionMessage": true,
 	"security.workspace.trust.untrustedFiles": "open",
 	"explorer.compactFolders": false,
@@ -31,6 +30,13 @@
   "editor.guides.bracketPairs":"active",
 	"terminal.integrated.fontFamily": "'MesloLGS NF'",
 	"window.zoomLevel": 1,
-	"workbench.colorTheme": "Shades of Purple"
+	"git-autoconfig.configList": [
+		{}
+	],
+	"git-autoconfig.ignoreRootList": [
+		"/home/rubens/repos/ricardo/flow-roll-backend-service"
+	],
+	"workbench.colorTheme": "Beautiful Dracula Normal",
+	"workbench.iconTheme": "bearded-icons"
 }
 ```
