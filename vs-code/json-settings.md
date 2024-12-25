@@ -2,7 +2,7 @@
 ```
 {
 	"editor.letterSpacing": 1.2,
-	"editor.fontFamily": "Fira Code",
+	"editor.fontFamily": "JetBrains Mono",
 	"editor.fontSize": 13,
 	"editor.fontLigatures": true,
 	"editor.codeActionsOnSave": {
@@ -10,14 +10,13 @@
 		"source.addMissingImports": "explicit"
 	},
 	"[prisma]": {
-		"editor.defaultFormatter": "Prisma.prisma"
+		"editor.formatOnSave": true
 	},
 	"editor.minimap.enabled": false,
 	"editor.renderWhitespace": "boundary",
 	"editor.tabSize": 2,
 	"terminal.integrated.fontSize": 14.5,
 	"explorer.confirmDelete": false,
-	"vsicons.dontShowNewVersionMessage": true,
 	"security.workspace.trust.untrustedFiles": "open",
 	"explorer.compactFolders": false,
 	"extensions.ignoreRecommendations": true,
@@ -30,13 +29,7 @@
   "editor.guides.bracketPairs":"active",
 	"terminal.integrated.fontFamily": "'MesloLGS NF'",
 	"window.zoomLevel": 1,
-	"git-autoconfig.configList": [
-		{}
-	],
-	"git-autoconfig.ignoreRootList": [
-		"/home/rubens/repos/ricardo/flow-roll-backend-service"
-	],
-	"workbench.colorTheme": "Shades of Purple",
+	"workbench.colorTheme": "Beautiful Dracula Normal",
 	"workbench.iconTheme": "bearded-icons",
 	"workbench.activityBar.location": "top",
 	"window.customTitleBarVisibility": "auto"
