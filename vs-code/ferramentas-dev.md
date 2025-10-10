@@ -44,4 +44,31 @@ sudo usermod -aG docker $USER
 
 #Node e yarn
 
-#
+```
+sudo apt update && sudo apt upgrade -y
+```
+
+```
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+```
+node -v
+npm -v
+```
+
+```
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+```
+
+```
+sudo apt update
+sudo apt install -y yarn
+```
+
+```
+yarn -v
+```
+
