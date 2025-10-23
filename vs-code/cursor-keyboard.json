@@ -1,25 +1,12 @@
 // Place your key bindings in this file to override the defaults
 [
     {
-        "key": "ctrl+i",
-        "command": "composerMode.agent"
-    },
-    {
         "key": "ctrl+k ctrl+c",
         "command": "editor.action.addCommentLine",
         "when": "editorTextFocus && !editorReadonly"
     },
     {
-        "key": "ctrl+m ctrl+c",
-        "command": "-editor.action.addCommentLine",
-        "when": "editorTextFocus && !editorReadonly"
-    },
-    {
-        "key": "ctrl+shift+c",
-        "command": "aichat.insertselectionintochat"
-    },
-    {
-        "key": "ctrl+shift+l",
-        "command": "-aichat.insertselectionintochat"
+        "key": "ctrl+k ctrl+u",
+        "command": "editor.action.removeCommentLine"
     }
 ]
