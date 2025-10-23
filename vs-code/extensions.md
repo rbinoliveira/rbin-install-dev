@@ -5,7 +5,7 @@
 - Color highlight
 - DotENV
 - ESLint
-- Git lens (apenas esse)
+- Gitlens (apenas esse)
 - Markdown Preview Enhanced
 - Prisma
 - px to rem
