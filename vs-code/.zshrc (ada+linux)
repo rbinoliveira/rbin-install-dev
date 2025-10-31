@@ -1,0 +1,108 @@
+#
+# Executes commands at the start of an interactive session.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# Customize to your needs...
+
+zstyle ':prezto:module:prompt' theme 'off'
+eval "$(starship init zsh)"
+
+alias dev='cd ~/dev'
+
+export GITHUB_TOKEN="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"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+. "$HOME/.local/bin/env"
+
+# >>> UV PYTHON SETUP START >>>
+# ⚙️ Configuração automática para Python + uv no Zsh
+# (Adicionado automaticamente via setup_uv_zsh.sh)
+
+# 1️⃣ Alias e convenções
+alias python=python3
+alias pip=pip3
+
+# 2️⃣ Auto-ativação do venv (entra no projeto e ativa .venv se existir)
+autoload -U add-zsh-hook
+function auto_activate_venv() {
+  if [ -e ".venv/bin/activate" ]; then
+    source .venv/bin/activate
+  fi
+}
+add-zsh-hook chpwd auto_activate_venv
+auto_activate_venv
+
+# 3️⃣ Configurações do uv
+export UV_VENV_CLEAR=1              # recria venv automaticamente
+export UV_CACHE_DIR="$HOME/.cache/uv"
+export PATH="$HOME/.cargo/bin:$PATH" # garante que o uv esteja no PATH
+
+# 4️⃣ Atalhos rápidos
+alias mkvenv='uv python install 3.11.13 && uv venv --clear && source .venv/bin/activate'
+alias syncdeps='uv pip sync requirements-dev.txt'
+alias runapp='python3 -m alembic upgrade head && python3 -m app.main'
+alias reload='source ~/.zshrc && echo "🔁 zshrc recarregado!"'
+
+# <<< UV PYTHON SETUP END <<<
+
+function runlxp() {
+  gnome-terminal --tab -- zsh -c "
+    cd ~/dev/dev_ada_async && \
+    docker compose up -d --build mysql localstack redis && \
+    yarn nx run lxp-evaluation-and-certification-backend:serve; \
+    exec zsh
+  "
+
+  gnome-terminal --tab -- zsh -c "
+    cd ~/dev/dev_ada_async && \
+    yarn nx run lxp-frontend:serve; \
+    exec zsh
+  "
+
+  gnome-terminal --tab -- zsh -c "
+    cd ~/dev/dev_sso/sso-localhost && \
+    docker compose up -d --build; \
+    exec zsh
+  "
+}
+
+function runinterview() {
+  gnome-terminal --tab -- zsh -c "
+    cd ~/dev/interview && \
+    uv python install 3.11.13 && \
+    uv venv --clear && \
+    source .venv/bin/activate && \
+    uv pip sync requirements-dev.txt && \
+    uv pip install markupsafe && \
+    python3 -m alembic upgrade head && \
+    python3 -m app.main; \
+    exec zsh
+  "
+}
+
+function runassessmentsbackend() {
+  gnome-terminal --tab -- zsh -c "
+    cd ~/dev/dev_ada_async && \
+    yarn nx run assessments-backend:serve; \
+    exec zsh
+  "
+}
+
+function runaibackendv2() {
+  gnome-terminal --tab -- zsh -c "
+    cd ~/dev/dev_ada_async && \
+    yarn nx run ai-backend-v2:serve; \
+    exec zsh
+  "
+}
