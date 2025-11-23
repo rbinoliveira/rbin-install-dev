@@ -61,8 +61,8 @@ npm -v
 ```
 
 ```
-corepack enable
-corepack prepare yarn@stable --activate
+corepack enable && \
+corepack prepare yarn@1 --activate && \
 yarn -v
 ```
 
