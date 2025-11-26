@@ -176,6 +176,35 @@ dconf write $PROFILE_DIR"visible-name" "'Dracula (auto)'"
 echo "===== [DRACULA] Tema aplicado com sucesso no novo perfil ====="
 
 ###########################################################################
+# 6.5. Remover perfis antigos e deixar apenas o "rubinho"
+###########################################################################
+
+echo "===== [TERMINAL] Limpando perfis antigos ====="
+
+# Lista de perfis atuais
+PROFILE_LIST=$(gsettings get org.gnome.Terminal.ProfilesList list | tr -d "[]'," )
+
+# Loop removendo todos menos o atual
+for PROFILE in $PROFILE_LIST; do
+  if [ "$PROFILE" != "$NEW_PROFILE_ID" ]; then
+    echo "Removendo perfil antigo: $PROFILE"
+    gsettings set org.gnome.Terminal.ProfilesList list \
+      "$(gsettings get org.gnome.Terminal.ProfilesList list | sed "s/'$PROFILE', //; s/, '$PROFILE'//; s/'$PROFILE'//")"
+  fi
+done
+
+# Garantir que só o perfil novo existe na lista
+gsettings set org.gnome.Terminal.ProfilesList list "['$NEW_PROFILE_ID']"
+
+# Renomear perfil
+echo "===== [TERMINAL] Renomeando perfil para rubinho ====="
+gsettings set \
+  org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE_ID/ \
+  visible-name "rubinho"
+
+echo "===== Perfis antigos removidos. Apenas 'rubinho' permanece. ====="
+
+###########################################################################
 # FINAL
 ###########################################################################
 
