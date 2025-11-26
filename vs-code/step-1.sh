@@ -35,4 +35,4 @@ curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/v
 echo "===== [BOOTSTRAP] Concluído ====="
 echo "⚠️ Feche o terminal e abra novamente."
 echo "✔ Depois rode o SCRIPT 2 em ZSH:"
-echo "    zsh <(curl -Ls URL_DO_SCRIPT_2)"
+echo "    curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/vs-code/prezto_starship_script.sh -o /tmp/prezto.sh && bash /tmp/prezto.sh"
