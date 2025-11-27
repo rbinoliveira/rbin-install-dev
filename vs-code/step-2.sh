@@ -58,7 +58,7 @@ echo "----------------------------------------"
 echo "  Downloading starship.toml"
 echo "----------------------------------------"
 mkdir -p ~/.config
-curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/vs-code/step-2-aux-1 -o ~/.config/starship.toml
+curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/vs-code/starship.toml -o ~/.config/starship.toml
 
 echo "----------------------------------------"
 echo "  Creating final .zshrc"
