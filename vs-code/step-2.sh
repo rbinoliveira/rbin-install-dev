@@ -35,10 +35,6 @@ echo "----------------------------------------"
 echo "  Writing .zpreztorc (module config)"
 echo "----------------------------------------"
 cat > ~/.zpreztorc << 'ZPREZTOEOF'
-#
-# Prezto module configuration
-#
-
 zstyle ':prezto:load' pmodule \
   'environment' \
   'terminal' \
@@ -49,9 +45,9 @@ zstyle ':prezto:load' pmodule \
   'utility' \
   'completion' \
   'autosuggestions' \
-  'syntax-highlighting' \
-  'prompt'
+  'syntax-highlighting'
 ZPREZTOEOF
+
 
 echo "----------------------------------------"
 echo "  Installing Starship prompt"
