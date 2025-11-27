@@ -15,7 +15,7 @@ curl -fsSL https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master
 
 echo "Updating .zshrc with Prezto + Starship + custom config..."
 # Download the complete zsh-config which already includes Prezto and Starship
-curl -fsSL https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/linux/config/zsh-config -o ~/.zshrc || {
+if ! curl -fsSL https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/linux/config/zsh-config -o ~/.zshrc; then
   # Fallback if download fails
   cat > ~/.zshrc << 'EOF'
 #
