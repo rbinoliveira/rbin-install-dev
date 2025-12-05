@@ -158,7 +158,6 @@ echo -e "${CYAN}  📦 Development Artifacts:${NC}"
 echo "     • JavaScript/TypeScript: node_modules, dist, build, .next, .turbo"
 echo "     • Python: __pycache__, .venv, venv, .pytest_cache, *.pyc"
 echo "     • Go: vendor, pkg folders"
-echo "     • C#/.NET: bin, obj, packages, .vs, TestResults"
 echo "     • Build caches (.vite, .parcel, .webpack, etc.)"
 echo "     • Test outputs (coverage, playwright, cypress, etc.)"
 echo "     • Temp files and IDE artifacts"
@@ -249,13 +248,6 @@ clean_dev_artifacts() {
         # Go
         "vendor"
         
-        # C# / .NET
-        "bin"
-        "obj"
-        ".vs"
-        "TestResults"
-        "BenchmarkDotNet.Artifacts"
-        
         # General
         "coverage"
         "playwright-report"
@@ -326,10 +318,6 @@ clean_dev_artifacts() {
         ".coverage"
         "coverage.xml"
         "nosetests.xml"
-        
-        # C# / .NET
-        "*.user"
-        "*.suo"
         
         # General
         "*.db-journal"
