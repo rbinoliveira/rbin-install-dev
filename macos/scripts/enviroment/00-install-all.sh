@@ -169,6 +169,7 @@ echo "=============================================="
 scripts=(
   "10-configure-file-watchers.sh"
   "11-install-cursor-extensions.sh"
+  "12-install-task-master.sh"
   "12-configure-cursor.sh"
   "13-install-docker.sh"
   "14-configure-terminal.sh"

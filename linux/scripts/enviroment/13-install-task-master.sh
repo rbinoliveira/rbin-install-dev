@@ -81,27 +81,118 @@ if [ -f "$MCP_CONFIG_FILE" ]; then
 fi
 
 # ────────────────────────────────
-# Create MCP Config Template
+# Load API Keys from .env if available
 # ────────────────────────────────
 
-cat > "$MCP_CONFIG_FILE" << 'EOF'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env"
+
+ANTHROPIC_KEY=""
+PERPLEXITY_KEY=""
+OPENAI_KEY=""
+GOOGLE_KEY=""
+
+if [ -f "$ENV_FILE" ]; then
+    echo "→ Loading API keys from .env file..."
+    
+    # Read API keys from .env (ignoring comments and empty lines)
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip comments and empty lines
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${line// }" ]] && continue
+        
+        # Extract key-value pairs
+        if [[ "$line" =~ ^[[:space:]]*ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+            ANTHROPIC_KEY="${BASH_REMATCH[1]}"
+        elif [[ "$line" =~ ^[[:space:]]*PERPLEXITY_API_KEY[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+            PERPLEXITY_KEY="${BASH_REMATCH[1]}"
+        elif [[ "$line" =~ ^[[:space:]]*OPENAI_API_KEY[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+            OPENAI_KEY="${BASH_REMATCH[1]}"
+        elif [[ "$line" =~ ^[[:space:]]*GOOGLE_API_KEY[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+            GOOGLE_KEY="${BASH_REMATCH[1]}"
+        fi
+    done < "$ENV_FILE"
+    
+    if [ -n "$ANTHROPIC_KEY" ] || [ -n "$PERPLEXITY_KEY" ] || [ -n "$OPENAI_KEY" ] || [ -n "$GOOGLE_KEY" ]; then
+        echo "✓ Found API keys in .env file"
+    else
+        echo "⚠️  No API keys found in .env file"
+    fi
+else
+    echo "⚠️  .env file not found at: $ENV_FILE"
+    echo "   API keys will need to be added manually to mcp.json"
+fi
+
+# ────────────────────────────────
+# Create MCP Config with API Keys
+# ────────────────────────────────
+
+# Use jq if available, otherwise use sed/awk
+if command -v jq &> /dev/null; then
+    # Create JSON with jq
+    cat > "$MCP_CONFIG_FILE" << EOF
 {
   "mcpServers": {
     "taskmaster-ai": {
       "command": "npx",
       "args": ["-y", "task-master-ai"],
       "env": {
-        "ANTHROPIC_API_KEY": "",
-        "PERPLEXITY_API_KEY": "",
-        "OPENAI_API_KEY": "",
-        "GOOGLE_API_KEY": ""
+        "ANTHROPIC_API_KEY": "$ANTHROPIC_KEY",
+        "PERPLEXITY_API_KEY": "$PERPLEXITY_KEY",
+        "OPENAI_API_KEY": "$OPENAI_KEY",
+        "GOOGLE_API_KEY": "$GOOGLE_KEY"
       }
     }
   }
 }
 EOF
+else
+    # Fallback: create JSON manually
+    cat > "$MCP_CONFIG_FILE" << EOF
+{
+  "mcpServers": {
+    "taskmaster-ai": {
+      "command": "npx",
+      "args": ["-y", "task-master-ai"],
+      "env": {
+        "ANTHROPIC_API_KEY": "$ANTHROPIC_KEY",
+        "PERPLEXITY_API_KEY": "$PERPLEXITY_KEY",
+        "OPENAI_API_KEY": "$OPENAI_KEY",
+        "GOOGLE_API_KEY": "$GOOGLE_KEY"
+      }
+    }
+  }
+}
+EOF
+fi
 
-echo "→ Created mcp.json template at: $MCP_CONFIG_FILE"
+echo "→ Created/updated mcp.json at: $MCP_CONFIG_FILE"
+
+if [ -n "$ANTHROPIC_KEY" ]; then
+    echo "  ✓ ANTHROPIC_API_KEY: configured"
+else
+    echo "  ⚠️  ANTHROPIC_API_KEY: not set (required for Claude)"
+fi
+
+if [ -n "$PERPLEXITY_KEY" ]; then
+    echo "  ✓ PERPLEXITY_API_KEY: configured"
+else
+    echo "  ⚠️  PERPLEXITY_API_KEY: not set (optional, for research)"
+fi
+
+if [ -n "$OPENAI_KEY" ]; then
+    echo "  ✓ OPENAI_API_KEY: configured"
+else
+    echo "  ⚠️  OPENAI_API_KEY: not set (optional)"
+fi
+
+if [ -n "$GOOGLE_KEY" ]; then
+    echo "  ✓ GOOGLE_API_KEY: configured"
+else
+    echo "  ⚠️  GOOGLE_API_KEY: not set (optional)"
+fi
+
 echo ""
 
 # ────────────────────────────────

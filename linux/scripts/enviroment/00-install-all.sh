@@ -172,6 +172,7 @@ scripts=(
   "11-configure-ssh.sh"
   "12-configure-inotify.sh"
   "13-install-cursor-extensions.sh"
+  "13-install-task-master.sh"
   "14-configure-cursor.sh"
   "15-install-docker.sh"
   "16-install-insomnia.sh"
