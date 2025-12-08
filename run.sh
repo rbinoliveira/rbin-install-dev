@@ -370,6 +370,122 @@ fix_linux_user() {
 }
 
 # ────────────────────────────────────────────────────────────────
+# Installation Module Menu
+# ────────────────────────────────────────────────────────────────
+
+installation_module() {
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📦 Installation Module"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "This module will install and configure your development environment."
+    echo "Each tool will be checked before installation, and you'll be asked"
+    echo "to confirm if it's already installed."
+    echo ""
+    
+    if [ "$FORCE_MODE" = false ]; then
+        read -p "Continue with installation? [y/N]: " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Installation cancelled."
+            log_info "User cancelled installation module"
+            return 0
+        fi
+    fi
+    
+    # Determine platform-specific script path
+    local install_script
+    if is_macos; then
+        install_script="$SCRIPT_DIR/macos/scripts/enviroment/00-install-all.sh"
+    elif is_linux; then
+        install_script="$SCRIPT_DIR/linux/scripts/enviroment/00-install-all.sh"
+    else
+        echo "❌ Error: Unsupported platform: $PLATFORM_NAME"
+        log_error "Unsupported platform: $PLATFORM_NAME"
+        return 1
+    fi
+    
+    # Validate script exists
+    if [ ! -f "$install_script" ]; then
+        echo "❌ Error: Installation script not found at: $install_script"
+        log_error "Installation script not found: $install_script"
+        return 1
+    fi
+    
+    # Make script executable
+    chmod +x "$install_script" 2>/dev/null || true
+    
+    echo ""
+    echo "🚀 Starting installation..."
+    echo ""
+    log_info "Starting installation module: $install_script"
+    
+    # Execute installation script
+    if bash "$install_script"; then
+        echo ""
+        echo "✅ Installation completed successfully!"
+        log_info "Installation module completed successfully"
+        return 0
+    else
+        echo ""
+        echo "❌ Installation failed. Check the logs for details."
+        log_error "Installation module failed"
+        return 1
+    fi
+}
+
+# ────────────────────────────────────────────────────────────────
+# Cleanup Module Menu
+# ────────────────────────────────────────────────────────────────
+
+cleanup_module() {
+    while true; do
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "🧹 Cleanup Module"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "  1) 📊 Analyze disk space"
+        echo "  2) 🧹 Clean up unnecessary files"
+        echo ""
+        echo "  0) ⬅️  Back to main menu"
+        echo ""
+        
+        read -p "Enter your choice [0-2]: " choice
+        echo ""
+        
+        case $choice in
+            1)
+                analyze_disk
+                ;;
+            2)
+                cleanup_files
+                ;;
+            0)
+                return 0
+                ;;
+            *)
+                echo "❌ Invalid choice. Please enter a number between 0 and 2."
+                log_warning "Invalid cleanup module choice: $choice"
+                echo ""
+                ;;
+        esac
+        
+        # Ask if user wants to do something else in cleanup module
+        if [ "$FORCE_MODE" = false ]; then
+            echo ""
+            read -p "Do you want to perform another cleanup action? [Y/n]: " -n 1 -r
+            echo ""
+            if [[ $REPLY =~ ^[Nn]$ ]]; then
+                return 0
+            fi
+            echo ""
+        else
+            return 0
+        fi
+    done
+}
+
+# ────────────────────────────────────────────────────────────────
 # Main Menu
 # ────────────────────────────────────────────────────────────────
 
@@ -379,13 +495,16 @@ main_menu() {
         echo "What would you like to do?"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo ""
-        echo "  1) 📦 Install development tools"
-        echo "  2) 📊 Analyze disk space"
-        echo "  3) 🧹 Clean up unnecessary files"
+        echo "  1) 📦 Installation Module"
+        echo "     Install and configure development tools"
+        echo ""
+        echo "  2) 🧹 Cleanup Module"
+        echo "     Analyze disk space and clean up files"
+        echo ""
         
         # Show Linux-specific option only on Linux
         if is_linux; then
-            echo "  4) 🛠️  Fix Linux user login issues"
+            echo "  3) 🛠️  Fix Linux user login issues"
         fi
         
         echo ""
@@ -393,9 +512,9 @@ main_menu() {
         echo ""
 
         # Determine max choice based on platform
-        local max_choice=3
+        local max_choice=2
         if is_linux; then
-            max_choice=4
+            max_choice=3
         fi
 
         # Read user choice
@@ -404,19 +523,16 @@ main_menu() {
 
         case $choice in
             1)
-                install_tools
+                installation_module
                 ;;
             2)
-                analyze_disk
+                cleanup_module
                 ;;
             3)
-                cleanup_files
-                ;;
-            4)
                 if is_linux; then
                     fix_linux_user
                 else
-                    echo "❌ Invalid choice. Please enter a number between 0 and 3."
+                    echo "❌ Invalid choice. Please enter a number between 0 and 2."
                     log_warning "Invalid menu choice: $choice"
                     echo ""
                 fi

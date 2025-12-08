@@ -66,6 +66,51 @@ calculate_space() {
 }
 
 # ────────────────────────────────
+# Preview and Confirm Function
+# ────────────────────────────────
+
+preview_and_confirm() {
+    local category_name="$1"
+    local description="$2"
+    local items_list="$3"
+    local size_info="$4"
+    
+    echo ""
+    echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BOLD}${YELLOW}📋 Category: $category_name${NC}"
+    echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${CYAN}Description:${NC}"
+    echo "  $description"
+    echo ""
+    
+    if [ -n "$items_list" ]; then
+        echo -e "${CYAN}Items that will be removed:${NC}"
+        echo -e "$items_list"
+        echo ""
+    fi
+    
+    if [ -n "$size_info" ]; then
+        echo -e "${CYAN}Estimated space to free:${NC}"
+        echo "  $size_info"
+        echo ""
+    fi
+    
+    echo -e "${BOLD}${YELLOW}⚠️  This will permanently delete the items listed above.${NC}"
+    echo ""
+    read -p "Continue with this category? [y/N]: " -n 1 -r
+    echo ""
+    
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}  ⏭️  Skipping $category_name...${NC}"
+        return 1
+    fi
+    
+    echo -e "${GREEN}  ✓ Proceeding with $category_name cleanup...${NC}"
+    return 0
+}
+
+# ────────────────────────────────
 # Directory Cleaning Function
 # ────────────────────────────────
 
@@ -73,6 +118,7 @@ clean_dir() {
     local dir=$1
     local name=$2
     local use_sudo=${3:-false}
+    local skip_confirmation=${4:-false}
     
     if [ -d "$dir" ]; then
         local size_before
@@ -83,6 +129,49 @@ clean_dir() {
         fi
         
         if [ -n "$size_before" ] && [ "$size_before" -gt 0 ]; then
+            # Show preview and get confirmation if not skipping
+            if [ "$skip_confirmation" = "false" ]; then
+                local size_mb=$((size_before / 1024))
+                local size_gb=$((size_mb / 1024))
+                local size_display
+                if [ $size_gb -gt 0 ]; then
+                    size_display="${size_gb}.$((size_mb % 1024 / 100)) GB"
+                else
+                    size_display="${size_mb} MB"
+                fi
+                
+                # Count items
+                local item_count
+                if [ "$use_sudo" = "true" ]; then
+                    item_count=$(sudo find "$dir" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
+                else
+                    item_count=$(find "$dir" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
+                fi
+                
+                local items_list=""
+                if [ "$item_count" -le 10 ]; then
+                    # Show all items if 10 or fewer
+                    if [ "$use_sudo" = "true" ]; then
+                        items_list=$(sudo ls -1 "$dir" 2>/dev/null | head -10 | sed 's/^/  • /')
+                    else
+                        items_list=$(ls -1 "$dir" 2>/dev/null | head -10 | sed 's/^/  • /')
+                    fi
+                else
+                    # Show first 5 items if more than 10
+                    if [ "$use_sudo" = "true" ]; then
+                        items_list=$(sudo ls -1 "$dir" 2>/dev/null | head -5 | sed 's/^/  • /')
+                        items_list="${items_list}\n  • ... and $((item_count - 5)) more items"
+                    else
+                        items_list=$(ls -1 "$dir" 2>/dev/null | head -5 | sed 's/^/  • /')
+                        items_list="${items_list}\n  • ... and $((item_count - 5)) more items"
+                    fi
+                fi
+                
+                if ! preview_and_confirm "$name" "Cache files in $dir" "$items_list" "$size_display ($item_count items)"; then
+                    return 0
+                fi
+            fi
+            
             echo -e "${BLUE}  🧹 Cleaning: ${BOLD}$name${NC}"
             if [ "$use_sudo" = "true" ]; then
                 sudo rm -rf "$dir"/* 2>/dev/null || true
@@ -103,6 +192,8 @@ clean_dir() {
                 local freed_kb=$(((freed % 1024) * 100 / 1024))
                 echo -e "${GREEN}     ✓ Freed: ${freed_mb}.${freed_kb} MB${NC}"
             fi
+        else
+            echo -e "${GREEN}  ✓ $name: Already clean (no files to remove)${NC}"
         fi
     fi
 }

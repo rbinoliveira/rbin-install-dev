@@ -23,7 +23,22 @@ git clone https://github.com/rubensdeoliveira/rubinho-scripts.git
 cd rubinho-scripts
 ```
 
-### 2. Choose your platform
+### 2. Use the Interactive Menu (Recommended)
+
+The easiest way to get started is using the main `run.sh` script:
+
+```bash
+bash run.sh
+```
+
+This will show you an interactive menu with options to:
+- 📦 **Installation Module**: Install and configure all development tools
+- 🧹 **Cleanup Module**: Analyze disk space and clean up unnecessary files
+- 🛠️ **Fix Linux User** (Linux only): Diagnose and fix user login issues
+
+### 3. Manual Installation (Alternative)
+
+If you prefer to run scripts manually:
 
 #### 🐧 Linux
 ```bash
@@ -44,11 +59,12 @@ cp .env.example .env  # Configure first
 # See work/readme.md for details
 ```
 
-### 3. Platform-specific guides
+### 4. Platform-specific guides
 
 - [🐧 Linux Installation](#-linux-installation)
 - [🍎 macOS Installation](#-macos-installation)
 - [🧹 Disk Space Manager](#-disk-space-manager)
+- [📖 Using run.sh](#-using-runsh)
 
 ---
 
@@ -463,6 +479,79 @@ The scripts automatically search common development directories:
 
 ---
 
+## 📖 Using run.sh
+
+The `run.sh` script is the main entry point for managing your development environment. It provides an intuitive menu-driven interface for all operations.
+
+### Features
+
+- **Platform Detection**: Automatically detects Linux or macOS
+- **Interactive Menus**: Easy-to-use menu system
+- **Installation Management**: Install tools with per-tool confirmation
+- **Disk Space Management**: Analyze and clean up disk space
+- **Linux User Fix**: Diagnose and fix login issues (Linux only)
+
+### Usage
+
+```bash
+# Basic usage
+bash run.sh
+
+# Skip all confirmation prompts
+bash run.sh --force
+
+# Enable verbose logging
+bash run.sh --verbose
+```
+
+### Installation Module
+
+When you select the Installation Module, the script will:
+
+1. Detect your platform (Linux or macOS)
+2. Run the appropriate `00-install-all.sh` script
+3. For each tool:
+   - Check if it's already installed
+   - Show the current version if installed
+   - Ask if you want to install/reinstall
+   - Only install if you confirm
+
+**Example:**
+```
+✓ Node.js is already installed (Version: v22.0.0).
+  Do you want to reinstall Node.js? [y/N]: n
+  Skipping Node.js installation.
+
+  Do you want to install Docker? [Y/n]: y
+  Installing Docker...
+```
+
+### Cleanup Module
+
+The Cleanup Module provides two options:
+
+1. **Analyze Disk Space**: Shows detailed breakdown of disk usage
+2. **Clean Up Files**: Interactive cleanup with detailed previews
+
+**Cleanup Features:**
+- Preview what will be deleted before removal
+- Confirm each category individually
+- See estimated space savings
+- Safe defaults (won't delete important files)
+
+### Linux User Fix (Linux only)
+
+If you're experiencing login issues on Linux, this option will:
+
+1. Diagnose the problem
+2. Show detailed information about your user account
+3. Offer to fix common issues
+4. Guide you through the fix process
+
+**Note:** Requires `sudo` privileges.
+
+---
+
 ## 🔐 Environment Variables
 
 ### Environment Variables
@@ -646,6 +735,26 @@ Configures inotify limits for file watching.
 
 ---
 
+### **12-install-task-master.sh** (macOS) / **13-install-task-master.sh** (Linux)
+Installs and configures Task Master AI (MCP server for Cursor).
+- Opens Task Master installation page in browser
+- Guides through one-click installation in Cursor
+- Reads API keys from `.env` file
+- Automatically configures `mcp.json` with API keys
+- Sets up Anthropic, Perplexity, OpenAI, and Google API keys
+
+**Requirements:**
+- Cursor IDE installed
+- API keys in `.env` file (see `.env.example`)
+
+**👉 After running:**
+1. Complete one-click installation in Cursor
+2. Verify API keys in `~/.cursor/mcp.json`
+3. Enable Task Master in Cursor settings (MCP tab)
+4. Initialize Task Master in your project
+
+---
+
 ### **13-install-cursor-extensions.sh**
 Installs essential Cursor extensions.
 - Color Highlight
@@ -816,3 +925,176 @@ To modify scripts, update tools or version environment adjustments, just edit th
 ### Custom Configurations
 - Edit files in `linux/config/` or `macos/config/` before running the scripts
 - Platform-specific readme files are available in `linux/readme.md` and `macos/readme.md`
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Scripts won't run
+**Problem:** `Permission denied` when running scripts
+
+**Solution:**
+```bash
+chmod +x run.sh
+chmod +x linux/scripts/enviroment/*.sh
+chmod +x macos/scripts/enviroment/*.sh
+```
+
+#### Git configuration not working
+**Problem:** Git prompts for name/email every time
+
+**Solution:**
+1. Check if `.env` file exists in project root
+2. Add your Git credentials:
+   ```bash
+   GIT_USER_NAME="Your Name"
+   GIT_USER_EMAIL="your.email@example.com"
+   ```
+3. Or run `01-configure-git.sh` again
+
+#### Docker requires sudo (Linux)
+**Problem:** `docker` command requires `sudo`
+
+**Solution:**
+1. Logout and login again (after running `15-install-docker.sh`)
+2. Or run: `newgrp docker`
+
+#### Zsh not working after installation
+**Problem:** Terminal still uses bash
+
+**Solution:**
+1. Close and reopen the terminal
+2. Or run: `chsh -s $(which zsh)`
+3. Logout and login again
+
+#### Task Master not working
+**Problem:** Task Master commands fail or show "No tasks found"
+
+**Solution:**
+1. Verify API keys in `.env` file:
+   ```bash
+   ANTHROPIC_API_KEY=sk-ant-...
+   PERPLEXITY_API_KEY=pplx-...  # Optional
+   ```
+2. Check MCP configuration in `~/.cursor/mcp.json`
+3. Restart Cursor IDE
+4. Verify Task Master is enabled in Cursor settings (MCP tab)
+
+#### Cleanup script asks for confirmation too many times
+**Problem:** Too many confirmation prompts
+
+**Solution:**
+- This is by design for safety
+- Each category (caches, trash, development files, Docker) requires confirmation
+- You can skip any category by answering 'N'
+- Use `--force` flag in `run.sh` to skip all prompts (not recommended for cleanup)
+
+#### Installation script fails mid-way
+**Problem:** Script stops with an error
+
+**Solution:**
+1. Check the error message
+2. Fix the issue (e.g., missing dependencies)
+3. Re-run the script - it will check what's already installed
+4. Or run individual scripts starting from where it failed
+
+---
+
+## ❓ FAQ
+
+### General
+
+**Q: Do I need to run all scripts?**  
+A: No, you can run individual scripts as needed. However, some scripts depend on others (e.g., Yarn needs Node.js).
+
+**Q: Can I run scripts multiple times?**  
+A: Yes! Scripts check if tools are already installed and ask if you want to reinstall.
+
+**Q: Will this affect my existing setup?**  
+A: Scripts are designed to be safe and non-destructive. They will:
+- Ask before overwriting existing configurations
+- Check for existing installations
+- Preserve your data
+
+**Q: What if I'm on a different Linux distribution?**  
+A: Scripts are tested on Ubuntu/Debian. For other distributions, you may need to adjust package manager commands.
+
+### Installation
+
+**Q: How long does installation take?**  
+A: Depends on your internet speed and system. Typically 15-30 minutes for a full installation.
+
+**Q: Can I install tools selectively?**  
+A: Yes! Use `run.sh` Installation Module - it asks for each tool individually.
+
+**Q: What if a tool installation fails?**  
+A: The script will show an error message. Fix the issue and re-run. The script will skip already-installed tools.
+
+### Cleanup
+
+**Q: Is cleanup safe?**  
+A: Yes, but always review what will be deleted. The script shows previews before deletion.
+
+**Q: Will cleanup delete my projects?**  
+A: No. It only removes:
+- Build artifacts (node_modules, dist, build folders)
+- Caches
+- Temporary files
+- Docker containers/images (if you confirm)
+
+**Q: Can I recover deleted files?**  
+A: Files deleted by cleanup are permanently removed. Always review the preview before confirming.
+
+**Q: How much space can I free?**  
+A: Typically 5-50 GB depending on your development setup. Docker images can take significant space.
+
+### Environment Variables
+
+**Q: Do I need a `.env` file?**  
+A: It's optional but recommended. Scripts will prompt for values if not found in `.env`.
+
+**Q: What should I put in `.env`?**  
+A: See `.env.example` for a complete list. At minimum:
+- `GIT_USER_NAME`
+- `GIT_USER_EMAIL`
+- `ANTHROPIC_API_KEY` (for Task Master)
+
+**Q: Is `.env` safe to commit?**  
+A: No! `.env` is in `.gitignore`. Never commit it with real API keys.
+
+### Task Master
+
+**Q: What is Task Master?**  
+A: Task Master is an AI-powered task management system integrated with Cursor IDE. It helps manage project tasks using AI.
+
+**Q: Do I need Task Master?**  
+A: No, it's optional. But it's very useful for managing complex projects.
+
+**Q: How do I set up Task Master?**  
+A: Run `13-install-task-master.sh` (Linux) or `12-install-task-master.sh` (macOS). It will guide you through the setup.
+
+---
+
+## 📚 Additional Resources
+
+- [Linux-specific documentation](linux/readme.md)
+- [macOS-specific documentation](macos/readme.md)
+- [Work environment setup](work/readme.md)
+- [Task Master documentation](https://docs.task-master.dev/)
+
+---
+
+## 🤝 Contributing
+
+Found a bug or want to improve something? Feel free to:
+1. Open an issue
+2. Submit a pull request
+3. Share feedback
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

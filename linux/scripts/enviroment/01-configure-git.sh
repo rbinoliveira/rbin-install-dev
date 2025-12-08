@@ -27,19 +27,43 @@ fi
 
 set -e
 
+# Source environment helper if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+if [ -f "$PROJECT_ROOT/lib/env_helper.sh" ]; then
+    source "$PROJECT_ROOT/lib/env_helper.sh"
+fi
+
 echo "=============================================="
 echo "========= [01] CONFIGURING GIT ==============="
 echo "=============================================="
 
-# Validate required values from .env
+# Get Git user name (from .env or prompt)
 if [ -z "$GIT_USER_NAME" ]; then
-    echo "❌ GIT_USER_NAME is required in .env file"
-    exit 1
+    if command -v get_env_var &> /dev/null; then
+        GIT_USER_NAME=$(get_env_var "GIT_USER_NAME" "Your Git name" true true)
+    else
+        echo "⚠️  GIT_USER_NAME not found in .env file"
+        read -p "Enter your Git name: " GIT_USER_NAME
+        if [ -z "$GIT_USER_NAME" ]; then
+            echo "❌ Error: GIT_USER_NAME cannot be empty"
+            exit 1
+        fi
+    fi
 fi
 
+# Get Git user email (from .env or prompt)
 if [ -z "$GIT_USER_EMAIL" ]; then
-    echo "❌ GIT_USER_EMAIL is required in .env file"
-    exit 1
+    if command -v get_env_var &> /dev/null; then
+        GIT_USER_EMAIL=$(get_env_var "GIT_USER_EMAIL" "Your Git email" true true)
+    else
+        echo "⚠️  GIT_USER_EMAIL not found in .env file"
+        read -p "Enter your Git email: " GIT_USER_EMAIL
+        if [ -z "$GIT_USER_EMAIL" ]; then
+            echo "❌ Error: GIT_USER_EMAIL cannot be empty"
+            exit 1
+        fi
+    fi
 fi
 
 echo "Setting up Git identity..."

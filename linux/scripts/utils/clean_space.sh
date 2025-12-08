@@ -66,6 +66,53 @@ calculate_space() {
 }
 
 # ────────────────────────────────
+# Preview and Confirm Function
+# ────────────────────────────────
+
+preview_and_confirm() {
+    local category_name="$1"
+    local description="$2"
+    local items_list="$3"
+    local size_info="$4"
+    
+    echo ""
+    echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BOLD}${YELLOW}📋 Category: $category_name${NC}"
+    echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${CYAN}Description:${NC}"
+    echo "  $description"
+    echo ""
+    
+    if [ -n "$items_list" ]; then
+        echo -e "${CYAN}Items that will be removed:${NC}"
+        echo "$items_list" | while IFS= read -r item; do
+            echo "  • $item"
+        done
+        echo ""
+    fi
+    
+    if [ -n "$size_info" ]; then
+        echo -e "${CYAN}Estimated space to free:${NC}"
+        echo "  $size_info"
+        echo ""
+    fi
+    
+    echo -e "${BOLD}${YELLOW}⚠️  This will permanently delete the items listed above.${NC}"
+    echo ""
+    read -p "Continue with this category? [y/N]: " -n 1 -r
+    echo ""
+    
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}  ⏭️  Skipping $category_name...${NC}"
+        return 1
+    fi
+    
+    echo -e "${GREEN}  ✓ Proceeding with $category_name cleanup...${NC}"
+    return 0
+}
+
+# ────────────────────────────────
 # Directory Cleaning Function
 # ────────────────────────────────
 
@@ -73,6 +120,7 @@ clean_dir() {
     local dir=$1
     local name=$2
     local use_sudo=${3:-false}
+    local skip_confirmation=${4:-false}
     
     if [ -d "$dir" ]; then
         local size_before
@@ -83,6 +131,49 @@ clean_dir() {
         fi
         
         if [ -n "$size_before" ] && [ "$size_before" -gt 0 ]; then
+            # Show preview and get confirmation if not skipping
+            if [ "$skip_confirmation" = "false" ]; then
+                local size_mb=$((size_before / 1024))
+                local size_gb=$((size_mb / 1024))
+                local size_display
+                if [ $size_gb -gt 0 ]; then
+                    size_display="${size_gb}.$((size_mb % 1024 / 100)) GB"
+                else
+                    size_display="${size_mb} MB"
+                fi
+                
+                # Count items
+                local item_count
+                if [ "$use_sudo" = "true" ]; then
+                    item_count=$(sudo find "$dir" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
+                else
+                    item_count=$(find "$dir" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
+                fi
+                
+                local items_list=""
+                if [ "$item_count" -le 10 ]; then
+                    # Show all items if 10 or fewer
+                    if [ "$use_sudo" = "true" ]; then
+                        items_list=$(sudo ls -1 "$dir" 2>/dev/null | head -10 | sed 's/^/  /')
+                    else
+                        items_list=$(ls -1 "$dir" 2>/dev/null | head -10 | sed 's/^/  /')
+                    fi
+                else
+                    # Show first 5 items if more than 10
+                    if [ "$use_sudo" = "true" ]; then
+                        items_list=$(sudo ls -1 "$dir" 2>/dev/null | head -5 | sed 's/^/  /')
+                        items_list="${items_list}\n  ... and $((item_count - 5)) more items"
+                    else
+                        items_list=$(ls -1 "$dir" 2>/dev/null | head -5 | sed 's/^/  /')
+                        items_list="${items_list}\n  ... and $((item_count - 5)) more items"
+                    fi
+                fi
+                
+                if ! preview_and_confirm "$name" "Cache files in $dir" "$items_list" "$size_display ($item_count items)"; then
+                    return 0
+                fi
+            fi
+            
             echo -e "${BLUE}  🧹 Cleaning: ${BOLD}$name${NC}"
             if [ "$use_sudo" = "true" ]; then
                 sudo rm -rf "$dir"/* 2>/dev/null || true
@@ -103,6 +194,8 @@ clean_dir() {
                 local freed_kb=$(((freed % 1024) * 100 / 1024))
                 echo -e "${GREEN}     ✓ Freed: ${freed_mb}.${freed_kb} MB${NC}"
             fi
+        else
+            echo -e "${GREEN}  ✓ $name: Already clean (no files to remove)${NC}"
         fi
     fi
 }
@@ -407,41 +500,63 @@ clean_user_all() {
         
         if [ -n "$size_before" ] && [ "$size_before" -gt 0 ]; then
             local size_before_mb=$((size_before / 1024))
-            echo -e "${BLUE}  🗑️  Emptying trash: ${YELLOW}${size_before_mb} MB${NC}"
-            
-            if [ "$use_sudo" = "true" ]; then
-                sudo chmod -R u+w "$trash_path" 2>/dev/null || true
-                sudo find "$trash_path" -mindepth 1 -delete 2>/dev/null || true
-                sudo rm -rf "$trash_path"/* 2>/dev/null || true
+            local size_before_gb=$((size_before_mb / 1024))
+            local size_display
+            if [ $size_before_gb -gt 0 ]; then
+                size_display="${size_before_gb}.$((size_before_mb % 1024 / 100)) GB"
             else
-                chmod -R u+w "$trash_path" 2>/dev/null || true
-                find "$trash_path" -mindepth 1 -delete 2>/dev/null || true
-                rm -rf "$trash_path"/* 2>/dev/null || true
+                size_display="${size_before_mb} MB"
             fi
             
-            sleep 2
-            
-            local size_after
+            # Count items in trash
+            local trash_count
             if [ "$use_sudo" = "true" ]; then
-                size_after=$(sudo du -sk "$trash_path" 2>/dev/null | cut -f1)
+                trash_count=$(sudo find "$trash_path" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
             else
-                size_after=$(du -sk "$trash_path" 2>/dev/null | cut -f1)
-            fi
-            local size_after=${size_after:-0}
-            local freed=$((size_before - size_after))
-            local freed_mb=$((freed / 1024))
-            
-            local remaining=0
-            if [ "$use_sudo" = "true" ]; then
-                remaining=$(sudo find "$trash_path" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
-            else
-                remaining=$(find "$trash_path" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
+                trash_count=$(find "$trash_path" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
             fi
             
-            if [ "$remaining" -eq 0 ] || [ $freed -gt 0 ]; then
-                echo -e "${GREEN}     ✓ Trash emptied: ${freed_mb} MB freed${NC}"
+            local items_list="  • All items in Trash (permanently deleted)\n  • $trash_count items total"
+            
+            if ! preview_and_confirm "Trash" "Permanently delete all items in Trash" "$items_list" "$size_display"; then
+                echo -e "${YELLOW}  ⏭️  Skipping trash cleanup...${NC}"
             else
-                echo -e "${YELLOW}     ⚠️  $remaining protected item(s) not removed${NC}"
+                echo -e "${BLUE}  🗑️  Emptying trash: ${YELLOW}${size_before_mb} MB${NC}"
+                
+                if [ "$use_sudo" = "true" ]; then
+                    sudo chmod -R u+w "$trash_path" 2>/dev/null || true
+                    sudo find "$trash_path" -mindepth 1 -delete 2>/dev/null || true
+                    sudo rm -rf "$trash_path"/* 2>/dev/null || true
+                else
+                    chmod -R u+w "$trash_path" 2>/dev/null || true
+                    find "$trash_path" -mindepth 1 -delete 2>/dev/null || true
+                    rm -rf "$trash_path"/* 2>/dev/null || true
+                fi
+                
+                sleep 2
+                
+                local size_after
+                if [ "$use_sudo" = "true" ]; then
+                    size_after=$(sudo du -sk "$trash_path" 2>/dev/null | cut -f1)
+                else
+                    size_after=$(du -sk "$trash_path" 2>/dev/null | cut -f1)
+                fi
+                local size_after=${size_after:-0}
+                local freed=$((size_before - size_after))
+                local freed_mb=$((freed / 1024))
+                
+                local remaining=0
+                if [ "$use_sudo" = "true" ]; then
+                    remaining=$(sudo find "$trash_path" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
+                else
+                    remaining=$(find "$trash_path" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
+                fi
+                
+                if [ "$remaining" -eq 0 ] || [ $freed -gt 0 ]; then
+                    echo -e "${GREEN}     ✓ Trash emptied: ${freed_mb} MB freed${NC}"
+                else
+                    echo -e "${YELLOW}     ⚠️  $remaining protected item(s) not removed${NC}"
+                fi
             fi
         else
             echo -e "${GREEN}  ✓ Trash already empty${NC}"
@@ -452,7 +567,76 @@ clean_user_all() {
     echo ""
     echo -e "${BOLD}${YELLOW}💻 Development Files${NC}"
     echo -e "${CYAN}─────────────────────────────────────────────────────────────────${NC}"
-    clean_dev_artifacts "$user_home" "$user_name" "$use_sudo"
+    
+    # Preview development artifacts before cleaning
+    local dev_patterns=(
+        "node_modules"
+        "dist"
+        "build"
+        ".next"
+        ".turbo"
+        "__pycache__"
+        ".venv"
+        "venv"
+        "coverage"
+    )
+    
+    local dev_items_list=""
+    local dev_total_size=0
+    local dev_count=0
+    
+    for pattern in "${dev_patterns[@]}"; do
+        local pattern_count=0
+        local pattern_size=0
+        
+        if [ "$use_sudo" = "true" ]; then
+            while IFS= read -r path; do
+                if [ -d "$path" ] || [ -f "$path" ]; then
+                    local size_kb=$(sudo du -sk "$path" 2>/dev/null | cut -f1)
+                    if [ -n "$size_kb" ] && [ "$size_kb" -gt 100 ]; then
+                        pattern_count=$((pattern_count + 1))
+                        pattern_size=$((pattern_size + size_kb))
+                    fi
+                fi
+            done < <(sudo find "$user_home" -type d -name "$pattern" -o -type f -name "$pattern" 2>/dev/null | head -20)
+        else
+            while IFS= read -r path; do
+                if [ -d "$path" ] || [ -f "$path" ]; then
+                    local size_kb=$(du -sk "$path" 2>/dev/null | cut -f1)
+                    if [ -n "$size_kb" ] && [ "$size_kb" -gt 100 ]; then
+                        pattern_count=$((pattern_count + 1))
+                        pattern_size=$((pattern_size + size_kb))
+                    fi
+                fi
+            done < <(find "$user_home" -type d -name "$pattern" -o -type f -name "$pattern" 2>/dev/null | head -20)
+        fi
+        
+        if [ $pattern_count -gt 0 ]; then
+            dev_count=$((dev_count + pattern_count))
+            dev_total_size=$((dev_total_size + pattern_size))
+            local size_mb=$((pattern_size / 1024))
+            dev_items_list="${dev_items_list}  • $pattern: $pattern_count items (${size_mb} MB)\n"
+        fi
+    done
+    
+    if [ $dev_count -gt 0 ]; then
+        local dev_total_mb=$((dev_total_size / 1024))
+        local dev_total_gb=$((dev_total_mb / 1024))
+        local size_display
+        if [ $dev_total_gb -gt 0 ]; then
+            size_display="${dev_total_gb}.$((dev_total_mb % 1024 / 100)) GB"
+        else
+            size_display="${dev_total_mb} MB"
+        fi
+        
+        if ! preview_and_confirm "Development Artifacts" "Build files, dependencies, and development caches (node_modules, dist, build, etc.)" "$dev_items_list" "$size_display ($dev_count items)"; then
+            echo -e "${YELLOW}  ⏭️  Skipping development artifacts cleanup...${NC}"
+        else
+            clean_dev_artifacts "$user_home" "$user_name" "$use_sudo"
+        fi
+    else
+        echo -e "${GREEN}  ✓ No development artifacts found to clean${NC}"
+    fi
 }
 
 # ────────────────────────────────
@@ -587,41 +771,73 @@ if command -v docker &> /dev/null; then
         echo -e "${GREEN}  ✓ Docker is running${NC}"
         echo ""
         
+        # Get Docker system info before cleanup
+        local docker_info_before
+        docker_info_before=$(timeout 5 docker system df 2>/dev/null || echo "")
+        
+        # Count Docker resources
+        local containers_count=$(docker ps -aq 2>/dev/null | wc -l | tr -d ' ')
+        local images_count=$(docker images -aq 2>/dev/null | wc -l | tr -d ' ')
+        local volumes_count=$(docker volume ls -q 2>/dev/null | wc -l | tr -d ' ')
+        local networks_count=$(docker network ls -q 2>/dev/null | grep -v bridge | grep -v host | grep -v none | wc -l | tr -d ' ')
+        
+        local docker_items_list=""
+        if [ "$containers_count" -gt 0 ]; then
+            docker_items_list="${docker_items_list}  • Containers: $containers_count\n"
+        fi
+        if [ "$images_count" -gt 0 ]; then
+            docker_items_list="${docker_items_list}  • Images: $images_count\n"
+        fi
+        if [ "$volumes_count" -gt 0 ]; then
+            docker_items_list="${docker_items_list}  • Volumes: $volumes_count\n"
+        fi
+        if [ "$networks_count" -gt 0 ]; then
+            docker_items_list="${docker_items_list}  • Networks: $networks_count\n"
+        fi
+        
         # Show space used before
         echo -e "${BLUE}  📊 Space used before:${NC}"
-        timeout 5 docker system df 2>/dev/null | tail -n +2 | while IFS= read -r line; do
+        echo "$docker_info_before" | tail -n +2 | while IFS= read -r line; do
             echo "     $line"
         done
         echo ""
         
-        # Stop and remove everything with timeouts
-        echo -e "${BLUE}  🛑 Stopping containers...${NC}"
-        timeout 30 docker stop $(docker ps -aq 2>/dev/null) 2>/dev/null || true
-        
-        echo -e "${BLUE}  🗑️  Removing containers...${NC}"
-        timeout 30 docker rm -f $(docker ps -aq 2>/dev/null) 2>/dev/null || true
-        
-        echo -e "${BLUE}  📦 Removing images...${NC}"
-        timeout 60 docker rmi -f $(docker images -aq 2>/dev/null) 2>/dev/null || true
-        
-        echo -e "${BLUE}  💾 Removing volumes...${NC}"
-        timeout 30 docker volume rm $(docker volume ls -q 2>/dev/null) 2>/dev/null || true
-        
-        echo -e "${BLUE}  🔗 Removing networks...${NC}"
-        timeout 10 docker network prune -f 2>/dev/null || true
-        
-        echo -e "${BLUE}  🧹 Final cleanup...${NC}"
-        timeout 60 docker system prune -a --volumes -f 2>/dev/null || true
-        
-        echo ""
-        echo -e "${GREEN}  ✓ Docker completely cleaned!${NC}"
-        
-        # Show space used after
-        echo ""
-        echo -e "${BLUE}  📊 Space used after:${NC}"
-        timeout 5 docker system df 2>/dev/null | tail -n +2 | while IFS= read -r line; do
-            echo "     $line"
-        done
+        if [ -n "$docker_items_list" ]; then
+            if ! preview_and_confirm "Docker Resources" "All Docker containers, images, volumes, and networks (WARNING: This will stop all running containers!)" "$docker_items_list" "See space breakdown above"; then
+                echo -e "${YELLOW}  ⏭️  Skipping Docker cleanup...${NC}"
+            else
+                # Stop and remove everything with timeouts
+                echo -e "${BLUE}  🛑 Stopping containers...${NC}"
+                timeout 30 docker stop $(docker ps -aq 2>/dev/null) 2>/dev/null || true
+                
+                echo -e "${BLUE}  🗑️  Removing containers...${NC}"
+                timeout 30 docker rm -f $(docker ps -aq 2>/dev/null) 2>/dev/null || true
+                
+                echo -e "${BLUE}  📦 Removing images...${NC}"
+                timeout 60 docker rmi -f $(docker images -aq 2>/dev/null) 2>/dev/null || true
+                
+                echo -e "${BLUE}  💾 Removing volumes...${NC}"
+                timeout 30 docker volume rm $(docker volume ls -q 2>/dev/null) 2>/dev/null || true
+                
+                echo -e "${BLUE}  🔗 Removing networks...${NC}"
+                timeout 10 docker network prune -f 2>/dev/null || true
+                
+                echo -e "${BLUE}  🧹 Final cleanup...${NC}"
+                timeout 60 docker system prune -a --volumes -f 2>/dev/null || true
+                
+                echo ""
+                echo -e "${GREEN}  ✓ Docker completely cleaned!${NC}"
+                
+                # Show space used after
+                echo ""
+                echo -e "${BLUE}  📊 Space used after:${NC}"
+                timeout 5 docker system df 2>/dev/null | tail -n +2 | while IFS= read -r line; do
+                    echo "     $line"
+                done
+            fi
+        else
+            echo -e "${GREEN}  ✓ Docker is already clean (no resources to remove)${NC}"
+        fi
     else
         echo -e "${YELLOW}  ⚠️  Docker is not running - skipping Docker cleanup${NC}"
         echo -e "${CYAN}     Start Docker daemon if you want to clean Docker data${NC}"
