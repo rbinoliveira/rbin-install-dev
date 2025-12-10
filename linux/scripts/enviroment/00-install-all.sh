@@ -53,30 +53,22 @@ if [ -f "$ENV_FILE" ]; then
     done < "$ENV_FILE"
     set +a
     echo "✓ Configuration loaded from .env"
-elif [ -f "$ENV_EXAMPLE" ]; then
-    echo "📝 .env file not found. Creating from .env.example..."
-    cp "$ENV_EXAMPLE" "$ENV_FILE"
-    echo "✓ Created .env file from template"
-    echo ""
-    echo "⚠️  Please edit .env file with your information:"
-    echo "   $ENV_FILE"
-    echo ""
-    echo "   Or run: bash setup-env.sh"
-    echo ""
-    read -p "Press Enter after editing .env file to continue, or Ctrl+C to cancel..."
-    # Reload after user edits
-    set -a
-    while IFS= read -r line || [ -n "$line" ]; do
-        # Skip comments and empty lines
-        [[ "$line" =~ ^[[:space:]]*# ]] && continue
-        [[ -z "${line// }" ]] && continue
-        # Export the variable
-        eval "export $line" 2>/dev/null || true
-    done < "$ENV_FILE"
-    set +a
 else
-    echo "❌ .env file not found and .env.example not available"
-    echo "   Please create a .env file in the project root: $PROJECT_ROOT"
+    echo "❌ .env file not found"
+    echo ""
+    if [ -f "$ENV_EXAMPLE" ]; then
+        echo "📝 Please create a .env file manually:"
+        echo "   1. Copy .env.example to .env:"
+        echo "      cp $ENV_EXAMPLE $ENV_FILE"
+        echo ""
+        echo "   2. Edit .env with your information:"
+        echo "      nano $ENV_FILE"
+        echo ""
+        echo "   3. Run this script again"
+    else
+        echo "   Please create a .env file in the project root: $PROJECT_ROOT"
+        echo "   You can use .env.example as a template if available"
+    fi
     exit 1
 fi
 

@@ -77,17 +77,12 @@ create_or_update_env() {
     local key_name="$1"
     local key_value="$2"
 
-    # Create .env from example if it doesn't exist
+    # Create empty .env if it doesn't exist (user must create manually from .env.example)
     if [ ! -f "$ENV_FILE" ]; then
-        if [ -f "$ENV_EXAMPLE" ]; then
-            cp "$ENV_EXAMPLE" "$ENV_FILE"
-            chmod 600 "$ENV_FILE"
-            echo "✓ Created $ENV_FILE from $ENV_EXAMPLE"
-        else
-            touch "$ENV_FILE"
-            chmod 600 "$ENV_FILE"
-            echo "✓ Created new $ENV_FILE"
-        fi
+        touch "$ENV_FILE"
+        chmod 600 "$ENV_FILE"
+        echo "✓ Created empty $ENV_FILE"
+        echo "⚠️  Note: Please copy .env.example to .env and configure it manually if needed"
     fi
 
     # Update or add the key

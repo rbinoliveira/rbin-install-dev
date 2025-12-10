@@ -134,22 +134,22 @@ setup_environment_variables() {
     echo "Checking required environment variables..."
     echo ""
 
-    # Check if .env exists, if not create from .env.example
+    # Check if .env exists
     local env_file="$SCRIPT_DIR/.env"
     local env_example="$SCRIPT_DIR/.env.example"
 
     if [ ! -f "$env_file" ]; then
+        echo "⚠️  .env file not found"
+        echo ""
         if [ -f "$env_example" ]; then
-            echo "📝 Creating .env file from .env.example..."
-            cp "$env_example" "$env_file"
-            echo "✓ Created .env file"
-            echo ""
+            echo "📝 Please create a .env file manually:"
+            echo "   cp $env_example $env_file"
+            echo "   Then edit $env_file with your information"
         else
-            echo "📝 Creating new .env file..."
-            touch "$env_file"
-            echo "✓ Created empty .env file"
-            echo ""
+            echo "📝 Please create a .env file manually in: $SCRIPT_DIR"
         fi
+        echo ""
+        return 1
     fi
 
     # Variables that might be needed for installation
