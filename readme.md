@@ -36,8 +36,8 @@ This repository contains **all development environment configurations**, includi
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/devrubinho/rubinho-scripts.git
-cd rubinho-scripts
+git clone https://github.com/devrubinho/rubinho-install-dev.git
+cd rubinho-install-dev
 ```
 
 #### 2. Run the Installation Script (Recommended)
@@ -263,7 +263,7 @@ See [work/.env.example](work/.env.example) for complete list.
 ### 📁 Repository Structure
 
 ```
-rubinho-scripts/
+rubinho-install-dev/
 ├── .gitignore               # Protects sensitive files
 ├── LICENSE                  # MIT License
 ├── readme.md                # This file
@@ -411,8 +411,8 @@ Este repositório contém **todas as configurações de ambiente de desenvolvime
 #### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/devrubinho/rubinho-scripts.git
-cd rubinho-scripts
+git clone https://github.com/devrubinho/rubinho-install-dev.git
+cd rubinho-install-dev
 ```
 
 #### 2. Executar o Script de Instalação (Recomendado)
@@ -638,7 +638,7 @@ Veja [work/.env.example](work/.env.example) para a lista completa.
 ### 📁 Estrutura do Repositório
 
 ```
-rubinho-scripts/
+rubinho-install-dev/
 ├── .gitignore               # Protege arquivos sensíveis
 ├── LICENSE                  # Licença MIT
 ├── readme.md                # Este arquivo
