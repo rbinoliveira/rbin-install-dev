@@ -126,6 +126,13 @@ check_and_confirm_installation() {
     # Determine installation mode (default to interactive if not set)
     local install_mode="${INSTALL_MODE:-interactive}"
 
+    # Reinstall Mode: Always install/reinstall everything, no prompts
+    if [ "$install_mode" = "reinstall" ] || [ "${FORCE_MODE:-false}" = "true" ]; then
+        echo "→ $tool_name will be installed/reinstalled (reinstall mode)"
+        log_info "$tool_name will be installed/reinstalled (reinstall mode)"
+        return 0
+    fi
+
     # Smart Mode: Check if already installed and skip if it is
     if [ "$install_mode" = "smart" ]; then
         # Configuration scripts (check_command = "true") always run
@@ -164,13 +171,6 @@ check_and_confirm_installation() {
     fi
 
     # Interactive Mode: Always prompt user
-    # In force mode, always install
-    if [ "${FORCE_MODE:-false}" = "true" ]; then
-        echo "Force mode: $tool_name will be installed"
-        log_info "Force mode: $tool_name will be installed"
-        return 0
-    fi
-
     # Prompt user for installation
     echo ""
     read -p "Do you want to install $tool_name? [Y/n]: " -n 1 -r
@@ -220,6 +220,9 @@ run_script_with_check "01-configure-git.sh" "Git Configuration" "true" "" "false
 
 # Zsh installation check
 run_script_with_check "02-install-zsh.sh" "Zsh" "command -v zsh" "zsh --version 2>&1 | head -1"
+
+# iTerm2 installation check (macOS only)
+run_script_with_check "02.5-install-iterm2.sh" "iTerm2" "[ -d \"/Applications/iTerm.app\" ] || (command -v brew &>/dev/null && brew list --cask iterm2 &>/dev/null)" "[ -d \"/Applications/iTerm.app\" ] && defaults read /Applications/iTerm.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
 
 echo ""
 echo "=============================================="
@@ -286,10 +289,6 @@ run_script_with_check "12-configure-ssh.sh" "SSH Configuration" "true" "" "false
 
 run_script_with_check "13-configure-file-watchers.sh" "File Watchers Configuration" "true" "" "false"
 
-# Task Master check
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
-run_script_with_check "14-install-task-master.sh" "Task Master" "command -v task-master-ai" "task-master-ai --version 2>&1 | head -1"
-
 # Cursor configuration
 run_script_with_check "15-configure-cursor.sh" "Cursor Configuration" "true" "" "false"
 
@@ -301,6 +300,16 @@ run_script_with_check "17-install-insomnia.sh" "Insomnia" "command -v insomnia |
 
 # TablePlus check (macOS only)
 run_script_with_check "18-install-tableplus.sh" "TablePlus" "command -v tableplus || [ -d \"/Applications/TablePlus.app\" ]" "[ -d \"/Applications/TablePlus.app\" ] && defaults read /Applications/TablePlus.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
+
+# Cursor CLI check
+run_script_with_check "19-install-cursor-cli.sh" "Cursor CLI" "command -v cursor-agent" "cursor-agent --version 2>&1 | head -1"
+
+# Gemini CLI check (requires Node.js)
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+run_script_with_check "20-install-gemini-cli.sh" "Gemini CLI" "command -v gemini || npm list -g @google/gemini-cli &>/dev/null" "gemini --version 2>&1 | head -1 || npm list -g @google/gemini-cli 2>&1 | grep gemini-cli | head -1"
+
+# Zed check
+run_script_with_check "21-install-zed.sh" "Zed" "command -v zed || [ -d \"/Applications/Zed.app\" ]" "zed --version 2>&1 | head -1 || ([ -d \"/Applications/Zed.app\" ] && defaults read /Applications/Zed.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown')"
 
 echo ""
 echo "=============================================="
@@ -351,6 +360,9 @@ echo "   → yarn -v"
 echo "   → docker --version"
 echo "   → zsh --version"
 echo "   → starship --version"
+echo "   → cursor-agent --version"
+echo "   → gemini --version"
+echo "   → zed --version"
 echo ""
 echo "4️⃣  DOCKER SETUP (if Docker was installed)"
 echo "   → Start Docker Desktop application"
@@ -361,6 +373,18 @@ echo "5️⃣  CURSOR IDE CONFIGURATION"
 echo "   → Open Cursor IDE"
 echo "   → Settings should be automatically applied"
 echo "   → If needed, restart Cursor to load all configurations"
+echo ""
+echo "6️⃣  ZED EDITOR CONFIGURATION"
+echo "   → Open Zed editor"
+echo "   → Configure AI agents (Claude, Gemini CLI, Cursor CLI)"
+echo "   → Press Cmd-? to open agent panel"
+echo "   → Click '+' and select your preferred agent"
+echo ""
+echo "7️⃣  GEMINI CLI - ENABLE GEMINI 3"
+echo "   → Run: gemini"
+echo "   → Type: /settings and enable 'Preview Features'"
+echo "   → Type: /model and select 'Auto (Gemini 3)'"
+echo "   → See: https://github.com/google-gemini/gemini-cli/blob/main/docs/get-started/gemini-3.md"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

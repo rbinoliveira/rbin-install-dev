@@ -48,11 +48,16 @@ elif brew list --cask iterm2 &> /dev/null 2>&1; then
   echo "✓ iTerm2 is installed via Homebrew"
 fi
 
-# Install iTerm2 if not installed
+# Install iTerm2 if not installed (fallback - main installation happens in script 02.5)
 if [ "$ITerm2_INSTALLED" = false ]; then
-  echo "Installing iTerm2..."
-  brew install --cask iterm2
-  echo "✓ iTerm2 installed"
+  echo "⚠️  iTerm2 not found. Installing iTerm2..."
+  if command -v brew &> /dev/null; then
+    brew install --cask iterm2
+    echo "✓ iTerm2 installed"
+  else
+    echo "❌ Homebrew not found. Please install iTerm2 manually from https://iterm2.com"
+    echo "   Continuing with configuration for when iTerm2 is installed..."
+  fi
 fi
 
 echo ""

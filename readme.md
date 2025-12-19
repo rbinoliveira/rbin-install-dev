@@ -117,9 +117,8 @@ bash 10-install-claude.sh
 bash 10-configure-terminal.sh
 bash 11-configure-ssh.sh
 bash 12-configure-inotify.sh
-bash 13-install-task-master.sh
-bash 14-configure-cursor.sh
-bash 15-install-docker.sh       # ⚠️ Logout/login after this
+bash 13-configure-cursor.sh
+bash 14-install-docker.sh       # ⚠️ Logout/login after this
 bash 16-install-insomnia.sh
 bash 17-install-tableplus.sh
 ```
@@ -155,7 +154,7 @@ bash 08-install-font-jetbrains.sh
 bash 09-install-cursor.sh
 bash 10-install-claude.sh
 bash 10-configure-file-watchers.sh
-bash 12-install-task-master.sh
+bash 11-configure-ssh.sh
 bash 12-configure-cursor.sh
 bash 13-install-docker.sh
 bash 14-configure-terminal.sh
@@ -219,10 +218,8 @@ Runs all installation scripts in sequence automatically.
 | **10-configure-file-watchers.sh** (macOS) | Configures file watcher limits |
 | **11-configure-ssh.sh** (Linux) | Configures SSH for Git |
 | **12-configure-inotify.sh** (Linux) | Configures inotify limits for file watching |
-| **12-install-task-master.sh** (macOS) | Installs Task Master AI globally |
 | **12-configure-cursor.sh** (macOS) | Applies Cursor configurations |
-| **13-install-task-master.sh** (Linux) | Installs Task Master AI globally |
-| **14-configure-cursor.sh** (Linux) | Applies Cursor configurations |
+| **13-configure-cursor.sh** (Linux) | Applies Cursor configurations |
 | **13-install-docker.sh** (macOS) | Installs Docker Desktop |
 | **14-configure-terminal.sh** (macOS) | Configures iTerm2 with Dracula theme |
 | **15-install-docker.sh** (Linux) | Installs Docker Engine ⚠️ Logout/login after |
@@ -330,14 +327,6 @@ chmod +x macos/scripts/enviroment/*.sh
 2. Or run: `chsh -s $(which zsh)`
 3. Logout and login again
 
-#### Task Master not working
-**Problem:** Task Master commands fail or show "No tasks found"
-
-**Solution:**
-1. Verify Task Master installation: `task-master-ai --version`
-2. If not found, reinstall: `npm install -g task-master-ai`
-3. Initialize Task Master in your project: `task-master-ai init`
-
 ---
 
 ### ❓ FAQ
@@ -370,8 +359,6 @@ A: The script will show an error message. Fix the issue and re-run. The script w
 ---
 
 ### 📚 Additional Resources
-
-- [Task Master documentation](https://docs.task-master.dev/)
 
 ---
 
@@ -492,9 +479,8 @@ bash 10-install-claude.sh
 bash 10-configure-terminal.sh
 bash 11-configure-ssh.sh
 bash 12-configure-inotify.sh
-bash 13-install-task-master.sh
-bash 14-configure-cursor.sh
-bash 15-install-docker.sh       # ⚠️ Faça logout/login após isso
+bash 13-configure-cursor.sh
+bash 14-install-docker.sh       # ⚠️ Faça logout/login após isso
 bash 16-install-insomnia.sh
 bash 17-install-tableplus.sh
 ```
@@ -530,7 +516,7 @@ bash 08-install-font-jetbrains.sh
 bash 09-install-cursor.sh
 bash 10-install-claude.sh
 bash 10-configure-file-watchers.sh
-bash 12-install-task-master.sh
+bash 11-configure-ssh.sh
 bash 12-configure-cursor.sh
 bash 13-install-docker.sh
 bash 14-configure-terminal.sh
@@ -594,10 +580,8 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **10-configure-file-watchers.sh** (macOS) | Configura limites de file watchers |
 | **11-configure-ssh.sh** (Linux) | Configura SSH para Git |
 | **12-configure-inotify.sh** (Linux) | Configura limites inotify para file watching |
-| **12-install-task-master.sh** (macOS) | Instala Task Master AI globalmente |
 | **12-configure-cursor.sh** (macOS) | Aplica configurações do Cursor |
-| **13-install-task-master.sh** (Linux) | Instala Task Master AI globalmente |
-| **14-configure-cursor.sh** (Linux) | Aplica configurações do Cursor |
+| **13-configure-cursor.sh** (Linux) | Aplica configurações do Cursor |
 | **13-install-docker.sh** (macOS) | Instala Docker Desktop |
 | **14-configure-terminal.sh** (macOS) | Configura iTerm2 com tema Dracula |
 | **15-install-docker.sh** (Linux) | Instala Docker Engine ⚠️ Faça logout/login após |
@@ -705,14 +689,6 @@ chmod +x macos/scripts/enviroment/*.sh
 2. Ou execute: `chsh -s $(which zsh)`
 3. Faça logout e login novamente
 
-#### Task Master não funciona
-**Problema:** Comandos do Task Master falham ou mostram "No tasks found"
-
-**Solução:**
-1. Verifique a instalação do Task Master: `task-master-ai --version`
-2. Se não encontrado, reinstale: `npm install -g task-master-ai`
-3. Inicialize o Task Master no seu projeto: `task-master-ai init`
-
 ---
 
 ### ❓ Perguntas Frequentes
@@ -745,8 +721,6 @@ R: O script mostrará uma mensagem de erro. Corrija o problema e execute novamen
 ---
 
 ### 📚 Recursos Adicionais
-
-- [Documentação do Task Master](https://docs.task-master.dev/)
 
 ---
 

@@ -271,7 +271,12 @@ install_development_environment() {
         echo "     → Full control over what to install"
         echo "     → Can reinstall existing tools"
         echo ""
-        read -p "Select mode [1/2]: " -n 1 -r
+        echo "  3) 🔄 Reinstall All (Force)"
+        echo "     → Installs/reinstalls everything automatically"
+        echo "     → No prompts, installs all components"
+        echo "     → Perfect when you know you'll accept all"
+        echo ""
+        read -p "Select mode [1/2/3]: " -n 1 -r
         echo ""
         echo ""
 
@@ -283,6 +288,11 @@ install_development_environment() {
             export INSTALL_MODE="interactive"
             echo "✓ Interactive Mode selected"
             log_info "Installation mode: Interactive (manual)"
+        elif [[ $REPLY =~ ^[3]$ ]]; then
+            export INSTALL_MODE="reinstall"
+            export FORCE_MODE="true"
+            echo "✓ Reinstall All Mode selected"
+            log_info "Installation mode: Reinstall All (force)"
         else
             echo "⚠️  Invalid selection. Using Interactive Mode by default."
             export INSTALL_MODE="interactive"
