@@ -1,29 +1,62 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Carrega o helper
-source lib/env_helper.sh
+# ────────────────────────────────────────────────────────────────
+# Module Guard - Prevent Direct Execution
+# ────────────────────────────────────────────────────────────────
+# This script should only be executed by 00-install-all.sh
+if [ -z "$INSTALL_ALL_RUNNING" ]; then
+    SCRIPT_NAME=$(basename "$0")
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    INSTALL_SCRIPT="$SCRIPT_DIR/00-install-all.sh"
 
-# Configuração do Zed
-CONFIG_DIR_ZED="$HOME/.config/zed"
-CONFIG_DIR_LOCAL="$CONFIG_DIR_MACOS/config/zed"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "⚠️  This script should not be executed directly"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "The script \"$SCRIPT_NAME\" is a module and should only be"
+    echo "executed as part of the complete installation process."
+    echo ""
+    echo "To run the complete installation, use:"
+    echo "  bash $INSTALL_SCRIPT"
+    echo ""
+    echo "Or from the project root:"
+    echo "  bash run.sh"
+    echo ""
+    exit 1
+fi
 
-# Função para configurar o Zed
-configure_zed() {
-    print_info "Configurando o Zed..."
 
-    # Cria a pasta de configuração do Zed se não existir
-    mkdir -p "$CONFIG_DIR_ZED"
+set -e
 
-    # Copia o arquivo de configuração
-    cp "$CONFIG_DIR_LOCAL/settings.json" "$CONFIG_DIR_ZED/settings.json"
+echo "=============================================="
+echo "========= [22] CONFIGURING ZED ================"
+echo "=============================================="
 
-    print_success "Configurações do Zed aplicadas com sucesso!"
-    print_info "Para o tema 'Catppuccin Mocha' funcionar, você precisa instalá-lo manualmente no Zed."
-    print_info "1. Abra o Zed."
-    print_info "2. Pressione 'Cmd + Shift + P' para abrir a paleta de comandos."
-    print_info "3. Digite 'zed: extensions' e pressione Enter."
-    print_info "4. Procure por 'Catppuccin' e instale a extensão."
-}
+# Determine Zed user directory based on OS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  ZED_USER_DIR="$HOME/.config/zed"
+else
+  echo "❌ This script is only for macOS."
+  exit 1
+fi
 
-# Configurar o Zed
-configure_zed
+mkdir -p "$ZED_USER_DIR"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SETTINGS_PATH="$ZED_USER_DIR/settings.json"
+
+echo "Detected Zed directory: $ZED_USER_DIR"
+echo ""
+
+echo "Copying settings.json..."
+cp "$SCRIPT_DIR/../../config/zed/settings.json" "$SETTINGS_PATH"
+echo "→ settings.json updated successfully!"
+
+echo "=============================================="
+echo "============== [22] DONE ===================="
+echo "=============================================="
+echo "🎉 Zed configured successfully!"
+echo "   Open Zed again to apply everything."
+echo ""
+echo "▶ Next, run: bash 23-install-something-else.sh"
+
