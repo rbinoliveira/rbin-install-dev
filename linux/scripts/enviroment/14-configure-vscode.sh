@@ -29,7 +29,7 @@ fi
 set -e
 
 echo "=============================================="
-echo "========= [15] CONFIGURING VS CODE ==========="
+echo "========= [14] CONFIGURING VS CODE ==========="
 echo "=============================================="
 
 # Determine VS Code user directory based on OS
@@ -55,9 +55,9 @@ cp "$SCRIPT_DIR/../../config/vscode-keybindings.json" "$KEYBINDINGS_PATH"
 echo "→ keybindings.json updated successfully!"
 
 echo "=============================================="
-echo "============== [15] DONE ===================="
+echo "============== [14] DONE ===================="
 echo "=============================================="
 echo "🎉 VS Code configured successfully!"
 echo "   Open VS Code again to apply keybindings."
 echo ""
-echo "▶ Next, run: bash 16-configure-cursor.sh"
+echo "▶ Next, run: bash 15-configure-cursor.sh"
