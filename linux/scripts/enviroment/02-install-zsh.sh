@@ -31,6 +31,24 @@ echo "=============================================="
 echo "========= [02] INSTALLING ZSH ================"
 echo "=============================================="
 
+# Clean up broken Bintray repository (Bintray was shut down)
+if [ -d /etc/apt/sources.list.d ]; then
+    if [ -f /etc/apt/sources.list.d/insomnia.list ]; then
+        echo "→ Removing old Insomnia repository (Bintray is shut down)..."
+        sudo rm -f /etc/apt/sources.list.d/insomnia.list
+    fi
+    # Also check for any bintray entries in sources.list.d
+    for file in /etc/apt/sources.list.d/*.list; do
+        if [ -f "$file" ] && grep -q "bintray.com/getinsomnia" "$file" 2>/dev/null; then
+            echo "→ Removing broken repository: $(basename "$file")"
+            sudo rm -f "$file"
+        fi
+    done
+fi
+# Remove GPG keys
+sudo rm -f /etc/apt/keyrings/insomnia.gpg 2>/dev/null || true
+sudo rm -f /etc/apt/trusted.gpg.d/insomnia.gpg 2>/dev/null || true
+
 sudo apt update -y
 sudo apt install -y zsh curl git
 
