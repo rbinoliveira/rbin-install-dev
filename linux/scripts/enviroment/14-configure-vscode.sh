@@ -45,20 +45,46 @@ fi
 mkdir -p "$VSCODE_USER_DIR"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
 KEYBINDINGS_PATH="$VSCODE_USER_DIR/keybindings.json"
 SETTINGS_PATH="$VSCODE_USER_DIR/settings.json"
+KEYBINDINGS_SOURCE="$PROJECT_ROOT/linux/config/vscode-keybindings.json"
+SETTINGS_SOURCE="$PROJECT_ROOT/linux/config/user-settings.json"
 
 echo "Detected VS Code directory: $VSCODE_USER_DIR"
+echo "Project root: $PROJECT_ROOT"
 echo ""
 
+# Verify source files exist
+if [ ! -f "$KEYBINDINGS_SOURCE" ]; then
+  echo "❌ Error: Keybindings source file not found: $KEYBINDINGS_SOURCE"
+  exit 1
+fi
+
+if [ ! -f "$SETTINGS_SOURCE" ]; then
+  echo "❌ Error: Settings source file not found: $SETTINGS_SOURCE"
+  exit 1
+fi
+
 echo "Copying keybindings.json..."
-cp "$SCRIPT_DIR/../../config/vscode-keybindings.json" "$KEYBINDINGS_PATH"
+cp "$KEYBINDINGS_SOURCE" "$KEYBINDINGS_PATH"
 echo "→ keybindings.json updated successfully!"
 
 echo ""
 echo "Copying settings.json..."
-cp "$SCRIPT_DIR/../../config/user-settings.json" "$SETTINGS_PATH"
+cp "$SETTINGS_SOURCE" "$SETTINGS_PATH"
 echo "→ settings.json updated successfully!"
+
+# Verify the files were copied correctly
+if [ ! -f "$SETTINGS_PATH" ] || [ ! -s "$SETTINGS_PATH" ]; then
+  echo "❌ Error: Failed to copy settings.json"
+  exit 1
+fi
+
+if [ ! -f "$KEYBINDINGS_PATH" ] || [ ! -s "$KEYBINDINGS_PATH" ]; then
+  echo "❌ Error: Failed to copy keybindings.json"
+  exit 1
+fi
 
 echo "=============================================="
 echo "============== [14] DONE ===================="

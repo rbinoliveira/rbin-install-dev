@@ -26,7 +26,8 @@ if [ -z "$INSTALL_ALL_RUNNING" ]; then
 fi
 
 
-set -e
+# Don't use set -e here because we need to handle installation failures gracefully
+set +e
 
 echo "=============================================="
 echo "========= [17] INSTALLING INSOMNIA ==========="
@@ -34,39 +35,112 @@ echo "=============================================="
 
 echo "Installing Insomnia..."
 
-# Add Insomnia repository
-echo "Adding Insomnia repository..."
+INSTALLED=false
 
-# Create keyrings directory if it doesn't exist
-sudo mkdir -p /etc/apt/keyrings
+# Clean up old Bintray repository if it exists (Bintray was shut down)
+if [ -d /etc/apt/sources.list.d ]; then
+    if [ -f /etc/apt/sources.list.d/insomnia.list ]; then
+        echo "→ Removing old Insomnia repository (Bintray is shut down)..."
+        sudo rm -f /etc/apt/sources.list.d/insomnia.list
+    fi
+    # Also check for any bintray entries in sources.list.d
+    for file in /etc/apt/sources.list.d/*.list; do
+        if [ -f "$file" ] && grep -q "bintray.com/getinsomnia" "$file" 2>/dev/null; then
+            echo "→ Removing broken repository: $(basename "$file")"
+            sudo rm -f "$file"
+        fi
+    done
+fi
+# Remove GPG keys
+sudo rm -f /etc/apt/keyrings/insomnia.gpg 2>/dev/null || true
+sudo rm -f /etc/apt/trusted.gpg.d/insomnia.gpg 2>/dev/null || true
 
-# Add GPG key (modern method)
-echo "Adding GPG key..."
-curl -fsSL https://insomnia.rest/keys/debian-public.key.asc | sudo gpg --dearmor -o /etc/apt/keyrings/insomnia.gpg
-sudo chmod a+r /etc/apt/keyrings/insomnia.gpg
-
-# Add repository with signed-by
-echo "deb [signed-by=/etc/apt/keyrings/insomnia.gpg] https://dl.bintray.com/getinsomnia/Insomnia /" | sudo tee /etc/apt/sources.list.d/insomnia.list > /dev/null
-
-# Update package list
-echo "Updating package list..."
-sudo apt-get update -y
-
-# Install Insomnia (only if not already installed)
+# Check if already installed
 if command -v insomnia &> /dev/null; then
-    echo "✓ Insomnia is already installed"
-    echo "  Skipping installation"
+    echo "✓ Insomnia is already installed: $(insomnia --version 2>&1 | head -1 || echo 'installed')"
+    INSTALLED=true
 else
-echo "Installing Insomnia..."
-    sudo apt-get install -y insomnia
+    # Method 1: Try snap (easiest and most reliable)
+    if command -v snap &> /dev/null; then
+        echo "→ Trying to install via snap..."
+        if sudo snap install insomnia 2>&1; then
+            # Verify installation succeeded
+            if command -v insomnia &> /dev/null || [ -f /snap/bin/insomnia ]; then
+                INSTALLED=true
+                echo "✓ Insomnia installed via snap"
+                # Snap installs to /snap/bin, make sure it's in PATH
+                if [[ ":$PATH:" != *":/snap/bin:"* ]]; then
+                    export PATH="/snap/bin:$PATH"
+                fi
+            fi
+        fi
+    fi
+    
+    # Method 2: Try official Kong repository (new location after Kong acquisition)
+    if [ "$INSTALLED" = false ]; then
+        echo "→ Trying official Kong repository..."
+        
+        # Install curl if not available
+        if ! command -v curl &> /dev/null; then
+            sudo apt-get update -y
+            sudo apt-get install -y curl
+        fi
+        
+        # Use the official setup script from Kong
+        if curl -1sLf 'https://packages.konghq.com/public/insomnia/setup.deb.sh' 2>/dev/null | sudo -E bash 2>&1; then
+            echo "→ Repository added, updating package list..."
+            if sudo apt-get update -y 2>&1; then
+                echo "→ Installing Insomnia..."
+                if sudo apt-get install -y insomnia 2>&1; then
+                    INSTALLED=true
+                    echo "✓ Insomnia installed via APT repository"
+                fi
+            fi
+        fi
+    fi
+    
+    # If installation failed, provide helpful error message
+    if [ "$INSTALLED" = false ]; then
+        echo "⚠️  Automatic installation failed."
+        echo ""
+        echo "Please install Insomnia manually using one of these methods:"
+        echo ""
+        echo "Method 1 (Recommended):"
+        echo "  sudo snap install insomnia"
+        echo ""
+        echo "Method 2:"
+        echo "  curl -1sLf 'https://packages.konghq.com/public/insomnia/setup.deb.sh' | sudo -E bash"
+        echo "  sudo apt-get update"
+        echo "  sudo apt-get install insomnia"
+        echo ""
+        echo "Method 3 (AppImage):"
+        echo "  1. Visit: https://insomnia.rest/download"
+        echo "  2. Download the AppImage"
+        echo "  3. chmod +x Insomnia.AppImage && ./Insomnia.AppImage"
+        echo ""
+        exit 1
+    fi
 fi
 
 # Verify installation
-if command -v insomnia &> /dev/null; then
-    echo "✓ Insomnia installed successfully"
-else
-    echo "⚠️  Insomnia installed but command not found in PATH"
-    echo "   Try restarting your terminal or launching from Applications menu"
+if [ "$INSTALLED" = true ]; then
+    # Find the correct insomnia executable
+    INSOMNIA_CMD=""
+    if command -v insomnia &> /dev/null; then
+        INSOMNIA_CMD="insomnia"
+    elif [ -f "/snap/bin/insomnia" ]; then
+        INSOMNIA_CMD="/snap/bin/insomnia"
+    fi
+    
+    if [ -n "$INSOMNIA_CMD" ]; then
+        echo "✓ Insomnia installed successfully"
+        if $INSOMNIA_CMD --version &> /dev/null; then
+            $INSOMNIA_CMD --version 2>&1 | head -1
+        fi
+    else
+        echo "⚠️  Insomnia installed but command not found in PATH"
+        echo "   Try restarting your terminal or launching from Applications menu"
+    fi
 fi
 
 echo "=============================================="
