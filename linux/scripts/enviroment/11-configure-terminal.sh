@@ -61,7 +61,7 @@ else
 fi
 
 echo ""
-echo "Creating new GNOME Terminal profile: rubinho..."
+echo "Creating new GNOME Terminal profile: rbin..."
 NEW_PROFILE_ID=$(uuidgen)
 
 # Add to GNOME Terminal list
@@ -71,7 +71,7 @@ gsettings set org.gnome.Terminal.ProfilesList list "$NEW_LIST"
 
 PROFILE_KEY="/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE_ID/"
 
-dconf write "${PROFILE_KEY}visible-name" "'rubinho'"
+dconf write "${PROFILE_KEY}visible-name" "'rbin'"
 dconf write "${PROFILE_KEY}use-system-font" "false"
 dconf write "${PROFILE_KEY}font" "'JetBrainsMono Nerd Font 13'"
 dconf write "${PROFILE_KEY}use-theme-colors" "false"
@@ -79,7 +79,7 @@ dconf write "${PROFILE_KEY}foreground-color" "'#f8f8f2'"
 dconf write "${PROFILE_KEY}background-color" "'#282a36'"
 dconf write "${PROFILE_KEY}palette" "['#000000', '#ff5555', '#50fa7b', '#f1fa8c', '#bd93f9', '#ff79c6', '#8be9fd', '#bbbbbb', '#44475a', '#ff6e6e', '#69ff94', '#ffffa5', '#d6caff', '#ff92df', '#a6f0ff', '#ffffff']"
 
-echo "Setting rubinho as default profile..."
+echo "Setting rbin as default profile..."
 gsettings set org.gnome.Terminal.ProfilesList default "'$NEW_PROFILE_ID'"
 
 echo "Cleaning up old profiles..."

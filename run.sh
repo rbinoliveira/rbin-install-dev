@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Rubinho Scripts - Main Entry Point
+# Rbin Scripts - Main Entry Point
 #
 # Simplified interface for installing development environment.
 # Automatically detects platform and runs the installation script.
@@ -75,7 +75,7 @@ else
     # shellcheck source=lib/logging.sh
     source "$SCRIPT_DIR/lib/logging.sh"
     init_logging
-    log_info "Rubinho Scripts started"
+    log_info "Rbin Scripts started"
     log_info "Platform: $PLATFORM_NAME"
     log_info "Force mode: $FORCE_MODE"
     log_info "Verbose mode: $VERBOSE_MODE"
@@ -97,7 +97,7 @@ fi
 
 clear
 echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║         🚀 Rubinho Scripts - Installation Manager 🚀           ║"
+echo "║         🚀 Rbin Scripts - Installation Manager 🚀           ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
 print_platform_info
