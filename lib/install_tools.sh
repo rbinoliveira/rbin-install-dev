@@ -3,8 +3,7 @@
 #
 # Tool Installation Module
 #
-# Handles installation of Claude Code and Cursor configuration
-# with API key prompts and validation.
+# Handles installation of Claude Code and Cursor configuration.
 #
 # Usage:
 #   source lib/install_tools.sh
@@ -25,83 +24,6 @@ fi
 
 export ENV_FILE=".env"
 export ENV_EXAMPLE=".env.example"
-
-# ────────────────────────────────────────────────────────────────
-# API Key Management
-# ────────────────────────────────────────────────────────────────
-
-prompt_api_key() {
-    local key_name="$1"
-    local description="$2"
-    local url="$3"
-    local format_hint="$4"
-
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "API Key Required: $description"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "Get your API key from: $url"
-    echo "Format: $format_hint"
-    echo ""
-
-    if [ "$FORCE_MODE" = true ]; then
-        echo "Force mode: Skipping API key prompt"
-        return 1
-    fi
-
-    read -p "Enter your $description (or press Enter to skip): " -r api_key
-
-    if [ -z "$api_key" ]; then
-        echo "Skipped."
-        return 1
-    fi
-
-    echo "$api_key"
-    return 0
-}
-
-validate_anthropic_key() {
-    local key="$1"
-
-    # Basic format validation
-    if [[ ! "$key" =~ ^sk-ant- ]]; then
-        echo "ERROR: Invalid Anthropic API key format. Should start with 'sk-ant-'" >&2
-        return 1
-    fi
-
-    return 0
-}
-
-create_or_update_env() {
-    local key_name="$1"
-    local key_value="$2"
-
-    # Create empty .env if it doesn't exist (user must create manually from .env.example)
-    if [ ! -f "$ENV_FILE" ]; then
-        touch "$ENV_FILE"
-        chmod 600 "$ENV_FILE"
-        echo "✓ Created empty $ENV_FILE"
-        echo "⚠️  Note: Please copy .env.example to .env and configure it manually if needed"
-    fi
-
-    # Update or add the key
-    if grep -q "^${key_name}=" "$ENV_FILE"; then
-        # Update existing key
-        if is_macos; then
-            sed -i '' "s|^${key_name}=.*|${key_name}=${key_value}|" "$ENV_FILE"
-        else
-            sed -i "s|^${key_name}=.*|${key_name}=${key_value}|" "$ENV_FILE"
-        fi
-        echo "✓ Updated $key_name in $ENV_FILE"
-    else
-        # Add new key
-        echo "${key_name}=${key_value}" >> "$ENV_FILE"
-        echo "✓ Added $key_name to $ENV_FILE"
-    fi
-
-    log_info "Updated $key_name in $ENV_FILE"
-}
 
 # ────────────────────────────────────────────────────────────────
 # Installation Functions
@@ -168,27 +90,6 @@ install_claude() {
         fi
     fi
 
-    # Prompt for API key
-    local api_key
-    if api_key=$(prompt_api_key "ANTHROPIC_API_KEY" \
-                                "Anthropic API Key" \
-                                "https://console.anthropic.com/settings/keys" \
-                                "Starts with 'sk-ant-'"); then
-
-        # Validate key format
-        if validate_anthropic_key "$api_key"; then
-            # Store in .env
-            create_or_update_env "ANTHROPIC_API_KEY" "$api_key"
-        else
-            echo "Skipping Claude installation due to invalid API key"
-            return 1
-        fi
-    else
-        echo "Skipping Claude installation (no API key provided)"
-        log_info "Skipped Claude installation - no API key"
-        return 0
-    fi
-
     # Install via npm
     echo "Installing @anthropic-ai/claude-code via npm..."
     log_info "Installing Claude Code CLI"
@@ -225,11 +126,8 @@ configure_cursor() {
 
     echo "✓ Cursor IDE detected"
     echo ""
-    echo "Cursor configuration:"
-    echo "  • API keys can be configured in Cursor's AI settings"
-    echo ""
 
-    log_info "Cursor detected, user should configure via Cursor settings"
+    log_info "Cursor detected"
     return 0
 }
 
@@ -311,20 +209,10 @@ install_all_tools() {
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    if [ -f "$ENV_FILE" ]; then
-        echo ""
-        echo "Configuration saved to: $ENV_FILE"
-        echo "Verify your API keys are correct before using the tools."
-        echo ""
-    fi
-
     log_info "Installation completed"
 }
 
 # Export functions
-export -f prompt_api_key
-export -f validate_anthropic_key
-export -f create_or_update_env
 export -f install_node_npm
 export -f install_claude
 export -f configure_cursor
