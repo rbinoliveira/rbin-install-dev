@@ -26,7 +26,7 @@
   "workbench.panel.defaultLocation": "right",
   "editor.rulers": [80],
   "editor.fontSize": 14,
-  "editor.fontFamily": "CaskaydiaCove Nerd Font",
+  "editor.fontFamily": "CaskaydiaCove NF",
   "editor.fontLigatures": true,
   "editor.lineHeight": 1.6,
   "editor.fontWeight": "400",
@@ -89,7 +89,7 @@
   // Terminal
   // ────────────────────────────────
   "terminal.integrated.enableMultiLinePasteWarning": "never",
-  "terminal.integrated.fontFamily": "CaskaydiaCove Nerd Font",
+  "terminal.integrated.fontFamily": "CaskaydiaCove NF",
   "terminal.integrated.fontSize": 14,
   "terminal.integrated.defaultLocation": "view",
 
