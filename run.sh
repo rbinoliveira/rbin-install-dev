@@ -91,6 +91,18 @@ else
     export PROJECT_ROOT="$SCRIPT_DIR"
 fi
 
+# Source environment validator module
+if [ -f "$SCRIPT_DIR/lib/env_validator.sh" ]; then
+    # shellcheck source=lib/env_validator.sh
+    source "$SCRIPT_DIR/lib/env_validator.sh"
+fi
+
+# Source check_installed module
+if [ -f "$SCRIPT_DIR/lib/check_installed.sh" ]; then
+    # shellcheck source=lib/check_installed.sh
+    source "$SCRIPT_DIR/lib/check_installed.sh"
+fi
+
 # ────────────────────────────────────────────────────────────────
 # Welcome Banner
 # ────────────────────────────────────────────────────────────────
@@ -108,120 +120,179 @@ echo ""
 # ────────────────────────────────────────────────────────────────
 
 setup_environment_variables() {
+    local env_file="$SCRIPT_DIR/.env"
+    local env_example="$SCRIPT_DIR/.env.example"
+
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "⚙️  Environment Configuration"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Checking required environment variables..."
-    echo ""
 
-    # Check if .env exists
-    local env_file="$SCRIPT_DIR/.env"
-    local env_example="$SCRIPT_DIR/.env.example"
-
-    if [ ! -f "$env_file" ]; then
-        echo "⚠️  .env file not found"
-        echo ""
-        if [ -f "$env_example" ]; then
-            echo "📝 Please create a .env file manually:"
-            echo "   cp $env_example $env_file"
-            echo "   Then edit $env_file with your information"
-        else
-            echo "📝 Please create a .env file manually in: $SCRIPT_DIR"
+    # Use the shared validation library if available
+    if type validate_required_env_variables >/dev/null 2>&1; then
+        if ! validate_required_env_variables "$env_file" "$env_example"; then
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "❌ Environment validation failed!"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "Installation cannot proceed without required variables."
+            echo "Please check your .env file: $env_file"
+            echo ""
+            return 1
         fi
-        echo ""
-        return 1
+
+        # Load environment variables
+        if type load_env_file >/dev/null 2>&1; then
+            load_env_file "$env_file"
+        fi
+    else
+        # Fallback to basic validation if library not available
+        if [ ! -f "$env_file" ]; then
+            echo "⚠️  .env file not found"
+            echo ""
+            if [ -f "$env_example" ]; then
+                echo "📝 Please create a .env file manually:"
+                echo "   cp $env_example $env_file"
+                echo "   Then edit $env_file with your information"
+            else
+                echo "📝 Please create a .env file manually in: $SCRIPT_DIR"
+            fi
+            echo ""
+            return 1
+        fi
+
+        # Basic check for required variables
+        if [ -z "$GIT_USER_NAME" ] || [ "$GIT_USER_NAME" = "Your Name" ]; then
+            echo "❌ GIT_USER_NAME is required in .env file"
+            echo "   Please set GIT_USER_NAME in: $env_file"
+            return 1
+        fi
+
+        if [ -z "$GIT_USER_EMAIL" ] || [ "$GIT_USER_EMAIL" = "your.email@example.com" ]; then
+            echo "❌ GIT_USER_EMAIL is required in .env file"
+            echo "   Please set GIT_USER_EMAIL in: $env_file"
+            return 1
+        fi
     fi
-
-    # Variables that might be needed for installation
-    local required_vars=(
-        "GIT_USER_NAME:Your Git user name (for Git commits):true"
-        "GIT_USER_EMAIL:Your Git user email (for Git commits):true"
-    )
-
-    local optional_vars=(
-    )
-
-    # Check required variables
-    for var_info in "${required_vars[@]}"; do
-        IFS=':' read -r var_name prompt_text is_required <<< "$var_info"
-
-        # Check if variable exists in .env
-        local value
-        if [ -f "$env_file" ]; then
-            # Try to read from .env
-            while IFS= read -r line || [ -n "$line" ]; do
-                # Skip comments and empty lines
-                [[ "$line" =~ ^[[:space:]]*# ]] && continue
-                [[ -z "${line// }" ]] && continue
-
-                # Check if this line matches our variable
-                if [[ "$line" =~ ^[[:space:]]*${var_name}[[:space:]]*=[[:space:]]*(.+)$ ]]; then
-                    value="${BASH_REMATCH[1]}"
-                    # Remove quotes if present
-                    value="${value#\"}"
-                    value="${value%\"}"
-                    value="${value#\'}"
-                    value="${value%\'}"
-                    # Remove leading/trailing whitespace
-                    value="${value#"${value%%[![:space:]]*}"}"
-                    value="${value%"${value##*[![:space:]]}"}"
-                    break
-                fi
-            done < "$env_file"
-        fi
-
-        # If not found or empty (after removing quotes and spaces), prompt user
-        if [ -z "${value// }" ] || [ -z "$value" ]; then
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "📝 Missing Required Variable: $var_name"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo ""
-            echo "$prompt_text"
-            echo ""
-
-            while true; do
-                read -p "Enter value for $var_name: " user_input
-
-                if [ -z "$user_input" ]; then
-                    if [ "$is_required" = "true" ]; then
-                        echo "❌ Error: $var_name is required and cannot be empty."
-                        echo "   Please enter a value."
-                        echo ""
-                        continue
-                    else
-                        echo "⚠️  No value provided. Skipping..."
-                        echo ""
-                        break
-                    fi
-                else
-                    # Save to .env
-                    if grep -q "^[[:space:]]*${var_name}[[:space:]]*=" "$env_file" 2>/dev/null; then
-                        # Update existing line
-                        if [[ "$OSTYPE" == "darwin"* ]]; then
-                            sed -i '' "s|^[[:space:]]*${var_name}[[:space:]]*=.*|${var_name}=\"${user_input}\"|" "$env_file"
-                        else
-                            sed -i "s|^[[:space:]]*${var_name}[[:space:]]*=.*|${var_name}=\"${user_input}\"|" "$env_file"
-                        fi
-                    else
-                        # Append new line
-                        echo "${var_name}=\"${user_input}\"" >> "$env_file"
-                    fi
-
-                    echo "✓ Saved $var_name to .env file"
-                    echo ""
-                    break
-                fi
-            done
-        else
-            echo "✓ Found $var_name in .env file (using existing value)"
-        fi
-    done
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "✅ Environment configuration complete"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+}
+
+# ────────────────────────────────────────────────────────────────
+# Get All Available Scripts
+# ────────────────────────────────────────────────────────────────
+
+get_all_scripts() {
+    local platform_dir="$SCRIPT_DIR/$PLATFORM/scripts/enviroment"
+    local scripts=()
+
+    # Get all scripts from the platform directory
+    if [ -d "$platform_dir" ]; then
+        # List all numbered scripts (excluding 00-install-all.sh)
+        for script in "$platform_dir"/*.sh; do
+            if [ -f "$script" ]; then
+                local basename_script=$(basename "$script")
+                # Only include numbered scripts, but not 00-install-all.sh
+                if [[ "$basename_script" =~ ^[0-9]+-.*\.sh$ ]] && [[ "$basename_script" != "00-install-all.sh" ]]; then
+                    scripts+=("$basename_script")
+                fi
+            fi
+        done
+    fi
+
+    # Sort scripts
+    local sorted_scripts=($(printf '%s\n' "${scripts[@]}" | sort -V))
+
+    # Output as space-separated string
+    echo "${sorted_scripts[@]}"
+}
+
+# ────────────────────────────────────────────────────────────────
+# Select Scripts to Run
+# ────────────────────────────────────────────────────────────────
+
+select_scripts_to_run() {
+    local all_scripts=($(get_all_scripts))
+    local selected_scripts=()
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📋 Available Scripts for $PLATFORM_NAME"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    local index=1
+    for script in "${all_scripts[@]}"; do
+        # Format script name for display
+        local script_name=$(echo "$script" | sed 's/^[0-9]*-//;s/\.sh$//' | tr '-' ' ' | sed 's/\b\(.\)/\u\1/g')
+        printf "  %2d) %s\n" "$index" "$script"
+        ((index++))
+    done
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Enter the numbers of scripts you want to run, separated by commas."
+    echo "Example: 1,2,3 or 1,5,10"
+    echo ""
+
+    while true; do
+        read -p "Select scripts: " user_input
+        echo ""
+
+        if [ -z "$user_input" ]; then
+            echo "❌ Please enter at least one script number."
+            echo ""
+            continue
+        fi
+
+        # Parse comma-separated numbers
+        local valid_selection=true
+        IFS=',' read -ra numbers <<< "$user_input"
+
+        for num in "${numbers[@]}"; do
+            # Remove whitespace
+            num=$(echo "$num" | tr -d '[:space:]')
+
+            # Check if it's a valid number
+            if ! [[ "$num" =~ ^[0-9]+$ ]]; then
+                echo "❌ Invalid number: $num"
+                valid_selection=false
+                continue
+            fi
+
+            # Check if number is in range
+            if [ "$num" -lt 1 ] || [ "$num" -gt ${#all_scripts[@]} ]; then
+                echo "❌ Number $num is out of range (1-${#all_scripts[@]})"
+                valid_selection=false
+                continue
+            fi
+
+            # Add to selected scripts (convert to 0-based index)
+            local script_index=$((num - 1))
+            selected_scripts+=("${all_scripts[$script_index]}")
+        done
+
+        if [ "$valid_selection" = true ] && [ ${#selected_scripts[@]} -gt 0 ]; then
+            break
+        else
+            echo "Please try again."
+            echo ""
+            selected_scripts=()
+        fi
+    done
+
+    # Export selected scripts as space-separated string
+    export SELECTED_SCRIPTS="${selected_scripts[*]}"
+
+    echo "✓ Selected scripts:"
+    for script in "${selected_scripts[@]}"; do
+        echo "   - $script"
+    done
     echo ""
 }
 
@@ -256,52 +327,62 @@ install_development_environment() {
     # Choose installation mode
     if [ "$FORCE_MODE" = false ]; then
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "🔧 Installation Mode Selection"
+        echo "🚀 Installation Action Selection"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo ""
-        echo "Choose installation mode:"
+        echo "Choose what you want to do:"
         echo ""
-        echo "  1) 🚀 Smart Mode (Auto-detect)"
-        echo "     → Installs only missing tools automatically"
-        echo "     → Skips already installed components"
-        echo "     → No prompts, faster installation"
+        echo "  1) 🧠 Smart Install"
+        echo "     Installs only what's missing"
+        echo "     Automatically skips tools that are already installed"
         echo ""
-        echo "  2) 🎯 Interactive Mode (Manual)"
-        echo "     → Prompts for each component"
-        echo "     → Full control over what to install"
-        echo "     → Can reinstall existing tools"
+        echo "  2) 🔄 Reinstall All"
+        echo "     Reinstalls everything from scratch"
+        echo "     Useful for updating or fixing issues"
         echo ""
-        echo "  3) 🔄 Reinstall All (Force)"
-        echo "     → Installs/reinstalls everything automatically"
-        echo "     → No prompts, installs all components"
-        echo "     → Perfect when you know you'll accept all"
+        echo "  3) 🎯 Select What to Run"
+        echo "     Choose specific scripts to run"
+        echo "     You'll see a list and select by number (e.g., 1,2,3)"
         echo ""
-        read -p "Select mode [1/2/3]: " -n 1 -r
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        read -p "Select action [1/2/3] (default: 1): " -n 1 -r
         echo ""
         echo ""
 
-        if [[ $REPLY =~ ^[1]$ ]]; then
+        if [[ -z "$REPLY" ]] || [[ "$REPLY" == "1" ]]; then
+            export INSTALL_ACTION="smart"
             export INSTALL_MODE="smart"
-            echo "✓ Smart Mode selected"
-            log_info "Installation mode: Smart (auto-detect)"
-        elif [[ $REPLY =~ ^[2]$ ]]; then
+            echo "✓ Selected: Smart Install"
+            log_info "Installation action: Smart Install"
+        elif [[ "$REPLY" == "2" ]]; then
+            export INSTALL_ACTION="reinstall"
             export INSTALL_MODE="interactive"
-            echo "✓ Interactive Mode selected"
-            log_info "Installation mode: Interactive (manual)"
-        elif [[ $REPLY =~ ^[3]$ ]]; then
-            export INSTALL_MODE="reinstall"
-            export FORCE_MODE="true"
-            echo "✓ Reinstall All Mode selected"
-            log_info "Installation mode: Reinstall All (force)"
+            export FORCE_REINSTALL=true
+            echo "✓ Selected: Reinstall All"
+            log_info "Installation action: Reinstall All"
+        elif [[ "$REPLY" == "3" ]]; then
+            export INSTALL_ACTION="select"
+            export INSTALL_MODE="interactive"
+            echo "✓ Selected: Select What to Run"
+            log_info "Installation action: Select What to Run"
         else
-            echo "⚠️  Invalid selection. Using Interactive Mode by default."
-            export INSTALL_MODE="interactive"
-            log_info "Installation mode: Interactive (default)"
+            echo "❌ Invalid option. Using Smart Install by default."
+            export INSTALL_ACTION="smart"
+            export INSTALL_MODE="smart"
+            log_info "Installation action: Smart Install (default)"
         fi
     else
         # Force mode defaults to smart mode
+        export INSTALL_ACTION="smart"
         export INSTALL_MODE="smart"
-        log_info "Installation mode: Smart (force mode)"
+        log_info "Installation action: Smart (force mode)"
+    fi
+
+    # Handle select action - let user choose specific scripts
+    if [ "$INSTALL_ACTION" = "select" ]; then
+        select_scripts_to_run
+        export SELECTED_SCRIPTS
     fi
 
     # Determine platform-specific script path

@@ -29,7 +29,7 @@ fi
 set -e
 
 echo "=============================================="
-echo "========= [08] INSTALLING JETBRAINS FONT ====="
+echo "========= [08] INSTALLING CASCADIA FONT ====="
 echo "=============================================="
 
 # Install required packages
@@ -37,20 +37,20 @@ echo "Installing required packages (wget, unzip, fontconfig)..."
 sudo apt update -y
 sudo apt install -y wget unzip fontconfig
 
-FONT_DIR="$HOME/.local/share/fonts/JetBrainsMono"
+FONT_DIR="$HOME/.local/share/fonts/CascadiaCode"
 mkdir -p "$FONT_DIR"
 
 # Check if font is already installed
-if ls "$FONT_DIR"/*.ttf 2>/dev/null | head -1 > /dev/null || fc-list | grep -qi 'JetBrains Mono'; then
-    echo "✓ JetBrainsMono font is already installed"
+if ls "$FONT_DIR"/*.ttf 2>/dev/null | head -1 > /dev/null || fc-list | grep -qi 'CaskaydiaCove'; then
+    echo "✓ CaskaydiaCove Nerd Font is already installed"
     echo "  Skipping download and installation"
 else
-    echo "Downloading JetBrainsMono Nerd Font..."
-    wget -q https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+    echo "Downloading CaskaydiaCove Nerd Font..."
+    wget -q https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip
 
     echo "Extracting font..."
-    unzip -o JetBrainsMono.zip -d "$FONT_DIR" > /dev/null
-    rm JetBrainsMono.zip
+    unzip -o CascadiaCode.zip -d "$FONT_DIR" > /dev/null
+    rm CascadiaCode.zip
 
     echo "Updating font cache..."
     fc-cache -fv

@@ -73,7 +73,7 @@ PROFILE_KEY="/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE_ID/"
 
 dconf write "${PROFILE_KEY}visible-name" "'rbin'"
 dconf write "${PROFILE_KEY}use-system-font" "false"
-dconf write "${PROFILE_KEY}font" "'JetBrainsMono Nerd Font 13'"
+dconf write "${PROFILE_KEY}font" "'CaskaydiaCove Nerd Font 13'"
 dconf write "${PROFILE_KEY}use-theme-colors" "false"
 dconf write "${PROFILE_KEY}foreground-color" "'#f8f8f2'"
 dconf write "${PROFILE_KEY}background-color" "'#282a36'"

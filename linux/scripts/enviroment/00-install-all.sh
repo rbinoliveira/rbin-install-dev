@@ -127,7 +127,7 @@ check_and_confirm_installation() {
     local install_mode="${INSTALL_MODE:-interactive}"
 
     # Reinstall Mode: Always install/reinstall everything, no prompts
-    if [ "$install_mode" = "reinstall" ] || [ "${FORCE_MODE:-false}" = "true" ]; then
+    if [ "$install_mode" = "reinstall" ] || [ "${FORCE_MODE:-false}" = "true" ] || [ "${FORCE_REINSTALL:-false}" = "true" ]; then
         echo "→ $tool_name will be installed/reinstalled (reinstall mode)"
         log_info "$tool_name will be installed/reinstalled (reinstall mode)"
         return 0
@@ -195,6 +195,26 @@ run_script_with_check() {
     local check_command="$3"
     local version_command="${4:-}"
     local skip_if_installed="${5:-false}"
+
+    # If SELECTED_SCRIPTS is set (option 3: Select What to Run), check if this script is in the list
+    if [ -n "${SELECTED_SCRIPTS:-}" ]; then
+        local script_found=false
+        # Convert SELECTED_SCRIPTS to array
+        local selected_array=($SELECTED_SCRIPTS)
+        for selected_script in "${selected_array[@]}"; do
+            if [ "$selected_script" = "$script_name" ]; then
+                script_found=true
+                break
+            fi
+        done
+        
+        if [ "$script_found" = false ]; then
+            echo ""
+            echo "Skipping script: $script_name (not selected)"
+            echo "=============================================="
+            return 0
+        fi
+    fi
 
     echo ""
     echo "Running script: $script_name"
@@ -264,7 +284,7 @@ run_script_with_check "06-install-yarn.sh" "Yarn" "command -v yarn" "yarn --vers
 run_script_with_check "07-install-tools.sh" "Development Tools" "true" "" "false"
 
 # Font installation
-run_script_with_check "08-install-font-jetbrains.sh" "JetBrains Font" "ls \"$HOME/.local/share/fonts/JetBrainsMono\"/*.ttf 2>/dev/null | head -1 || fc-list | grep -i 'JetBrains Mono' | head -1" "" "false"
+run_script_with_check "08-install-font-cascadia.sh" "CaskaydiaCove Nerd Font" "ls \"$HOME/.local/share/fonts/CascadiaCode\"/*.ttf 2>/dev/null | head -1 || fc-list | grep -i 'CaskaydiaCove' | head -1" "" "false"
 
 echo ""
 echo "=============================================="

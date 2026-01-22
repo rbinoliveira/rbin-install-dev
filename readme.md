@@ -253,9 +253,7 @@ nano .env  # Fill in your company details
 ```
 
 **Work environment variables:**
-- `GITHUB_TOKEN` - For private repositories
-- `AWS_SSO_START_URL` - AWS SSO configuration
-- Multiple AWS accounts support
+- None required for this project
 
 See [work/.env.example](work/.env.example) for complete list.
 
@@ -619,9 +617,7 @@ nano .env  # Preencha os detalhes da sua empresa
 ```
 
 **Variáveis de ambiente de trabalho:**
-- `GITHUB_TOKEN` - Para repositórios privados
-- `AWS_SSO_START_URL` - Configuração AWS SSO
-- Suporte para múltiplas contas AWS
+- Nenhuma obrigatória para este projeto
 
 Veja [work/.env.example](work/.env.example) para a lista completa.
 

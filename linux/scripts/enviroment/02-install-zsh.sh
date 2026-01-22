@@ -74,9 +74,26 @@ cat > ~/.zshrc << 'EOF'
 #  Minimal ZSH bootstrap configuration file
 # ==========================================
 
+# Fix permissions for completion directories first
+# This prevents the "insecure directories" warning on terminal startup
+if [[ -d "$HOME/.zsh" ]]; then
+  chmod 755 "$HOME/.zsh" 2>/dev/null || true
+fi
+if [[ -d "$HOME/.cache/zsh" ]]; then
+  chmod 755 "$HOME/.cache/zsh" 2>/dev/null || true
+fi
+# Fix permissions for zcompdump files
+if [[ -f "$HOME/.zcompdump" ]]; then
+  chmod 600 "$HOME/.zcompdump" 2>/dev/null || true
+fi
+if [[ -f "$HOME/.zcompdump-"* ]]; then
+  chmod 600 "$HOME/.zcompdump-"* 2>/dev/null || true
+fi
+
 # Initialize completion system
 autoload -Uz compinit
-compinit
+# Use -C flag to skip security check (safe since we fixed permissions above)
+compinit -C
 
 # Additional helper configurations will be appended below
 # --------------------------------------------
