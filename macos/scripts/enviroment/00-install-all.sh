@@ -123,68 +123,9 @@ check_and_confirm_installation() {
         return 1
     fi
 
-    # Determine installation mode (default to interactive if not set)
-    local install_mode="${INSTALL_MODE:-interactive}"
-
-    # Reinstall Mode: Always install/reinstall everything, no prompts
-    if [ "$install_mode" = "reinstall" ] || [ "${FORCE_MODE:-false}" = "true" ] || [ "${FORCE_REINSTALL:-false}" = "true" ]; then
-        echo "→ $tool_name will be installed/reinstalled (reinstall mode)"
-        log_info "$tool_name will be installed/reinstalled (reinstall mode)"
-        return 0
-    fi
-
-    # Smart Mode: Check if already installed and skip if it is
-    if [ "$install_mode" = "smart" ]; then
-        # Configuration scripts (check_command = "true") always run
-        if [ "$check_command" = "true" ]; then
-            echo "→ $tool_name (configuration), will apply"
-            log_info "$tool_name is a configuration script, will proceed"
-            return 0
-        fi
-
-    local is_installed=false
-    local version="unknown"
-
-    # Check if tool is installed
-    if eval "$check_command" &>/dev/null; then
-        is_installed=true
-
-        # Try to get version if version command provided
-        if [ -n "$version_command" ]; then
-            version=$(eval "$version_command" 2>/dev/null | head -1 | tr -d '\n' || echo "unknown")
-        fi
-    fi
-
-        if [ "$is_installed" = true ]; then
-            echo "✓ $tool_name is already installed"
-            if [ "$version" != "unknown" ]; then
-                echo "  Version: $version"
-            fi
-            echo "  → Skipping installation"
-        log_info "$tool_name already installed (version: $version), skipped"
-        return 1
-        else
-            echo "→ $tool_name not found, will install"
-            log_info "$tool_name not installed, will proceed with installation"
-            return 0
-        fi
-    fi
-
-    # Interactive Mode: Always prompt user
-    # Prompt user for installation
-    echo ""
-    read -p "Do you want to install $tool_name? [Y/n]: " -n 1 -r
-    echo ""
-
-    # Check response (default to yes)
-    if [[ $REPLY =~ ^[Nn]$ ]]; then
-        echo "  Skipping $tool_name installation..."
-        log_info "$tool_name installation skipped by user"
-        return 1
-    fi
-
-    echo "  Installing $tool_name..."
-    log_info "$tool_name installation confirmed by user"
+    # Always use reinstall mode - always install/reinstall everything, no prompts
+    echo "→ $tool_name will be installed/reinstalled (reinstall mode)"
+    log_info "$tool_name will be installed/reinstalled (reinstall mode)"
     return 0
 }
 
@@ -209,9 +150,7 @@ run_script_with_check() {
         done
         
         if [ "$script_found" = false ]; then
-            echo ""
-            echo "Skipping script: $script_name (not selected)"
-            echo "=============================================="
+            # Silently skip scripts that are not selected
             return 0
         fi
     fi
@@ -321,18 +260,11 @@ run_script_with_check "16-configure-cursor.sh" "Cursor Configuration" "true" "" 
 # Docker check
 run_script_with_check "17-install-docker.sh" "Docker" "command -v docker" "docker --version 2>&1 | head -1"
 
-# Insomnia check (macOS: check app or brew cask, Linux: check command)
-run_script_with_check "18-install-insomnia.sh" "Insomnia" "command -v insomnia || [ -d \"/Applications/Insomnia.app\" ] || brew list --cask insomnia &>/dev/null" "insomnia --version 2>&1 | head -1 || ([ -d \"/Applications/Insomnia.app\" ] && defaults read /Applications/Insomnia.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown')"
-
 # TablePlus check (macOS only)
 run_script_with_check "19-install-tableplus.sh" "TablePlus" "command -v tableplus || [ -d \"/Applications/TablePlus.app\" ]" "[ -d \"/Applications/TablePlus.app\" ] && defaults read /Applications/TablePlus.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
 
 # Cursor CLI check
 run_script_with_check "20-install-cursor-cli.sh" "Cursor CLI" "command -v cursor-agent" "cursor-agent --version 2>&1 | head -1"
-
-# Gemini CLI check (requires Node.js)
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
-run_script_with_check "21-install-gemini-cli.sh" "Gemini CLI" "command -v gemini || npm list -g @google/gemini-cli &>/dev/null" "gemini --version 2>&1 | head -1 || npm list -g @google/gemini-cli 2>&1 | grep gemini-cli | head -1"
 
 echo ""
 echo "=============================================="
@@ -386,7 +318,6 @@ echo "   → starship --version"
 echo "   → code --version"
 echo "   → cursor --version"
 echo "   → cursor-agent --version"
-echo "   → gemini --version"
 echo ""
 echo "4️⃣  DOCKER SETUP (if Docker was installed)"
 echo "   → Start Docker Desktop application"
@@ -403,12 +334,6 @@ echo "6️⃣  CURSOR IDE CONFIGURATION"
 echo "   → Open Cursor IDE"
 echo "   → Settings should be automatically applied"
 echo "   → If needed, restart Cursor to load all configurations"
-echo ""
-echo "7️⃣  GEMINI CLI - ENABLE GEMINI 3"
-echo "   → Run: gemini"
-echo "   → Type: /settings and enable 'Preview Features'"
-echo "   → Type: /model and select 'Auto (Gemini 3)'"
-echo "   → See: https://github.com/google-gemini/gemini-cli/blob/main/docs/get-started/gemini-3.md"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

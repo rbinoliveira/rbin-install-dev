@@ -121,7 +121,6 @@ bash 14-configure-inotify.sh
 bash 15-configure-vscode.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh       # ⚠️ Logout/login after this
-bash 18-install-insomnia.sh
 bash 19-install-tableplus.sh
 ```
 
@@ -162,7 +161,6 @@ bash 14-configure-file-watchers.sh
 bash 15-configure-vscode.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh
-bash 18-install-insomnia.sh
 bash 19-install-tableplus.sh
 ```
 
@@ -229,7 +227,6 @@ Runs all installation scripts in sequence automatically.
 | **16-configure-cursor.sh** | Applies Cursor configurations |
 | **17-install-docker.sh** (Linux) | Installs Docker Engine ⚠️ Logout/login after |
 | **17-install-docker.sh** (macOS) | Installs Docker Desktop |
-| **18-install-insomnia.sh** | Installs Insomnia REST Client |
 | **19-install-tableplus.sh** | Installs TablePlus database client |
 
 ---
@@ -485,7 +482,6 @@ bash 14-configure-inotify.sh
 bash 15-configure-vscode.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh       # ⚠️ Faça logout/login após isso
-bash 18-install-insomnia.sh
 bash 19-install-tableplus.sh
 ```
 
@@ -526,7 +522,6 @@ bash 14-configure-file-watchers.sh
 bash 15-configure-vscode.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh
-bash 18-install-insomnia.sh
 bash 19-install-tableplus.sh
 ```
 
@@ -593,7 +588,6 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **16-configure-cursor.sh** | Aplica configurações do Cursor |
 | **17-install-docker.sh** (Linux) | Instala Docker Engine ⚠️ Faça logout/login após |
 | **17-install-docker.sh** (macOS) | Instala Docker Desktop |
-| **18-install-insomnia.sh** | Instala Insomnia REST Client |
 | **19-install-tableplus.sh** | Instala cliente de banco de dados TablePlus |
 
 ---

@@ -104,18 +104,6 @@ if [ -f "$SCRIPT_DIR/lib/check_installed.sh" ]; then
 fi
 
 # ────────────────────────────────────────────────────────────────
-# Welcome Banner
-# ────────────────────────────────────────────────────────────────
-
-clear
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║         🚀 Rbin Scripts - Installation Manager 🚀           ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-print_platform_info
-echo ""
-
-# ────────────────────────────────────────────────────────────────
 # Environment Variables Setup
 # ────────────────────────────────────────────────────────────────
 
@@ -176,11 +164,7 @@ setup_environment_variables() {
         fi
     fi
 
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "✅ Environment configuration complete"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
+    return 0
 }
 
 # ────────────────────────────────────────────────────────────────
@@ -194,18 +178,20 @@ get_all_scripts() {
     # Get all scripts from the platform directory
     if [ -d "$platform_dir" ]; then
         # List all numbered scripts (excluding 00-install-all.sh)
+        # Supports formats like: 01-, 02.5-, etc.
         for script in "$platform_dir"/*.sh; do
             if [ -f "$script" ]; then
                 local basename_script=$(basename "$script")
                 # Only include numbered scripts, but not 00-install-all.sh
-                if [[ "$basename_script" =~ ^[0-9]+-.*\.sh$ ]] && [[ "$basename_script" != "00-install-all.sh" ]]; then
+                # Pattern matches: number-number.sh or number.number-number.sh
+                if [[ "$basename_script" =~ ^[0-9]+\.?[0-9]*-.*\.sh$ ]] && [[ "$basename_script" != "00-install-all.sh" ]]; then
                     scripts+=("$basename_script")
                 fi
             fi
         done
     fi
 
-    # Sort scripts
+    # Sort scripts using version sort (handles 02.5 correctly)
     local sorted_scripts=($(printf '%s\n' "${scripts[@]}" | sort -V))
 
     # Output as space-separated string
@@ -213,110 +199,14 @@ get_all_scripts() {
 }
 
 # ────────────────────────────────────────────────────────────────
-# Select Scripts to Run
+# Select Scripts to Run (deprecated - now integrated in main flow)
 # ────────────────────────────────────────────────────────────────
-
-select_scripts_to_run() {
-    local all_scripts=($(get_all_scripts))
-    local selected_scripts=()
-
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📋 Available Scripts for $PLATFORM_NAME"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-
-    local index=1
-    for script in "${all_scripts[@]}"; do
-        # Format script name for display
-        local script_name=$(echo "$script" | sed 's/^[0-9]*-//;s/\.sh$//' | tr '-' ' ' | sed 's/\b\(.\)/\u\1/g')
-        printf "  %2d) %s\n" "$index" "$script"
-        ((index++))
-    done
-
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "Enter the numbers of scripts you want to run, separated by commas."
-    echo "Example: 1,2,3 or 1,5,10"
-    echo ""
-
-    while true; do
-        read -p "Select scripts: " user_input
-        echo ""
-
-        if [ -z "$user_input" ]; then
-            echo "❌ Please enter at least one script number."
-            echo ""
-            continue
-        fi
-
-        # Parse comma-separated numbers
-        local valid_selection=true
-        IFS=',' read -ra numbers <<< "$user_input"
-
-        for num in "${numbers[@]}"; do
-            # Remove whitespace
-            num=$(echo "$num" | tr -d '[:space:]')
-
-            # Check if it's a valid number
-            if ! [[ "$num" =~ ^[0-9]+$ ]]; then
-                echo "❌ Invalid number: $num"
-                valid_selection=false
-                continue
-            fi
-
-            # Check if number is in range
-            if [ "$num" -lt 1 ] || [ "$num" -gt ${#all_scripts[@]} ]; then
-                echo "❌ Number $num is out of range (1-${#all_scripts[@]})"
-                valid_selection=false
-                continue
-            fi
-
-            # Add to selected scripts (convert to 0-based index)
-            local script_index=$((num - 1))
-            selected_scripts+=("${all_scripts[$script_index]}")
-        done
-
-        if [ "$valid_selection" = true ] && [ ${#selected_scripts[@]} -gt 0 ]; then
-            break
-        else
-            echo "Please try again."
-            echo ""
-            selected_scripts=()
-        fi
-    done
-
-    # Export selected scripts as space-separated string
-    export SELECTED_SCRIPTS="${selected_scripts[*]}"
-
-    echo "✓ Selected scripts:"
-    for script in "${selected_scripts[@]}"; do
-        echo "   - $script"
-    done
-    echo ""
-}
 
 # ────────────────────────────────────────────────────────────────
 # Installation Function
 # ────────────────────────────────────────────────────────────────
 
 install_development_environment() {
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📦 Install Development Environment"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "This will install and configure your complete development environment:"
-    echo "  • Git configuration"
-    echo "  • Zsh shell with Zinit and Starship prompt"
-    echo "  • Node.js (via NVM) and Yarn"
-    echo "  • Development tools and utilities"
-    echo "  • Cursor IDE and extensions"
-    echo "  • Docker"
-    echo "  • And more..."
-    echo ""
-    echo "Platform: $PLATFORM_NAME"
-    echo ""
-
     # Setup environment variables before installation
     if ! setup_environment_variables; then
         echo "❌ Environment configuration failed. Please fix the issues above and try again."
@@ -324,66 +214,103 @@ install_development_environment() {
         return 1
     fi
 
-    # Choose installation mode
-    if [ "$FORCE_MODE" = false ]; then
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "🚀 Installation Action Selection"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # Always use reinstall mode
+    export INSTALL_MODE="reinstall"
+    export FORCE_REINSTALL=true
+    
+    # Show numbered list of scripts and allow selection
+    local all_scripts=($(get_all_scripts))
+    
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📋 Available Installation Scripts"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Select scripts to install (will always reinstall):"
+    echo ""
+    
+    local index=1
+    for script in "${all_scripts[@]}"; do
+        # Format script name for display (remove numbers and .sh, capitalize)
+        # Remove .sh extension first
+        local script_basename=$(echo "$script" | sed 's/\.sh$//')
+        # Remove leading numbers (including decimals like 02.5) and dash
+        # Pattern: one or more digits, optionally followed by . and more digits, then a dash
+        local script_name=$(echo "$script_basename" | sed -E 's/^[0-9]+(\.[0-9]+)?-//' | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
+        printf "  %2d) %s\n" "$index" "$script_name"
+        ((index++))
+    done
+    
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Enter script numbers separated by commas (e.g., 1,2,3)"
+    echo "Or type 'all' to install everything"
+    echo ""
+    
+    while true; do
+        read -p "Select scripts: " user_input
         echo ""
-        echo "Choose what you want to do:"
-        echo ""
-        echo "  1) 🧠 Smart Install"
-        echo "     Installs only what's missing"
-        echo "     Automatically skips tools that are already installed"
-        echo ""
-        echo "  2) 🔄 Reinstall All"
-        echo "     Reinstalls everything from scratch"
-        echo "     Useful for updating or fixing issues"
-        echo ""
-        echo "  3) 🎯 Select What to Run"
-        echo "     Choose specific scripts to run"
-        echo "     You'll see a list and select by number (e.g., 1,2,3)"
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        read -p "Select action [1/2/3] (default: 1): " -n 1 -r
-        echo ""
-        echo ""
-
-        if [[ -z "$REPLY" ]] || [[ "$REPLY" == "1" ]]; then
-            export INSTALL_ACTION="smart"
-            export INSTALL_MODE="smart"
-            echo "✓ Selected: Smart Install"
-            log_info "Installation action: Smart Install"
-        elif [[ "$REPLY" == "2" ]]; then
-            export INSTALL_ACTION="reinstall"
-            export INSTALL_MODE="interactive"
-            export FORCE_REINSTALL=true
-            echo "✓ Selected: Reinstall All"
-            log_info "Installation action: Reinstall All"
-        elif [[ "$REPLY" == "3" ]]; then
-            export INSTALL_ACTION="select"
-            export INSTALL_MODE="interactive"
-            echo "✓ Selected: Select What to Run"
-            log_info "Installation action: Select What to Run"
-        else
-            echo "❌ Invalid option. Using Smart Install by default."
-            export INSTALL_ACTION="smart"
-            export INSTALL_MODE="smart"
-            log_info "Installation action: Smart Install (default)"
+        
+        if [ -z "$user_input" ]; then
+            echo "❌ Please enter at least one script number or 'all'."
+            echo ""
+            continue
         fi
-    else
-        # Force mode defaults to smart mode
-        export INSTALL_ACTION="smart"
-        export INSTALL_MODE="smart"
-        log_info "Installation action: Smart (force mode)"
-    fi
-
-    # Handle select action - let user choose specific scripts
-    if [ "$INSTALL_ACTION" = "select" ]; then
-        select_scripts_to_run
-        export SELECTED_SCRIPTS
-    fi
+        
+        # Convert to lowercase for comparison
+        user_input_lower=$(echo "$user_input" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+        
+        # Handle "all" option
+        if [ "$user_input_lower" = "all" ]; then
+            export SELECTED_SCRIPTS="${all_scripts[*]}"
+            echo "✓ Selected: All scripts (${#all_scripts[@]} scripts)"
+            log_info "Installation action: All scripts selected"
+            break
+        fi
+        
+        # Parse comma-separated numbers
+        local valid_selection=true
+        local selected_scripts=()
+        IFS=',' read -ra numbers <<< "$user_input"
+        
+        for num in "${numbers[@]}"; do
+            # Remove whitespace
+            num=$(echo "$num" | tr -d '[:space:]')
+            
+            # Check if it's a valid number
+            if ! [[ "$num" =~ ^[0-9]+$ ]]; then
+                echo "❌ Invalid number: $num"
+                valid_selection=false
+                continue
+            fi
+            
+            # Check if number is in range
+            if [ "$num" -lt 1 ] || [ "$num" -gt ${#all_scripts[@]} ]; then
+                echo "❌ Number $num is out of range (1-${#all_scripts[@]})"
+                valid_selection=false
+                continue
+            fi
+            
+            # Add to selected scripts (convert to 0-based index)
+            local script_index=$((num - 1))
+            selected_scripts+=("${all_scripts[$script_index]}")
+        done
+        
+        if [ "$valid_selection" = true ] && [ ${#selected_scripts[@]} -gt 0 ]; then
+            export SELECTED_SCRIPTS="${selected_scripts[*]}"
+            echo "✓ Selected scripts:"
+            for script in "${selected_scripts[@]}"; do
+                echo "   - $script"
+            done
+            log_info "Installation action: Selected scripts: ${SELECTED_SCRIPTS}"
+            break
+        else
+            echo "Please try again."
+            echo ""
+        fi
+    done
+    
+    echo ""
 
     # Determine platform-specific script path
     local install_script

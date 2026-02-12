@@ -85,7 +85,6 @@ if [ "$INSTALLED" = true ]; then
     echo ""
     echo "📝 Note: Zed supports integration with:"
     echo "   • Claude Code (built-in support)"
-    echo "   • Gemini CLI (external agent)"
     echo "   • Cursor CLI (external agent)"
     echo ""
     echo "=============================================="

@@ -29,7 +29,7 @@ fi
 set -e
 
 echo "=============================================="
-echo "========= [17] INSTALLING INSOMNIA ==========="
+echo "========= [19] INSTALLING TABLEPLUS =========="
 echo "=============================================="
 
 # Check if Homebrew is installed
@@ -38,25 +38,30 @@ if ! command -v brew &> /dev/null; then
   exit 1
 fi
 
-echo "Installing Insomnia via Homebrew..."
+echo "Installing TablePlus via Homebrew..."
 
 # Check if already installed via Homebrew
-if brew list --cask insomnia &> /dev/null 2>&1; then
-    echo "✓ Insomnia is already installed via Homebrew"
+if brew list --cask tableplus &> /dev/null 2>&1; then
+    echo "✓ TablePlus is already installed via Homebrew"
     echo "  Skipping reinstallation"
 else
-    echo "Installing Insomnia..."
-    brew install --cask insomnia
+    echo "Installing TablePlus..."
+    brew install --cask tableplus
 fi
 
 # Verify installation
-if [ -d "/Applications/Insomnia.app" ]; then
-    echo "✓ Insomnia installed successfully"
+if [ -d "/Applications/TablePlus.app" ]; then
+    echo "✓ TablePlus installed successfully"
 else
-    echo "⚠️  Insomnia installation may have failed"
+    echo "⚠️  TablePlus installation may have failed"
 fi
 
 echo "=============================================="
-echo "============== [17] DONE ===================="
+echo "============== [19] DONE ===================="
 echo "=============================================="
-echo "▶ Next, run: bash 18-install-tableplus.sh"
+echo ""
+echo "📝 TablePlus is a modern database management tool for:"
+echo "   - MySQL, MariaDB, PostgreSQL, SQLite, Redis, and many more"
+echo "   - Beautiful native interface"
+echo "   - Cross-platform support"
+echo ""

@@ -49,7 +49,14 @@ fi
 echo "✓ Docker Desktop installed"
 
 echo "Starting Docker Desktop..."
-open -a Docker
+# Use full path to ensure Docker.app is found after installation
+if [ -d "/Applications/Docker.app" ]; then
+  open /Applications/Docker.app
+else
+  echo "⚠️  Docker.app not found at /Applications/Docker.app"
+  echo "   Attempting to launch with 'open -a Docker'..."
+  open -a Docker || echo "⚠️  Could not launch Docker. Please start it manually."
+fi
 
 echo "Waiting for Docker to start..."
 sleep 5
@@ -68,4 +75,4 @@ echo "============== [16] DONE ===================="
 echo "=============================================="
 echo "⚠️  Make sure Docker Desktop is running"
 echo ""
-echo "▶ Next, run: bash 17-install-insomnia.sh"
+echo "▶ Next, run: bash 19-install-tableplus.sh"

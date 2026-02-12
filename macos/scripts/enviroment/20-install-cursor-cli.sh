@@ -29,79 +29,62 @@ fi
 set -e
 
 echo "=============================================="
-echo "======= [20] INSTALLING GEMINI CLI =========="
+echo "======= [20] INSTALLING CURSOR CLI =========="
 echo "=============================================="
 
-# Load NVM if available
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+echo "Installing Cursor CLI..."
 
-# Check if Node.js/npm is available
-if ! command -v npm &> /dev/null; then
-    echo "⚠️  npm not found. Gemini CLI requires Node.js/npm."
-    echo "   Please install Node.js first (script 05-install-node-nvm.sh)"
-    echo "   Gemini CLI will be installed when Node.js is available."
+# Check if cursor-agent is already installed
+if command -v cursor-agent &> /dev/null; then
+    echo "✓ Cursor CLI (cursor-agent) is already installed"
+    cursor-agent --version 2>/dev/null || echo "⚠️  Version check failed, but Cursor CLI is installed"
+    echo "=============================================="
+    echo "============== [20] DONE ===================="
+    echo "=============================================="
     exit 0
 fi
 
-echo "Installing Gemini CLI via npm..."
-
-# Reinstall if already installed
-if npm list -g @google/gemini-cli &> /dev/null; then
-    echo "→ Reinstalling @google/gemini-cli..."
-    npm install -g @google/gemini-cli@latest --force
-else
-    echo "→ Installing @google/gemini-cli..."
-    npm install -g @google/gemini-cli@latest
-fi
-
-if npm list -g @google/gemini-cli &> /dev/null; then
-    echo "✓ Gemini CLI installed successfully"
-
-    # Verify installation and check version
-    if command -v gemini &> /dev/null; then
-        echo "✓ Gemini command is available"
-        GEMINI_VERSION=$(gemini --version 2>/dev/null | head -1 || echo "unknown")
-        if [ "$GEMINI_VERSION" != "unknown" ]; then
-            echo "  Version: $GEMINI_VERSION"
-        else
-            echo "⚠️  Version check failed, but Gemini CLI is installed"
+# Install Cursor CLI
+echo "Downloading and installing Cursor CLI..."
+if curl -fsS https://cursor.com/install | bash; then
+    echo "✓ Cursor CLI installation script executed"
+    
+    # Wait a moment for installation to complete
+    sleep 2
+    
+    # Ensure ~/.local/bin is in PATH for this session
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    # Add to PATH in .zshrc if not already present
+    if [ -f "$HOME/.zshrc" ]; then
+        if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.zshrc"; then
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+            echo "✓ Added ~/.local/bin to PATH in .zshrc"
         fi
-    else
-        echo "⚠️  Gemini command not found in PATH"
-        echo "   You may need to restart your terminal or add npm global bin to PATH"
-        echo "   Try running: gemini --help (after restarting terminal)"
     fi
-
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 SETUP INSTRUCTIONS"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "1️⃣  Authenticate Gemini CLI (first time only):"
-    echo "   → Run: gemini"
-    echo "   → Follow the authentication prompts"
-    echo ""
-    echo "2️⃣  Enable Gemini 3 Pro and Gemini 3 Flash:"
-    echo "   → Run: gemini"
-    echo "   → Type: /settings"
-    echo "   → Set 'Preview Features' to: true"
-    echo "   → Type: /model"
-    echo "   → Select: Auto (Gemini 3)"
-    echo ""
-    echo "📚 For more info: https://github.com/google-gemini/gemini-cli/blob/main/docs/get-started/gemini-3.md"
-    echo ""
-    echo "⚠️  Note: Gemini 3 requires version 0.21.1 or later."
-    echo "   If you don't have access, you may need to:"
-    echo "   - Have a paid subscription (Google AI Pro/Ultra, Gemini Code Assist)"
-    echo "   - Or be on the waitlist for free tier access"
-    echo ""
+    
+    # Verify installation
+    if command -v cursor-agent &> /dev/null; then
+        echo "✓ Cursor CLI (cursor-agent) installed successfully"
+        cursor-agent --version 2>/dev/null || echo "⚠️  Version check failed, but Cursor CLI is installed"
+    else
+        # Try to find it in common locations
+        if [ -f "$HOME/.local/bin/cursor-agent" ]; then
+            echo "✓ Cursor CLI found at ~/.local/bin/cursor-agent"
+            echo "⚠️  You may need to restart your terminal for 'cursor-agent' command to be available"
+        else
+            echo "⚠️  Cursor CLI installation completed, but command not found"
+            echo "   Please restart your terminal or check ~/.local/bin"
+        fi
+    fi
 else
-    echo "❌ Failed to install Gemini CLI"
+    echo "❌ Failed to install Cursor CLI"
+    echo ""
+    echo "You can try installing manually:"
+    echo "  curl -fsS https://cursor.com/install | bash"
     exit 1
 fi
 
 echo "=============================================="
 echo "============== [20] DONE ===================="
 echo "=============================================="
-echo "▶ Next, run: bash 21-install-zed.sh"

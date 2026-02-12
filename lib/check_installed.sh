@@ -116,17 +116,11 @@ check_script_installed() {
         "16-install-docker.sh"|"17-install-docker.sh")
             check_installed "docker" || return 1
             ;;
-        "17-install-insomnia.sh"|"18-install-insomnia.sh")
-            check_installed "insomnia" || [ -d "/Applications/Insomnia.app" ] || return 1
-            ;;
         "18-install-tableplus.sh"|"19-install-tableplus.sh")
             check_installed "tableplus" || [ -d "/Applications/TablePlus.app" ] || return 1
             ;;
         "19-install-cursor-cli.sh"|"20-install-cursor-cli.sh")
             check_installed "cursor-agent" || return 1
-            ;;
-        "20-install-gemini-cli.sh"|"21-install-gemini-cli.sh")
-            check_installed "gemini" || return 1
             ;;
         "21-install-zed.sh")
             check_installed "zed" || [ -d "/Applications/Zed.app" ] || return 1

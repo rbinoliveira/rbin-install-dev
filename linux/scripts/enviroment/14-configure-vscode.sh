@@ -32,6 +32,48 @@ echo "=============================================="
 echo "========= [14] CONFIGURING VS CODE ==========="
 echo "=============================================="
 
+# Check if font is installed
+echo "Checking if CaskaydiaCove Nerd Font is installed..."
+FONT_INSTALLED=false
+FONT_LOCATION=""
+
+# Check font files in common Linux locations
+for check_dir in "$HOME/.local/share/fonts/CascadiaCode" "$HOME/.fonts" "/usr/local/share/fonts"; do
+    if ls "$check_dir"/*.ttf 2>/dev/null | head -1 > /dev/null; then
+        FONT_INSTALLED=true
+        FONT_LOCATION="$check_dir"
+        echo "✓ Found font files in $check_dir"
+        break
+    fi
+done
+
+# Also check using fc-list
+if [ "$FONT_INSTALLED" = false ] && command -v fc-list &> /dev/null; then
+    if fc-list | grep -qi 'CaskaydiaCove\|CascadiaCode'; then
+        FONT_INSTALLED=true
+        FONT_LOCATION="System fonts"
+        echo "✓ Font found via fontconfig"
+    fi
+fi
+
+if [ "$FONT_INSTALLED" = false ]; then
+    echo ""
+    echo "⚠️  WARNING: CaskaydiaCove Nerd Font is not installed!"
+    echo ""
+    echo "VS Code will be configured, but the font may not work until you install it."
+    echo ""
+    echo "To install the font, run:"
+    echo "  bash linux/scripts/enviroment/08-install-font-cascadia.sh"
+    echo ""
+    read -p "Continue with VS Code configuration anyway? [Y/n]: " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Nn]$ ]]; then
+        echo "Configuration cancelled. Please install the font first."
+        exit 1
+    fi
+    echo ""
+fi
+
 # Determine VS Code user directory based on OS
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   VSCODE_USER_DIR="$HOME/.config/Code/User"
@@ -86,10 +128,32 @@ if [ ! -f "$KEYBINDINGS_PATH" ] || [ ! -s "$KEYBINDINGS_PATH" ]; then
   exit 1
 fi
 
+echo ""
+if [ "$FONT_INSTALLED" = true ]; then
+    echo "📝 Font Configuration:"
+    echo "   ✓ Font is installed and VS Code is configured to use it"
+    echo "   Font location: $FONT_LOCATION"
+    echo ""
+    echo "   To verify in VS Code:"
+    echo "   1. Restart VS Code completely"
+    echo "   2. Check Settings → Font Family"
+    echo "   3. The font should appear as: 'CaskaydiaCove Nerd Font Mono'"
+    echo ""
+else
+    echo "📝 Font Configuration:"
+    echo "   ⚠️  Font is NOT installed, but VS Code is configured"
+    echo ""
+    echo "   IMPORTANT: Install the font for it to work:"
+    echo "   → Run: bash linux/scripts/enviroment/08-install-font-cascadia.sh"
+    echo ""
+    echo "   After installing, restart VS Code"
+    echo ""
+fi
+
 echo "=============================================="
 echo "============== [14] DONE ===================="
 echo "=============================================="
 echo "🎉 VS Code configured successfully!"
-echo "   Open VS Code again to apply keybindings."
+echo "   Open VS Code again to apply settings and keybindings."
 echo ""
 echo "▶ Next, run: bash 15-configure-cursor.sh"
