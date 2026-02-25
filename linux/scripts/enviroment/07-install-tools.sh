@@ -37,13 +37,52 @@ echo "Installing productivity tools..."
 # Update package list
 sudo apt update -y
 
-# Install tools available in apt repositories
-sudo apt install -y \
-  zoxide \
-  fzf \
-  fd-find \
-  bat \
-  lsd
+# Install tools that are usually in apt (allow partial failure so we can fallback per-tool)
+if ! sudo apt install -y zoxide fzf fd-find bat 2>/dev/null; then
+  # Install individually if the batch fails (e.g. one package missing)
+  for pkg in zoxide fzf fd-find bat; do
+    sudo apt install -y "$pkg" 2>/dev/null || echo "⚠️  apt: $pkg not installed (will try fallback if any)"
+  done
+fi
+
+# lsd: not in all distros' repos (e.g. Zorin/Ubuntu without universe). Try apt → snap → GitHub .deb
+if ! command -v lsd &> /dev/null; then
+  echo ""
+  echo "Installing lsd (modern ls)..."
+  LSD_OK=false
+  if sudo apt install -y lsd 2>/dev/null; then
+    LSD_OK=true
+    echo "✓ lsd installed via apt"
+  fi
+  if [ "$LSD_OK" = false ] && command -v snap &> /dev/null; then
+    echo "→ Trying snap for lsd..."
+    if sudo snap install lsd 2>/dev/null; then
+      LSD_OK=true
+      echo "✓ lsd installed via snap"
+      [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH="/snap/bin:$PATH"
+    fi
+  fi
+  if [ "$LSD_OK" = false ]; then
+    echo "→ Trying GitHub release for lsd..."
+    ARCH=$(uname -m)
+    [ "$ARCH" = "x86_64" ] && DEB_ARCH="amd64" || [ "$ARCH" = "aarch64" ] && DEB_ARCH="arm64" || DEB_ARCH="amd64"
+    LSD_VERSION=$(curl -s https://api.github.com/repos/lsd-rs/lsd/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+    if [ -n "$LSD_VERSION" ]; then
+      DEB_URL="https://github.com/lsd-rs/lsd/releases/download/v${LSD_VERSION}/lsd_${LSD_VERSION}_${DEB_ARCH}.deb"
+      TEMP_DEB=$(mktemp -u).deb
+      if curl -sLf "$DEB_URL" -o "$TEMP_DEB" && sudo dpkg -i "$TEMP_DEB" 2>/dev/null; then
+        sudo apt install -f -y 2>/dev/null || true
+        LSD_OK=true
+        echo "✓ lsd installed from GitHub"
+      fi
+      rm -f "$TEMP_DEB"
+    fi
+  fi
+  if [ "$LSD_OK" = false ]; then
+    echo "⚠️  lsd could not be installed automatically. Install manually: snap install lsd"
+  fi
+  echo ""
+fi
 
 # Install lazygit (not available in default repos, use alternative methods)
 echo ""
@@ -145,6 +184,14 @@ fi
 # Create symlinks for fd (apt installs as fdfind)
 if [ ! -L /usr/local/bin/fd ] && [ -f /usr/bin/fdfind ]; then
   sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
+fi
+
+# Debian/Ubuntu installs bat as "batcat"; create "bat" so alias cat='bat' works
+if ! command -v bat &> /dev/null && command -v batcat &> /dev/null; then
+  mkdir -p ~/.local/bin
+  BATCAT_PATH=$(command -v batcat)
+  ln -sf "$BATCAT_PATH" ~/.local/bin/bat
+  echo "✓ Symlink created: ~/.local/bin/bat -> batcat"
 fi
 
 # Install FZF keybindings

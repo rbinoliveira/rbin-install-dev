@@ -74,10 +74,9 @@ check_item "Git" "command -v git"
 
 echo ""
 
-# Check VS Code / Cursor
+# Check Cursor
 echo "📝 Editors:"
 echo "--------"
-check_item "VS Code" "[ -d '/Applications/Visual Studio Code.app' ]"
 check_item "Cursor" "[ -d '/Applications/Cursor.app' ]"
 
 echo ""

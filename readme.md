@@ -24,7 +24,7 @@ This repository contains **all development environment configurations**, includi
 - 📝 Configuration files (dotfiles)
 - 🎨 Themes and fonts
 - ⚙️ Automated installation scripts
-- 🔧 VS Code and Cursor configurations
+- 🔧 Cursor configurations
 - 🛠️ Auxiliary tools
 - 🏢 Separate personal and work environments
 - 🔐 Environment variables for sensitive data
@@ -48,7 +48,12 @@ The easiest way to get started is using the main `run.sh` script:
 bash run.sh
 ```
 
-This will start the installation process for your development environment.
+When you run it, the **first question** is the installation mode:
+
+- **Modo pessoal (1)** – Development environment without AWS, Java or .NET.
+- **Modo empresa (2)** – Includes AWS (CLI, VPN, SSO), Java and .NET configurations.
+
+Then the installation process continues for your chosen mode.
 
 #### 3. Manual Installation (Alternative)
 
@@ -112,16 +117,14 @@ bash 05-install-node-nvm.sh
 bash 06-install-yarn.sh
 bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
-bash 09-install-vscode.sh
-bash 10-install-cursor.sh
-bash 11-install-claude.sh
-bash 12-configure-terminal.sh
-bash 13-configure-ssh.sh
-bash 14-configure-inotify.sh
-bash 15-configure-vscode.sh
-bash 16-configure-cursor.sh
-bash 17-install-docker.sh       # ⚠️ Logout/login after this
-bash 19-install-tableplus.sh
+bash 09-install-cursor.sh
+bash 10-install-claude.sh
+bash 11-configure-terminal.sh
+bash 12-configure-ssh.sh
+bash 15-configure-cursor.sh
+bash 16-install-docker.sh       # ⚠️ Logout/login after this
+bash 18-install-tableplus.sh
+bash 19-install-cursor-cli.sh
 ```
 
 ---
@@ -157,11 +160,10 @@ bash 10-install-cursor.sh
 bash 11-install-claude.sh
 bash 12-configure-terminal.sh
 bash 13-configure-ssh.sh
-bash 14-configure-file-watchers.sh
-bash 15-configure-vscode.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh
 bash 19-install-tableplus.sh
+bash 20-install-cursor-cli.sh
 ```
 
 ---
@@ -214,20 +216,20 @@ Runs all installation scripts in sequence automatically.
 | **06-install-yarn.sh** | Installs Yarn via Corepack |
 | **07-install-tools.sh** | Installs various development tools and utilities |
 | **08-install-font-caskaydia.sh** | Installs CaskaydiaCove Nerd Font |
-| **09-install-vscode.sh** | Installs Visual Studio Code |
-| **10-install-cursor.sh** | Installs Cursor Editor |
+| **09-install-cursor.sh** (Linux) | Installs Cursor Editor |
+| **10-install-cursor.sh** (macOS) | Installs Cursor Editor |
 | **11-install-claude.sh** | Installs Claude Code CLI |
-| **12-configure-terminal.sh** (Linux) | Configures GNOME Terminal with Dracula theme |
+| **11-configure-terminal.sh** (Linux) | Configures GNOME Terminal with Dracula theme |
 | **12-configure-terminal.sh** (macOS) | Configures iTerm2 with Dracula theme |
-| **13-configure-ssh.sh** (Linux) | Configures SSH for Git |
+| **12-configure-ssh.sh** (Linux) | Configures SSH for Git |
 | **13-configure-ssh.sh** (macOS) | Configures SSH for Git |
-| **14-configure-inotify.sh** (Linux) | Configures inotify limits for file watching |
-| **14-configure-file-watchers.sh** (macOS) | Configures file watcher limits |
-| **15-configure-vscode.sh** | Applies VS Code configurations |
-| **16-configure-cursor.sh** | Applies Cursor configurations |
-| **17-install-docker.sh** (Linux) | Installs Docker Engine ⚠️ Logout/login after |
+| **15-configure-cursor.sh** | Applies Cursor configurations |
+| **16-install-docker.sh** (Linux) | Installs Docker Engine ⚠️ Logout/login after |
 | **17-install-docker.sh** (macOS) | Installs Docker Desktop |
-| **19-install-tableplus.sh** | Installs TablePlus database client |
+| **18-install-tableplus.sh** (Linux) | Installs TablePlus database client |
+| **19-install-tableplus.sh** (macOS) | Installs TablePlus database client |
+| **19-install-cursor-cli.sh** (Linux) | Installs Cursor CLI |
+| **20-install-cursor-cli.sh** (macOS) | Installs Cursor CLI |
 
 ---
 
@@ -385,7 +387,7 @@ Este repositório contém **todas as configurações de ambiente de desenvolvime
 - 📝 Arquivos de configuração (dotfiles)
 - 🎨 Temas e fontes
 - ⚙️ Scripts de instalação automatizados
-- 🔧 Configurações do VS Code e Cursor
+- 🔧 Configurações do Cursor
 - 🛠️ Ferramentas auxiliares
 - 🏢 Ambientes separados para pessoal e trabalho
 - 🔐 Variáveis de ambiente para dados sensíveis
@@ -473,16 +475,14 @@ bash 05-install-node-nvm.sh
 bash 06-install-yarn.sh
 bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
-bash 09-install-vscode.sh
-bash 10-install-cursor.sh
-bash 11-install-claude.sh
-bash 12-configure-terminal.sh
-bash 13-configure-ssh.sh
-bash 14-configure-inotify.sh
-bash 15-configure-vscode.sh
-bash 16-configure-cursor.sh
-bash 17-install-docker.sh       # ⚠️ Faça logout/login após isso
-bash 19-install-tableplus.sh
+bash 09-install-cursor.sh
+bash 10-install-claude.sh
+bash 11-configure-terminal.sh
+bash 12-configure-ssh.sh
+bash 15-configure-cursor.sh
+bash 16-install-docker.sh       # ⚠️ Faça logout/login após isso
+bash 18-install-tableplus.sh
+bash 19-install-cursor-cli.sh
 ```
 
 ---
@@ -518,11 +518,10 @@ bash 10-install-cursor.sh
 bash 11-install-claude.sh
 bash 12-configure-terminal.sh
 bash 13-configure-ssh.sh
-bash 14-configure-file-watchers.sh
-bash 15-configure-vscode.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh
 bash 19-install-tableplus.sh
+bash 20-install-cursor-cli.sh
 ```
 
 ---
@@ -575,20 +574,20 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **06-install-yarn.sh** | Instala Yarn via Corepack |
 | **07-install-tools.sh** | Instala várias ferramentas de desenvolvimento e utilitários |
 | **08-install-font-caskaydia.sh** | Instala CaskaydiaCove Nerd Font |
-| **09-install-vscode.sh** | Instala Visual Studio Code |
-| **10-install-cursor.sh** | Instala Cursor Editor |
+| **09-install-cursor.sh** (Linux) | Instala Cursor Editor |
+| **10-install-cursor.sh** (macOS) | Instala Cursor Editor |
 | **11-install-claude.sh** | Instala Claude Code CLI |
-| **12-configure-terminal.sh** (Linux) | Configura GNOME Terminal com tema Dracula |
+| **11-configure-terminal.sh** (Linux) | Configura GNOME Terminal com tema Dracula |
 | **12-configure-terminal.sh** (macOS) | Configura iTerm2 com tema Dracula |
-| **13-configure-ssh.sh** (Linux) | Configura SSH para Git |
+| **12-configure-ssh.sh** (Linux) | Configura SSH para Git |
 | **13-configure-ssh.sh** (macOS) | Configura SSH para Git |
-| **14-configure-inotify.sh** (Linux) | Configura limites inotify para file watching |
-| **14-configure-file-watchers.sh** (macOS) | Configura limites de file watchers |
-| **15-configure-vscode.sh** | Aplica configurações do VS Code |
-| **16-configure-cursor.sh** | Aplica configurações do Cursor |
-| **17-install-docker.sh** (Linux) | Instala Docker Engine ⚠️ Faça logout/login após |
+| **15-configure-cursor.sh** | Aplica configurações do Cursor |
+| **16-install-docker.sh** (Linux) | Instala Docker Engine ⚠️ Faça logout/login após |
 | **17-install-docker.sh** (macOS) | Instala Docker Desktop |
-| **19-install-tableplus.sh** | Instala cliente de banco de dados TablePlus |
+| **18-install-tableplus.sh** (Linux) | Instala cliente de banco de dados TablePlus |
+| **19-install-tableplus.sh** (macOS) | Instala cliente de banco de dados TablePlus |
+| **19-install-cursor-cli.sh** (Linux) | Instala Cursor CLI |
+| **20-install-cursor-cli.sh** (macOS) | Instala Cursor CLI |
 
 ---
 

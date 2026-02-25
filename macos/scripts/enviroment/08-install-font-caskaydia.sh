@@ -393,11 +393,6 @@ if [ "$FONT_FOUND" = true ]; then
     fi
     echo "   5. Set size to 16"
     echo ""
-    echo "   📝 VS Code:"
-    echo "   1. Restart VS Code completely (⌘Q, then reopen)"
-    echo "   2. Settings are already configured"
-    echo "   3. Font should work automatically"
-    echo ""
     echo "   ⚠️  If font doesn't appear, try the alternative font or wait a few seconds and restart"
 else
     echo "❌ Font installation verification FAILED"
@@ -441,4 +436,4 @@ else
     echo "   bash macos/scripts/helpers/fix-font-installation.sh"
 fi
 echo ""
-echo "▶ Next, run: bash 09-install-vscode.sh"
+echo "▶ Next, run: bash 10-install-cursor.sh"

@@ -54,17 +54,20 @@ save_var_to_env() {
 }
 
 # Function to validate if a value is acceptable (not empty, not placeholder)
+# Optional second arg: if "allow_empty" then empty is valid (for optional vars)
 is_valid_value() {
     local value="$1"
+    local allow_empty="${2:-}"
 
-    # Check if empty
+    # Check if empty (unless allow_empty for optional vars)
     if [ -z "$value" ]; then
+        [ "$allow_empty" = "allow_empty" ] && return 0
         return 1
     fi
 
     # Check if it's a placeholder value
     case "$value" in
-        "Your Name"|"your.email@example.com"|"required"|"optional")
+        "Your Name"|"your.email@example.com"|"required"|"optional"|"https://your-org.awsapps.com/start"|"https://sua-org.awsapps.com/start")
             return 1
             ;;
     esac
@@ -73,11 +76,13 @@ is_valid_value() {
 }
 
 # Function to prompt user for a variable value
+# Arg 5: "optional" = empty value is allowed
 prompt_for_variable() {
     local var_name="$1"
     local prompt_text="$2"
     local default_value="$3"
     local env_file="$4"
+    local allow_empty="${5:-}"
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -92,17 +97,23 @@ prompt_for_variable() {
             read -p "Enter value for $var_name [$default_value]: " user_input
             user_input="${user_input:-$default_value}"
         else
+            [ "$allow_empty" = "optional" ] && echo "(press Enter to leave empty)"
             read -p "Enter value for $var_name: " user_input
         fi
 
+        if [ "$allow_empty" = "optional" ] && [ -z "$user_input" ]; then
+            echo "✓ $var_name left empty (optional)"
+            echo ""
+            break
+        fi
+
         if ! is_valid_value "$user_input"; then
-            echo "❌ Error: $var_name is required and cannot be empty or a placeholder value."
-            echo "   Please enter a valid value."
+            echo "❌ Error: $var_name cannot be a placeholder value."
+            echo "   Please enter a valid value or leave empty (if optional)."
             echo ""
             continue
         fi
 
-        # Save to .env
         save_var_to_env "$var_name" "$user_input" "$env_file"
         echo "✓ Saved $var_name to .env file"
         echo ""
@@ -111,12 +122,16 @@ prompt_for_variable() {
 }
 
 # Main validation function
+# Args: env_file, env_example, [mode]
+#   mode = "personal" (default) → only Git vars required
+#   mode = "enterprise"        → Git + GITHUB_TOKEN + AWS_SSO_* required
 validate_required_env_variables() {
     local env_file="$1"
     local env_example="$2"
+    local mode="${3:-personal}"
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "⚙️  Environment Variables Validation"
+    echo "⚙️  Environment Variables Validation (modo: $mode)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     echo "📝 Checking required environment variables..."
@@ -136,16 +151,20 @@ validate_required_env_variables() {
         echo ""
     fi
 
-    # Define required variables
+    # Required variables depend on mode
     # Format: "VAR_NAME:Prompt Text:default_value"
-    # All these variables are REQUIRED for the installation
     local required_vars=(
         "GIT_USER_NAME:Your Git user name (for Git commits):"
         "GIT_USER_EMAIL:Your Git user email (for Git commits):"
     )
 
-    # No optional variables - all are required
-    local optional_vars=()
+    if [ "$mode" = "enterprise" ]; then
+        required_vars+=(
+            "GITHUB_TOKEN:GitHub Personal Access Token (private repos; leave empty to skip):optional"
+            "AWS_SSO_START_URL:AWS SSO Start URL (e.g. https://your-org.awsapps.com/start):"
+            "AWS_SSO_REGION:AWS SSO Region (e.g. us-east-1):"
+        )
+    fi
 
     # First pass: check what's missing in required variables
     local missing_required=()
@@ -154,14 +173,16 @@ validate_required_env_variables() {
         IFS=':' read -r var_name prompt_text default_value <<< "$var_info"
         local current_value=$(get_var_from_env "$var_name" "$env_file")
 
-        # If empty and has default, use default
-        if [ -z "$current_value" ] && [ -n "$default_value" ]; then
-            current_value="$default_value"
+        # Optional vars (default_value=optional): empty is valid
+        if [ "$default_value" = "optional" ]; then
+            is_valid_value "$current_value" "allow_empty" && continue
+        else
+            if [ -z "$current_value" ] && [ -n "$default_value" ]; then
+                current_value="$default_value"
+            fi
+            is_valid_value "$current_value" && continue
         fi
-
-        if ! is_valid_value "$current_value"; then
-            missing_required+=("$var_info")
-        fi
+        missing_required+=("$var_info")
     done
 
     # If there are missing required variables, prompt for them
@@ -176,7 +197,9 @@ validate_required_env_variables() {
 
         for var_info in "${missing_required[@]}"; do
             IFS=':' read -r var_name prompt_text default_value <<< "$var_info"
-            prompt_for_variable "$var_name" "$prompt_text" "$default_value" "$env_file"
+            local opt_arg=""
+            [ "$default_value" = "optional" ] && { default_value=""; opt_arg="optional"; }
+            prompt_for_variable "$var_name" "$prompt_text" "$default_value" "$env_file" "$opt_arg"
         done
     fi
 
@@ -197,18 +220,17 @@ validate_required_env_variables() {
             IFS=':' read -r var_name prompt_text default_value <<< "$var_info"
             local value=$(get_var_from_env "$var_name" "$env_file")
 
-            # If empty and has default, use default
-            if [ -z "$value" ] && [ -n "$default_value" ]; then
-                value="$default_value"
-            fi
-
-            if ! is_valid_value "$value"; then
-                echo "❌ Missing or invalid: $var_name"
-                validation_failed=true
-                still_missing+=("$var_info")
+            if [ "$default_value" = "optional" ]; then
+                is_valid_value "$value" "allow_empty" && { echo "✓ $var_name is set (or optional)"; continue; }
             else
-                echo "✓ $var_name is set"
+                if [ -z "$value" ] && [ -n "$default_value" ]; then
+                    value="$default_value"
+                fi
+                is_valid_value "$value" && { echo "✓ $var_name is set"; continue; }
             fi
+            echo "❌ Missing or invalid: $var_name"
+            validation_failed=true
+            still_missing+=("$var_info")
         done
 
         echo ""
@@ -227,7 +249,9 @@ validate_required_env_variables() {
 
         for var_info in "${still_missing[@]}"; do
             IFS=':' read -r var_name prompt_text default_value <<< "$var_info"
-            prompt_for_variable "$var_name" "$prompt_text" "$default_value" "$env_file"
+            local opt_arg=""
+            [ "$default_value" = "optional" ] && { default_value=""; opt_arg="optional"; }
+            prompt_for_variable "$var_name" "$prompt_text" "$default_value" "$env_file" "$opt_arg"
         done
     done
 
@@ -242,8 +266,9 @@ validate_required_env_variables() {
         IFS=':' read -r var_name prompt_text default_value <<< "$var_info"
         local current_value=$(get_var_from_env "$var_name" "$env_file")
 
-        # Mask sensitive values
-        if [[ "$var_name" =~ (TOKEN|SECRET|PASSWORD|KEY) ]]; then
+        if [ -z "$current_value" ] && [ "$default_value" = "optional" ]; then
+            echo "✓ $var_name = (optional, not set)"
+        elif [[ "$var_name" =~ (TOKEN|SECRET|PASSWORD|KEY) ]]; then
             echo "✓ $var_name = $(echo "$current_value" | sed 's/\(.\{10\}\).*/\1.../' 2>/dev/null || echo "***HIDDEN***")"
         else
             echo "✓ $var_name = $(echo "$current_value" | sed 's/\(.\{50\}\).*/\1.../' 2>/dev/null || echo "$current_value")"
@@ -277,5 +302,91 @@ load_env_file() {
         echo "✓ Environment variables loaded"
         echo ""
     fi
+}
+
+# Function to populate AWS account variables from ~/.aws/config (modo empresa)
+populate_aws_accounts() {
+    local env_file="$1"
+
+    if ! declare -f get_aws_env_variables > /dev/null 2>&1; then
+        return 0
+    fi
+
+    if [ ! -f "$HOME/.aws/config" ]; then
+        return 0
+    fi
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🔍 Discovering AWS Accounts"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    local aws_vars_output
+    aws_vars_output=$(get_aws_env_variables)
+
+    if [ -z "$aws_vars_output" ]; then
+        echo "⏭️  No AWS accounts found in ~/.aws/config"
+        echo ""
+        return 0
+    fi
+
+    local existing_accounts=$(grep -c "^AWS_ACCOUNT_.*_ID=" "$env_file" 2>/dev/null || echo "0")
+
+    if [ "$existing_accounts" -gt 0 ]; then
+        echo "ℹ️  Found $existing_accounts AWS account(s) already in .env file."
+        echo ""
+        read -p "Do you want to update AWS accounts from ~/.aws/config? [y/N]: " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "⏭️  Keeping existing AWS accounts in .env"
+            echo ""
+            return 0
+        fi
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' '/^AWS_ACCOUNT_/d' "$env_file"
+        else
+            sed -i '/^AWS_ACCOUNT_/d' "$env_file"
+        fi
+        echo "✓ Removed existing AWS account variables"
+    fi
+
+    local account_count=0
+    echo ""
+    echo "Adding AWS accounts to .env file:"
+    echo ""
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+
+        if [[ "$line" =~ ^AWS_ACCOUNT_[0-9]+_(ID|ROLE|PROFILE)= ]]; then
+            echo "$line" >> "$env_file"
+            if [[ "$line" =~ ^AWS_ACCOUNT_[0-9]+_ID= ]]; then
+                account_count=$((account_count + 1))
+                local account_id=$(echo "$line" | sed 's/^AWS_ACCOUNT_[0-9]*_ID=//')
+                echo "  ✓ Account $account_count: $account_id"
+            fi
+        elif [[ "$line" =~ ^AWS_SSO_ ]]; then
+            local var_name=$(echo "$line" | sed 's/=.*//')
+            if grep -q "^${var_name}=" "$env_file" 2>/dev/null; then
+                if [[ "$OSTYPE" == "darwin"* ]]; then
+                    sed -i '' "s|^${var_name}=.*|${line}|" "$env_file"
+                else
+                    sed -i "s|^${var_name}=.*|${line}|" "$env_file"
+                fi
+            else
+                echo "$line" >> "$env_file"
+            fi
+        fi
+    done <<< "$aws_vars_output"
+
+    echo ""
+    if [ $account_count -gt 0 ]; then
+        echo "✓ Added $account_count AWS account(s) to .env file"
+    else
+        echo "⏭️  No AWS accounts found to add"
+    fi
+    echo ""
 }
 

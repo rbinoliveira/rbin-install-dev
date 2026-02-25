@@ -243,8 +243,6 @@ run_script_with_check "11-configure-terminal.sh" "Terminal Configuration" "true"
 
 run_script_with_check "12-configure-ssh.sh" "SSH Configuration" "true" "" "false"
 
-run_script_with_check "13-configure-inotify.sh" "Inotify Configuration" "true" "" "false"
-
 # Cursor configuration
 run_script_with_check "15-configure-cursor.sh" "Cursor Configuration" "true" "" "false"
 
@@ -257,8 +255,20 @@ run_script_with_check "18-install-tableplus.sh" "TablePlus" "command -v tableplu
 # Cursor CLI check
 run_script_with_check "19-install-cursor-cli.sh" "Cursor CLI" "command -v cursor-agent" "cursor-agent --version 2>&1 | head -1"
 
-# Zed check
-run_script_with_check "21-install-zed.sh" "Zed" "command -v zed" "zed --version 2>&1 | head -1"
+# Modo empresa: AWS, Java, .NET, GitHub token, Insomnia
+if [ "${RBIN_MODE:-}" = "enterprise" ]; then
+    echo ""
+    echo "=============================================="
+    echo "PHASE 5: Enterprise (AWS, Java, .NET)"
+    echo "=============================================="
+    run_script_with_check "22-install-aws-vpn-client.sh" "AWS VPN Client" "command -v awsvpnclient" "awsvpnclient --version 2>&1 | head -1"
+    run_script_with_check "23-install-aws-cli.sh" "AWS CLI" "command -v aws" "aws --version 2>&1 | head -1"
+    run_script_with_check "24-configure-aws-sso.sh" "AWS SSO Configuration" "true" "" "false"
+    run_script_with_check "25-install-dotnet.sh" ".NET SDK" "command -v dotnet" "dotnet --version 2>&1 | head -1"
+    run_script_with_check "26-install-java.sh" "Java" "command -v java" "java -version 2>&1 | head -1"
+    run_script_with_check "27-configure-github-token.sh" "GitHub Token" "true" "" "false"
+    run_script_with_check "28-install-insomnia.sh" "Insomnia" "command -v insomnia" "insomnia --version 2>&1 | head -1"
+fi
 
 echo ""
 echo "=============================================="
@@ -306,7 +316,6 @@ echo "   → docker --version"
 echo "   → zsh --version"
 echo "   → starship --version"
 echo "   → cursor-agent --version"
-echo "   → zed --version"
 echo ""
 echo "4️⃣  DOCKER SETUP"
 echo "   → You may need to logout/login to use Docker without sudo"
@@ -318,12 +327,6 @@ echo "5️⃣  CURSOR IDE CONFIGURATION"
 echo "   → Open Cursor IDE"
 echo "   → Settings should be automatically applied"
 echo "   → If needed, restart Cursor to load all configurations"
-echo ""
-echo "6️⃣  ZED EDITOR CONFIGURATION"
-echo "   → Open Zed editor"
-echo "   → Configure AI agents (Claude, Cursor CLI)"
-echo "   → Press Ctrl-? to open agent panel"
-echo "   → Click '+' and select your preferred agent"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

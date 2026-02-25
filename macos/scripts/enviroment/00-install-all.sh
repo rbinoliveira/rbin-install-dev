@@ -234,9 +234,6 @@ echo "PHASE 4: Application Setup"
 echo "=============================================="
 
 # Part 4: Applications and configuration
-# VS Code check
-run_script_with_check "09-install-vscode.sh" "Visual Studio Code" "[ -d \"/Applications/Visual Studio Code.app\" ] || command -v code" "[ -d \"/Applications/Visual Studio Code.app\" ] && defaults read \"/Applications/Visual Studio Code.app/Contents/Info.plist\" CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
-
 # Cursor check
 run_script_with_check "10-install-cursor.sh" "Cursor" "[ -d \"/Applications/Cursor.app\" ] || command -v cursor" "[ -d \"/Applications/Cursor.app\" ] && defaults read /Applications/Cursor.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
 
@@ -249,11 +246,6 @@ run_script_with_check "12-configure-terminal.sh" "Terminal Configuration" "true"
 
 run_script_with_check "13-configure-ssh.sh" "SSH Configuration" "true" "" "false"
 
-run_script_with_check "14-configure-file-watchers.sh" "File Watchers Configuration" "true" "" "false"
-
-# VS Code configuration
-run_script_with_check "15-configure-vscode.sh" "VS Code Configuration" "true" "" "false"
-
 # Cursor configuration
 run_script_with_check "16-configure-cursor.sh" "Cursor Configuration" "true" "" "false"
 
@@ -265,6 +257,21 @@ run_script_with_check "19-install-tableplus.sh" "TablePlus" "command -v tableplu
 
 # Cursor CLI check
 run_script_with_check "20-install-cursor-cli.sh" "Cursor CLI" "command -v cursor-agent" "cursor-agent --version 2>&1 | head -1"
+
+# Modo empresa: AWS, Java, .NET, GitHub token, Insomnia
+if [ "${RBIN_MODE:-}" = "enterprise" ]; then
+    echo ""
+    echo "=============================================="
+    echo "PHASE 5: Enterprise (AWS, Java, .NET)"
+    echo "=============================================="
+    run_script_with_check "22-install-aws-vpn-client.sh" "AWS VPN Client" "true" "" "false"
+    run_script_with_check "23-install-aws-cli.sh" "AWS CLI" "command -v aws" "aws --version 2>&1 | head -1"
+    run_script_with_check "24-configure-aws-sso.sh" "AWS SSO Configuration" "true" "" "false"
+    run_script_with_check "25-install-dotnet.sh" ".NET SDK" "command -v dotnet" "dotnet --version 2>&1 | head -1"
+    run_script_with_check "26-install-java.sh" "Java" "command -v java" "java -version 2>&1 | head -1"
+    run_script_with_check "27-configure-github-token.sh" "GitHub Token" "true" "" "false"
+    run_script_with_check "28-install-insomnia.sh" "Insomnia" "command -v insomnia" "insomnia --version 2>&1 | head -1"
+fi
 
 echo ""
 echo "=============================================="
@@ -315,7 +322,6 @@ echo "   → yarn -v"
 echo "   → docker --version"
 echo "   → zsh --version"
 echo "   → starship --version"
-echo "   → code --version"
 echo "   → cursor --version"
 echo "   → cursor-agent --version"
 echo ""
@@ -324,13 +330,7 @@ echo "   → Start Docker Desktop application"
 echo "   → Wait for it to fully start"
 echo "   → Verify with: docker ps"
 echo ""
-echo "5️⃣  VS CODE CONFIGURATION"
-echo "   → Open Visual Studio Code"
-echo "   → Settings should be automatically applied"
-echo "   → Install recommended extensions: ESLint, GitLens, Tailwind CSS"
-echo "   → If needed, restart VS Code to load all configurations"
-echo ""
-echo "6️⃣  CURSOR IDE CONFIGURATION"
+echo "5️⃣  CURSOR IDE CONFIGURATION"
 echo "   → Open Cursor IDE"
 echo "   → Settings should be automatically applied"
 echo "   → If needed, restart Cursor to load all configurations"

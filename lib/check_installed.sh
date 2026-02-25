@@ -105,10 +105,6 @@ check_script_installed() {
             # Configuration script, always run
             return 1
             ;;
-        "13-configure-inotify.sh")
-            # Configuration script, always run
-            return 1
-            ;;
         "14-configure-cursor.sh")
             # Configuration script, always run
             return 1
@@ -121,9 +117,6 @@ check_script_installed() {
             ;;
         "19-install-cursor-cli.sh"|"20-install-cursor-cli.sh")
             check_installed "cursor-agent" || return 1
-            ;;
-        "21-install-zed.sh")
-            check_installed "zed" || [ -d "/Applications/Zed.app" ] || return 1
             ;;
         *)
             # Unknown script, don't skip

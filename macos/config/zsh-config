@@ -71,7 +71,10 @@ SYNTAX_PLUGIN="zsh-users/zsh-syntax-highlighting"
 ### -------------------------------
 ### ZOXIDE (smart cd)
 ### -------------------------------
+# Evitar conflito: zinit usa alias "zi", e algum eval pode definir função zi().
+unalias zi 2>/dev/null
 eval "$(zoxide init zsh)"
+alias zi='zinit' 2>/dev/null
 
 ### -------------------------------
 ### FZF (universal configs)
@@ -152,6 +155,22 @@ EOF
 }
 
 ### -------------------------------
+### HISTORY (reaproveitar comandos entre sessões)
+### -------------------------------
+HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt EXTENDED_HISTORY          # salva timestamp no histórico
+setopt SHARE_HISTORY             # compartilha histórico entre todas as sessões
+setopt INC_APPEND_HISTORY        # grava comando imediatamente (não só no exit)
+setopt HIST_IGNORE_ALL_DUPS      # não duplica linhas iguais
+setopt HIST_SAVE_NO_DUPS         # ao salvar, remove duplicatas
+setopt HIST_FIND_NO_DUPS         # ao buscar (seta), não mostra duplicatas
+setopt HIST_REDUCE_BLANKS        # remove espaços em branco extras
+# Garante que o diretório do histórico existe
+[[ -d "${HISTFILE%/*}" ]] || mkdir -p "${HISTFILE%/*}"
+
+### -------------------------------
 ### QUALITY OF LIFE
 ### -------------------------------
 setopt autocd
@@ -173,4 +192,6 @@ export NVM_DIR="$HOME/.nvm"
 ### -------------------------------
 ### STARSHIP (prompt)
 ### -------------------------------
+unalias zi 2>/dev/null
 eval "$(starship init zsh)"
+alias zi='zinit' 2>/dev/null
