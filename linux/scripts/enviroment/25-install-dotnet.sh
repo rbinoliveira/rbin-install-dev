@@ -21,19 +21,54 @@ if command -v dotnet &> /dev/null; then
 else
     echo "Installing .NET SDK ${DOTNET_VERSION}..."
 fi
-# Detect Ubuntu version
+# Detect distro and Microsoft repo URL (ubuntu/22.04 or debian/12)
 if [ -f /etc/os-release ]; then
     . /etc/os-release
-    UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "0")
+    LSB_VERSION=$(lsb_release -rs 2>/dev/null || echo "0")
+    
+    case "$ID" in
+        zorin)
+            # Zorin reports its own version (17); map to Ubuntu base
+            ZORIN_MAJOR=$(echo "${VERSION_ID:-0}" | cut -d. -f1)
+            if [ "$ZORIN_MAJOR" -ge 16 ] 2>/dev/null; then
+                MS_REPO_VERSION="22.04"
+            elif [ "$ZORIN_MAJOR" -ge 15 ] 2>/dev/null; then
+                MS_REPO_VERSION="20.04"
+            else
+                MS_REPO_VERSION="22.04"
+            fi
+            MS_REPO_URL="https://packages.microsoft.com/config/ubuntu/${MS_REPO_VERSION}/packages-microsoft-prod.deb"
+            echo "Detected Zorin $VERSION_ID (Ubuntu-based) → using Ubuntu $MS_REPO_VERSION repository"
+            ;;
+        ubuntu)
+            MS_REPO_VERSION="$LSB_VERSION"
+            MS_REPO_URL="https://packages.microsoft.com/config/ubuntu/${MS_REPO_VERSION}/packages-microsoft-prod.deb"
+            echo "Detected Ubuntu $MS_REPO_VERSION"
+            ;;
+        debian)
+            DEBIAN_MAJOR=$(echo "${VERSION_ID:-$LSB_VERSION}" | cut -d. -f1)
+            MS_REPO_URL="https://packages.microsoft.com/config/debian/${DEBIAN_MAJOR}/packages-microsoft-prod.deb"
+            echo "Detected Debian $DEBIAN_MAJOR"
+            ;;
+        *)
+            # Pop, Mint, etc.: use Ubuntu 22.04 if lsb looks like Ubuntu version
+            if [[ "$LSB_VERSION" =~ ^[0-9]{2}\.[0-9]{2}$ ]]; then
+                MS_REPO_VERSION="$LSB_VERSION"
+            else
+                MS_REPO_VERSION="22.04"
+                echo "Detected $ID: using Ubuntu $MS_REPO_VERSION repository (fallback)"
+            fi
+            MS_REPO_URL="https://packages.microsoft.com/config/ubuntu/${MS_REPO_VERSION}/packages-microsoft-prod.deb"
+            ;;
+    esac
 else
-    echo ":atenção:  Cannot detect Ubuntu version"
+    echo ":atenção:  Cannot detect Linux distribution"
     exit 1
 fi
-echo "Detected Ubuntu version: $UBUNTU_VERSION"
 echo ""
 # Add Microsoft repository
 echo "Adding Microsoft repository..."
-wget https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb
+wget "$MS_REPO_URL" -O /tmp/packages-microsoft-prod.deb
 sudo dpkg -i /tmp/packages-microsoft-prod.deb
 rm /tmp/packages-microsoft-prod.deb
 # Update package list

@@ -19,13 +19,19 @@ fi
 echo "Detected distribution: $DISTRO $VERSION"
 echo ""
 
-# Function to install for Ubuntu/Debian
+# Function to install for Ubuntu/Debian/Zorin
 install_ubuntu() {
     echo "Installing AWS VPN Client for Ubuntu/Debian..."
     
-    # Check Ubuntu version
+    # Check Ubuntu version (Zorin reports its own version, but 16+ is based on Ubuntu 22.04+)
     UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "0")
     MAJOR_VERSION=$(echo "$UBUNTU_VERSION" | cut -d. -f1)
+    
+    # Zorin 16+ is Ubuntu 22.04-based; use modern method
+    if [ "$DISTRO" = "zorin" ] && [ -n "$VERSION" ]; then
+        ZORIN_MAJOR=$(echo "$VERSION" | cut -d. -f1)
+        [ "$ZORIN_MAJOR" -ge 16 ] 2>/dev/null && MAJOR_VERSION=22
+    fi
     
     # Try modern installation method for Ubuntu 22.04+
     if [ "$MAJOR_VERSION" -ge 22 ]; then
@@ -129,8 +135,9 @@ install_fedora() {
 }
 
 # Install based on distribution
+# Zorin OS is Ubuntu-based and uses the same package management
 case $DISTRO in
-    ubuntu|debian)
+    ubuntu|debian|zorin)
         install_ubuntu
         ;;
     fedora)
