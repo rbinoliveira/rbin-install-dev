@@ -68,6 +68,11 @@ source ~/.zinit/bin/zinit.zsh
 ### -------------------------------
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-history-substring-search
+
+# Bind up/down arrows to history substring search
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 
 # Syntax highlighting MUST be last
 SYNTAX_PLUGIN="zsh-users/zsh-syntax-highlighting"
@@ -175,18 +180,14 @@ EOF
 ### -------------------------------
 ### HISTORY (reaproveitar comandos entre sessões)
 ### -------------------------------
-HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/history"
+HISTFILE=~/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000
-setopt EXTENDED_HISTORY          # salva timestamp no histórico
-setopt SHARE_HISTORY             # compartilha histórico entre todas as sessões
-setopt INC_APPEND_HISTORY        # grava comando imediatamente (não só no exit)
-setopt HIST_IGNORE_ALL_DUPS      # não duplica linhas iguais
-setopt HIST_SAVE_NO_DUPS         # ao salvar, remove duplicatas
-setopt HIST_FIND_NO_DUPS         # ao buscar (seta), não mostra duplicatas
-setopt HIST_REDUCE_BLANKS        # remove espaços em branco extras
-# Garante que o diretório do histórico existe
-[[ -d "${HISTFILE%/*}" ]] || mkdir -p "${HISTFILE%/*}"
+
+setopt APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_REDUCE_BLANKS
 
 ### -------------------------------
 ### QUALITY OF LIFE
