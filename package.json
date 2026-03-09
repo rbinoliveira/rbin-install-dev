@@ -1,0 +1,45 @@
+{
+  "name": "rbin-install-dev",
+  "version": "1.0.0",
+  "description": "Complete development environment configurations for Linux and macOS",
+  "main": "bin/cli.js",
+  "bin": {
+    "rbin-install-dev": "bin/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"No tests yet\"",
+    "prepublishOnly": "chmod +x bin/cli.js"
+  },
+  "keywords": [
+    "rbin",
+    "install",
+    "dev",
+    "development",
+    "environment",
+    "linux",
+    "macos",
+    "dotfiles",
+    "setup"
+  ],
+  "author": "Rubens de Oliveira",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rbinoliveira/rbin-install-dev.git"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "linux/",
+    "macos/",
+    "run.sh",
+    ".env.example"
+  ],
+  "preferGlobal": true,
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "commander": "^11.0.0"
+  }
+}

@@ -40,9 +40,17 @@ git clone https://github.com/rbinoliveira/rbin-install-dev.git
 cd rbin-install-dev
 ```
 
-#### 2. Run the Installation Script (Recommended)
+#### 2. Run the installer
 
-The easiest way to get started is using the main `run.sh` script:
+**Option A – with npm (no clone needed):**
+
+```bash
+npx rbin-install-dev init
+```
+
+Options: `npx rbin-install-dev init --force` (skip prompts), `npx rbin-install-dev init --verbose` (verbose logging).
+
+**Option B – from the repo (after clone):**
 
 ```bash
 bash run.sh
@@ -403,9 +411,17 @@ git clone https://github.com/rbinoliveira/rbin-install-dev.git
 cd rbin-install-dev
 ```
 
-#### 2. Executar o Script de Instalação (Recomendado)
+#### 2. Executar o instalador
 
-A forma mais fácil de começar é usar o script principal `run.sh`:
+**Opção A – com npm (sem precisar clonar):**
+
+```bash
+npx rbin-install-dev init
+```
+
+Opções: `npx rbin-install-dev init --force` (pular confirmações), `npx rbin-install-dev init --verbose` (log detalhado).
+
+**Opção B – a partir do repositório (após clonar):**
 
 ```bash
 bash run.sh
