@@ -50,6 +50,8 @@ git config --global user.name "$GIT_USER_NAME"
 git config --global user.email "$GIT_USER_EMAIL"
 git config --global init.defaultBranch main
 git config --global color.ui auto
+# Evitar nano ao abrir editor (git commit, merge message, etc)
+git config --global core.editor "code --wait"
 
 echo "=============================================="
 echo "============== [01] DONE ===================="

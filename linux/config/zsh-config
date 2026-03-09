@@ -36,6 +36,14 @@ fi
 # PATH default (Linux)
 export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
+### -------------------------------
+### EDITOR (evitar nano no git pull, etc)
+### -------------------------------
+export EDITOR="code --wait"
+export VISUAL="code --wait"
+# Git: não abrir editor em merge (evita nano ao fazer git pull com merge)
+export GIT_MERGE_AUTOEDIT=no
+
 # Add Homebrew to PATH if on macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # Check for Apple Silicon Mac
