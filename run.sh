@@ -305,24 +305,31 @@ install_development_environment() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     echo "Select scripts to install (will always reinstall):"
+    echo "  (Use the numbers shown below — they match the [NN] shown when each script runs)"
     echo ""
     
-    local index=1
+    # Build map: script_number -> script filename (e.g. 15 -> 15-configure-cursor.sh)
+    declare -A script_num_to_file
     for script in "${all_scripts[@]}"; do
-        # Format script name for display (remove numbers and .sh, capitalize)
-        # Remove .sh extension first
+        # Extract number prefix from filename (e.g. 15 from 15-configure-cursor.sh, 02.5 from 02.5-install-iterm2.sh)
+        local num_prefix
+        num_prefix=$(echo "$script" | sed -E 's/^([0-9]+(\.[0-9]+)?)-.*/\1/')
+        script_num_to_file["$num_prefix"]="$script"
+    done
+
+    for script in "${all_scripts[@]}"; do
+        local num_prefix
+        num_prefix=$(echo "$script" | sed -E 's/^([0-9]+(\.[0-9]+)?)-.*/\1/')
         local script_basename=$(echo "$script" | sed 's/\.sh$//')
-        # Remove leading numbers (including decimals like 02.5) and dash
-        # Pattern: one or more digits, optionally followed by . and more digits, then a dash
-        local script_name=$(echo "$script_basename" | sed -E 's/^[0-9]+(\.[0-9]+)?-//' | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
-        printf "  %2d) %s\n" "$index" "$script_name"
-        ((index++))
+        local script_name
+        script_name=$(echo "$script_basename" | sed -E 's/^[0-9]+(\.[0-9]+)?-//' | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
+        printf "  %5s) %s\n" "$num_prefix" "$script_name"
     done
     
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Enter script numbers separated by commas (e.g., 1,2,3)"
+    echo "Enter script numbers separated by commas (e.g., 15,16 or 01,02,15)"
     echo "Or type 'all' to install everything"
     echo ""
     
@@ -336,10 +343,8 @@ install_development_environment() {
             continue
         fi
         
-        # Convert to lowercase for comparison
         user_input_lower=$(echo "$user_input" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
-        # Handle "all" option
         if [ "$user_input_lower" = "all" ]; then
             export SELECTED_SCRIPTS="${all_scripts[*]}"
             echo "✓ Selected: All scripts (${#all_scripts[@]} scripts)"
@@ -347,38 +352,48 @@ install_development_environment() {
             break
         fi
         
-        # Parse comma-separated numbers
         local valid_selection=true
         local selected_scripts=()
         IFS=',' read -ra numbers <<< "$user_input"
         
         for num in "${numbers[@]}"; do
-            # Remove whitespace
             num=$(echo "$num" | tr -d '[:space:]')
-            
-            # Check if it's a valid number
-            if ! [[ "$num" =~ ^[0-9]+$ ]]; then
+            # Accept digits with optional decimal (e.g. 15, 02.5, 1, 16)
+            if [[ ! "$num" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
                 echo "❌ Invalid number: $num"
                 valid_selection=false
                 continue
             fi
             
-            # Check if number is in range
-            if [ "$num" -lt 1 ] || [ "$num" -gt ${#all_scripts[@]} ]; then
-                echo "❌ Number $num is out of range (1-${#all_scripts[@]})"
+            # Match by script number (exact, then try zero-padded: 1->01, 2.5->02.5)
+            local script_file="${script_num_to_file[$num]:-}"
+            if [ -z "$script_file" ]; then
+                local padded
+                if [[ "$num" =~ ^[0-9]+$ ]]; then
+                    padded=$(printf "%02d" "$num" 2>/dev/null || echo "$num")
+                else
+                    # e.g. 2.5 -> 02.5
+                    padded=$(echo "$num" | sed -E 's/^([0-9]+)\./\1./; s/^([0-9])\./0\1./')
+                fi
+                script_file="${script_num_to_file[$padded]:-}"
+            fi
+            if [ -z "$script_file" ]; then
+                echo "❌ No script with number: $num (use one of the numbers listed above)"
                 valid_selection=false
                 continue
             fi
-            
-            # Add to selected scripts (convert to 0-based index)
-            local script_index=$((num - 1))
-            selected_scripts+=("${all_scripts[$script_index]}")
+            selected_scripts+=("$script_file")
         done
         
         if [ "$valid_selection" = true ] && [ ${#selected_scripts[@]} -gt 0 ]; then
-            export SELECTED_SCRIPTS="${selected_scripts[*]}"
+            # Remove duplicates (user might type 15,15)
+            local unique_scripts=()
+            for s in "${selected_scripts[@]}"; do
+                [[ " ${unique_scripts[*]} " =~ " $s " ]] || unique_scripts+=("$s")
+            done
+            export SELECTED_SCRIPTS="${unique_scripts[*]}"
             echo "✓ Selected scripts:"
-            for script in "${selected_scripts[@]}"; do
+            for script in "${unique_scripts[@]}"; do
                 echo "   - $script"
             done
             log_info "Installation action: Selected scripts: ${SELECTED_SCRIPTS}"

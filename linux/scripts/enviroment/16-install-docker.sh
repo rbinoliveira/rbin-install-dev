@@ -43,9 +43,29 @@ sudo apt install -y ca-certificates curl gnupg lsb-release
 
 echo "Adding Docker GPG Key..."
 sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+DOCKER_GPG="/etc/apt/keyrings/docker.gpg"
+# Valid dearmored Docker key is typically > 1KB
+need_key=1
+if [ -s "$DOCKER_GPG" ] && [ "$(stat -c%s "$DOCKER_GPG" 2>/dev/null || echo 0)" -gt 500 ]; then
+  echo "→ Using existing Docker GPG key (already installed)"
+  need_key=0
+fi
+if [ "$need_key" -eq 1 ]; then
+  tmp_gpg="$(mktemp)"
+  if curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o "$tmp_gpg" 2>/dev/null && [ -s "$tmp_gpg" ]; then
+    sudo mv "$tmp_gpg" "$DOCKER_GPG"
+  else
+    rm -f "$tmp_gpg"
+    if [ -s "$DOCKER_GPG" ] && [ "$(stat -c%s "$DOCKER_GPG" 2>/dev/null || echo 0)" -gt 500 ]; then
+      echo "→ Download failed (network/DNS); using existing Docker GPG key"
+    else
+      echo "❌ Could not download Docker GPG key. Check network/DNS (e.g. ping download.docker.com)"
+      echo "   If a previous run failed, remove the corrupted key and retry: sudo rm -f $DOCKER_GPG"
+      exit 1
+    fi
+  fi
+fi
+sudo chmod a+r "$DOCKER_GPG"
 
 echo "Adding Docker Repository..."
 echo \
