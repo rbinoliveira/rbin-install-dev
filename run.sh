@@ -308,14 +308,18 @@ install_development_environment() {
     echo "  (Use the numbers shown below — they match the [NN] shown when each script runs)"
     echo ""
     
-    # Build map: script_number -> script filename (e.g. 15 -> 15-configure-cursor.sh)
-    declare -A script_num_to_file
-    for script in "${all_scripts[@]}"; do
-        # Extract number prefix from filename (e.g. 15 from 15-configure-cursor.sh, 02.5 from 02.5-install-iterm2.sh)
-        local num_prefix
-        num_prefix=$(echo "$script" | sed -E 's/^([0-9]+(\.[0-9]+)?)-.*/\1/')
-        script_num_to_file["$num_prefix"]="$script"
-    done
+    # Helper: resolve script filename by number (Bash 3.x compatible; no associative arrays)
+    get_script_by_num() {
+        local want="$1"
+        for s in "${all_scripts[@]}"; do
+            local np
+            np=$(echo "$s" | sed -E 's/^([0-9]+(\.[0-9]+)?)-.*/\1/')
+            if [ "$np" = "$want" ]; then
+                echo "$s"
+                return
+            fi
+        done
+    }
 
     for script in "${all_scripts[@]}"; do
         local num_prefix
@@ -366,7 +370,8 @@ install_development_environment() {
             fi
             
             # Match by script number (exact, then try zero-padded: 1->01, 2.5->02.5)
-            local script_file="${script_num_to_file[$num]:-}"
+            local script_file
+            script_file=$(get_script_by_num "$num")
             if [ -z "$script_file" ]; then
                 local padded
                 if [[ "$num" =~ ^[0-9]+$ ]]; then
@@ -375,7 +380,7 @@ install_development_environment() {
                     # e.g. 2.5 -> 02.5
                     padded=$(echo "$num" | sed -E 's/^([0-9]+)\./\1./; s/^([0-9])\./0\1./')
                 fi
-                script_file="${script_num_to_file[$padded]:-}"
+                script_file=$(get_script_by_num "$padded")
             fi
             if [ -z "$script_file" ]; then
                 echo "❌ No script with number: $num (use one of the numbers listed above)"
