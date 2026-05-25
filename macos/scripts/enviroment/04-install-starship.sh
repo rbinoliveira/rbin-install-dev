@@ -28,24 +28,47 @@ fi
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+
+if [ -f "$PROJECT_ROOT/lib/brew_helper.sh" ]; then
+    # shellcheck source=lib/brew_helper.sh
+    source "$PROJECT_ROOT/lib/brew_helper.sh"
+    command -v brew &> /dev/null && ensure_homebrew_writable
+fi
+
 echo "=============================================="
 echo "========= [04] INSTALLING STARSHIP ==========="
 echo "=============================================="
 
 echo "Installing Starship prompt..."
 
+STARSHIP_INSTALLED=false
+
 # Check if Homebrew is available (preferred method for macOS)
 if command -v brew &> /dev/null; then
     echo "→ Installing Starship via Homebrew..."
-    brew install starship
-else
-    echo "→ Homebrew not found, trying direct installation..."
-    # Fallback to direct installation script
-    curl -sS https://starship.rs/install.sh | sh
+    if brew list starship &> /dev/null; then
+        brew upgrade starship 2>/dev/null || brew reinstall starship 2>/dev/null || true
+        STARSHIP_INSTALLED=true
+    elif brew install starship; then
+        STARSHIP_INSTALLED=true
+    fi
 fi
 
+if [ "$STARSHIP_INSTALLED" = false ] && ! command -v starship &> /dev/null; then
+    echo "→ Homebrew install failed or unavailable, trying direct installation..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+if ! command -v starship &> /dev/null; then
+    echo "❌ Failed to install Starship"
+    exit 1
+fi
+
+echo "✓ Starship: $(starship --version 2>&1 | head -1)"
+
 echo "Copying starship.toml..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p ~/.config
 cp "$SCRIPT_DIR/../../config/starship.toml" ~/.config/starship.toml
 

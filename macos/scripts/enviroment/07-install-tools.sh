@@ -33,52 +33,20 @@ echo "=============================================="
 echo "========= [07] INSTALLING TOOLS ============"
 echo "=============================================="
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+
 # Check if Homebrew is installed
 if ! command -v brew &> /dev/null; then
   echo "❌ Homebrew is required. Please install it first."
   exit 1
 fi
 
-# Check and fix Homebrew permissions
-echo "Checking Homebrew permissions..."
-HOMEBREW_PREFIX=$(brew --prefix)
-if [ ! -w "$HOMEBREW_PREFIX" ]; then
-  echo "⚠️  Homebrew directory is not writable. Fixing permissions..."
-  echo ""
-  echo "This requires sudo access. You'll be prompted for your password."
-  echo ""
-  
-  # Fix ownership of Homebrew directory
-  echo "Fixing ownership of Homebrew directories..."
-  sudo chown -R "$(whoami)" "$HOMEBREW_PREFIX" 2>/dev/null || true
-  
-  # Fix write permissions on specific directories
-  echo "Fixing write permissions..."
-  for dir in \
-    "$HOMEBREW_PREFIX" \
-    "$HOMEBREW_PREFIX/etc/bash_completion.d" \
-    "$HOMEBREW_PREFIX/lib/pkgconfig" \
-    "$HOMEBREW_PREFIX/share/aclocal" \
-    "$HOMEBREW_PREFIX/share/doc" \
-    "$HOMEBREW_PREFIX/share/info" \
-    "$HOMEBREW_PREFIX/share/locale" \
-    "$HOMEBREW_PREFIX/share/man" \
-    "$HOMEBREW_PREFIX/share/man/man1" \
-    "$HOMEBREW_PREFIX/share/man/man3" \
-    "$HOMEBREW_PREFIX/share/man/man5" \
-    "$HOMEBREW_PREFIX/share/man/man7" \
-    "$HOMEBREW_PREFIX/share/pwsh" \
-    "$HOMEBREW_PREFIX/share/pwsh/completions" \
-    "$HOMEBREW_PREFIX/share/zsh" \
-    "$HOMEBREW_PREFIX/share/zsh/site-functions" \
-    "$HOMEBREW_PREFIX/var/homebrew/locks"; do
-    if [ -d "$dir" ]; then
-      chmod u+w "$dir" 2>/dev/null || true
-    fi
-  done
-  
-  echo "✓ Homebrew permissions fixed"
-  echo ""
+if [ -f "$PROJECT_ROOT/lib/brew_helper.sh" ]; then
+  # shellcheck source=lib/brew_helper.sh
+  source "$PROJECT_ROOT/lib/brew_helper.sh"
+  echo "Checking Homebrew permissions..."
+  ensure_homebrew_writable || true
 fi
 
 echo "Installing productivity tools..."

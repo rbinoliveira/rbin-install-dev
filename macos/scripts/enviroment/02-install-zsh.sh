@@ -28,6 +28,9 @@ fi
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+
 echo "=============================================="
 echo "========= [02] INSTALLING ZSH ================"
 echo "=============================================="
@@ -44,6 +47,11 @@ if ! command -v brew &> /dev/null; then
   fi
 else
   echo "Homebrew already installed."
+  if [ -f "$PROJECT_ROOT/lib/brew_helper.sh" ]; then
+    # shellcheck source=lib/brew_helper.sh
+    source "$PROJECT_ROOT/lib/brew_helper.sh"
+    ensure_homebrew_writable || true
+  fi
 fi
 
 # Install zsh (usually comes with macOS, but we'll install via Homebrew if needed)

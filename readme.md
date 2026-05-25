@@ -127,12 +127,16 @@ bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
 bash 09-install-cursor.sh
 bash 10-install-claude.sh
+bash 10.2-install-codex.sh
+bash 10.5-install-code-notify.sh
 bash 11-configure-terminal.sh
 bash 12-configure-ssh.sh
 bash 15-configure-cursor.sh
 bash 16-install-docker.sh       # ⚠️ Logout/login after this
 bash 18-install-tableplus.sh
 bash 19-install-cursor-cli.sh
+bash 19.5-install-rtk.sh
+bash 19.6-install-graphify.sh
 ```
 
 ---
@@ -166,12 +170,16 @@ bash 08-install-font-caskaydia.sh
 bash 09-install-vscode.sh
 bash 10-install-cursor.sh
 bash 11-install-claude.sh
+bash 11.2-install-codex.sh
+bash 11.5-install-code-notify.sh
 bash 12-configure-terminal.sh
 bash 13-configure-ssh.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh
 bash 19-install-tableplus.sh
 bash 20-install-cursor-cli.sh
+bash 20.5-install-rtk.sh
+bash 20.6-install-graphify.sh
 ```
 
 ---
@@ -227,6 +235,8 @@ Runs all installation scripts in sequence automatically.
 | **09-install-cursor.sh** (Linux) | Installs Cursor Editor |
 | **10-install-cursor.sh** (macOS) | Installs Cursor Editor |
 | **11-install-claude.sh** | Installs Claude Code CLI |
+| **11.2-install-codex.sh** (macOS) / **10.2-install-codex.sh** (Linux) | Installs OpenAI Codex CLI (`codex`) |
+| **11.5-install-code-notify.sh** (macOS) / **10.5-install-code-notify.sh** (Linux) | Installs Code-Notify (`cn`) for Claude, Codex, and Gemini CLI |
 | **11-configure-terminal.sh** (Linux) | Configures GNOME Terminal with Dracula theme |
 | **12-configure-terminal.sh** (macOS) | Configures iTerm2 with Dracula theme |
 | **12-configure-ssh.sh** (Linux) | Configures SSH for Git |
@@ -237,7 +247,11 @@ Runs all installation scripts in sequence automatically.
 | **18-install-tableplus.sh** (Linux) | Installs TablePlus database client |
 | **19-install-tableplus.sh** (macOS) | Installs TablePlus database client |
 | **19-install-cursor-cli.sh** (Linux) | Installs Cursor CLI |
+| **19.5-install-rtk.sh** (Linux) | Installs RTK and configures Claude, Codex, and Cursor |
+| **19.6-install-graphify.sh** (Linux) | Installs Graphify (uv + graphifyy) and registers Claude, Codex, and Cursor |
 | **20-install-cursor-cli.sh** (macOS) | Installs Cursor CLI |
+| **20.5-install-rtk.sh** (macOS) | Installs RTK and configures Claude, Codex, and Cursor |
+| **20.6-install-graphify.sh** (macOS) | Installs Graphify (uv + graphifyy) and registers Claude, Codex, and Cursor |
 
 ---
 
@@ -493,12 +507,16 @@ bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
 bash 09-install-cursor.sh
 bash 10-install-claude.sh
+bash 10.2-install-codex.sh
+bash 10.5-install-code-notify.sh
 bash 11-configure-terminal.sh
 bash 12-configure-ssh.sh
 bash 15-configure-cursor.sh
 bash 16-install-docker.sh       # ⚠️ Faça logout/login após isso
 bash 18-install-tableplus.sh
 bash 19-install-cursor-cli.sh
+bash 19.5-install-rtk.sh
+bash 19.6-install-graphify.sh
 ```
 
 ---
@@ -532,12 +550,16 @@ bash 08-install-font-caskaydia.sh
 bash 09-install-vscode.sh
 bash 10-install-cursor.sh
 bash 11-install-claude.sh
+bash 11.2-install-codex.sh
+bash 11.5-install-code-notify.sh
 bash 12-configure-terminal.sh
 bash 13-configure-ssh.sh
 bash 16-configure-cursor.sh
 bash 17-install-docker.sh
 bash 19-install-tableplus.sh
 bash 20-install-cursor-cli.sh
+bash 20.5-install-rtk.sh
+bash 20.6-install-graphify.sh
 ```
 
 ---
@@ -593,6 +615,8 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **09-install-cursor.sh** (Linux) | Instala Cursor Editor |
 | **10-install-cursor.sh** (macOS) | Instala Cursor Editor |
 | **11-install-claude.sh** | Instala Claude Code CLI |
+| **11.2-install-codex.sh** (macOS) / **10.2-install-codex.sh** (Linux) | Instala OpenAI Codex CLI (`codex`) |
+| **11.5-install-code-notify.sh** (macOS) / **10.5-install-code-notify.sh** (Linux) | Instala Code-Notify (`cn`) para Claude, Codex e Gemini CLI |
 | **11-configure-terminal.sh** (Linux) | Configura GNOME Terminal com tema Dracula |
 | **12-configure-terminal.sh** (macOS) | Configura iTerm2 com tema Dracula |
 | **12-configure-ssh.sh** (Linux) | Configura SSH para Git |
@@ -603,7 +627,11 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **18-install-tableplus.sh** (Linux) | Instala cliente de banco de dados TablePlus |
 | **19-install-tableplus.sh** (macOS) | Instala cliente de banco de dados TablePlus |
 | **19-install-cursor-cli.sh** (Linux) | Instala Cursor CLI |
+| **19.5-install-rtk.sh** (Linux) | Instala RTK e configura Claude, Codex e Cursor |
+| **19.6-install-graphify.sh** (Linux) | Instala Graphify (uv + graphifyy) e registra Claude, Codex e Cursor |
 | **20-install-cursor-cli.sh** (macOS) | Instala Cursor CLI |
+| **20.5-install-rtk.sh** (macOS) | Instala RTK e configura Claude, Codex e Cursor |
+| **20.6-install-graphify.sh** (macOS) | Instala Graphify (uv + graphifyy) e registra Claude, Codex e Cursor |
 
 ---
 

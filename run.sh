@@ -242,7 +242,6 @@ get_all_scripts() {
         "25-install-dotnet.sh"
         "26-install-java.sh"
         "27-configure-github-token.sh"
-        "28-install-insomnia.sh"
     )
 
     # Get all scripts from the platform directory

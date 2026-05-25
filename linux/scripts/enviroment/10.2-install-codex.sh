@@ -3,7 +3,6 @@
 # ────────────────────────────────────────────────────────────────
 # Module Guard - Prevent Direct Execution
 # ────────────────────────────────────────────────────────────────
-# This script should only be executed by 00-install-all.sh
 if [ -z "$INSTALL_ALL_RUNNING" ]; then
     SCRIPT_NAME=$(basename "$0")
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -25,53 +24,51 @@ if [ -z "$INSTALL_ALL_RUNNING" ]; then
     exit 1
 fi
 
-
 set -e
 
 echo "=============================================="
-echo "========= [10] INSTALLING CLAUDE CLI ========="
+echo "========= [10.2] INSTALLING CODEX CLI ========="
 echo "=============================================="
 
-# Load NVM if available
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
 
-# Check if Node.js/npm is available
 if ! command -v npm &> /dev/null; then
-    echo "⚠️  npm not found. Claude Code CLI requires Node.js/npm."
+    echo "⚠️  npm not found. Codex CLI requires Node.js/npm."
     echo "   Please install Node.js first (script 05-install-node-nvm.sh)"
-    echo "   Claude Code CLI will be installed when Node.js is available."
+    echo "   Codex CLI will be skipped until Node.js is available."
     exit 0
 fi
 
-echo "Installing Claude Code CLI via npm..."
+echo "Installing OpenAI Codex CLI via npm..."
 
-# Reinstall if already installed
-if npm list -g @anthropic-ai/claude-code &> /dev/null; then
-    echo "→ Reinstalling @anthropic-ai/claude-code..."
-    npm install -g @anthropic-ai/claude-code --force
+if npm list -g @openai/codex &> /dev/null; then
+    echo "→ Reinstalling @openai/codex..."
+    npm install -g @openai/codex --force
 else
-    echo "→ Installing @anthropic-ai/claude-code..."
-    npm install -g @anthropic-ai/claude-code
+    echo "→ Installing @openai/codex..."
+    npm install -g @openai/codex
 fi
 
-if npm list -g @anthropic-ai/claude-code &> /dev/null; then
-        echo "✓ Claude Code CLI installed successfully"
+if npm list -g @openai/codex &> /dev/null; then
+    echo "✓ Codex CLI installed successfully"
 
-        # Verify installation
-        if command -v claude &> /dev/null; then
-            echo "✓ Claude command is available"
-            claude --version 2>/dev/null || echo "⚠️  Version check failed, but Claude is installed"
-        else
-            echo "⚠️  Claude command not found in PATH"
-            echo "   You may need to restart your terminal or add npm global bin to PATH"
-        fi
+    if command -v codex &> /dev/null; then
+        echo "✓ codex command is available"
+        codex --version 2>/dev/null || echo "⚠️  Version check failed, but Codex is installed"
+        echo ""
+        echo "  Run 'codex' in the terminal to start the agent."
+        echo "  Sign in with ChatGPT or configure OPENAI_API_KEY as needed."
     else
-        echo "❌ Failed to install Claude Code CLI"
-        exit 1
+        echo "⚠️  codex command not found in PATH"
+        echo "   Restart your terminal or add npm global bin to PATH"
+    fi
+else
+    echo "❌ Failed to install Codex CLI"
+    exit 1
 fi
 
 echo "=============================================="
-echo "============== [10] DONE ===================="
+echo "============ [10.2] DONE ====================="
 echo "=============================================="
-echo "▶ Next, run: bash 10.2-install-codex.sh"
+echo "▶ Next, run: bash 10.5-install-code-notify.sh"

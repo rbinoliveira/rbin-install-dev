@@ -106,6 +106,16 @@ echo "   - After Docker installation, you may need to"
 echo "     restart Docker Desktop (macOS)."
 echo ""
 
+# Fix Homebrew permissions once before any brew-based installs
+if [ -f "$PROJECT_ROOT/lib/brew_helper.sh" ]; then
+    # shellcheck source=lib/brew_helper.sh
+    source "$PROJECT_ROOT/lib/brew_helper.sh"
+    if command -v brew &> /dev/null; then
+        echo "Checking Homebrew permissions..."
+        ensure_homebrew_writable || exit 1
+    fi
+fi
+
 # ────────────────────────────────────────────────────────────────
 # Helper Function: Check and Confirm Installation
 # ────────────────────────────────────────────────────────────────
@@ -241,6 +251,14 @@ run_script_with_check "10-install-cursor.sh" "Cursor" "[ -d \"/Applications/Curs
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
 run_script_with_check "11-install-claude.sh" "Claude Code CLI" "command -v claude || npm list -g @anthropic-ai/claude-code &>/dev/null" "claude --version 2>&1 | head -1 || npm list -g @anthropic-ai/claude-code 2>&1 | grep claude-code | head -1"
 
+# OpenAI Codex CLI (terminal agent: codex)
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+run_script_with_check "11.2-install-codex.sh" "Codex CLI" "command -v codex || npm list -g @openai/codex &>/dev/null" "codex --version 2>&1 | head -1 || npm list -g @openai/codex 2>&1 | grep @openai/codex | head -1"
+
+# Code-Notify (desktop notifications for Claude, Codex, Gemini)
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+run_script_with_check "11.5-install-code-notify.sh" "Code-Notify" "command -v cn || npm list -g code-notify &>/dev/null || [ -x \"$HOME/.local/bin/cn\" ]" "cn version 2>&1 | head -1 || npm list -g code-notify 2>&1 | grep code-notify | head -1"
+
 # Configuration scripts
 run_script_with_check "12-configure-terminal.sh" "Terminal Configuration" "true" "" "false"
 
@@ -258,7 +276,13 @@ run_script_with_check "19-install-tableplus.sh" "TablePlus" "command -v tableplu
 # Cursor CLI check
 run_script_with_check "20-install-cursor-cli.sh" "Cursor CLI" "command -v cursor-agent" "cursor-agent --version 2>&1 | head -1"
 
-# Modo empresa: AWS, Java, .NET, GitHub token, Insomnia
+# RTK (token optimizer — requires Claude, Codex, Cursor installed above)
+run_script_with_check "20.5-install-rtk.sh" "RTK" "command -v rtk || [ -x \"$HOME/.local/bin/rtk\" ]" "rtk --version 2>&1 | head -1"
+
+# Graphify (knowledge graph — requires Claude, Codex, Cursor installed above)
+run_script_with_check "20.6-install-graphify.sh" "Graphify" "command -v graphify || command -v uv" "graphify --version 2>&1 | head -1 || uv tool list 2>&1 | grep graphifyy | head -1"
+
+# Modo empresa: AWS, Java, .NET, GitHub token
 if [ "${RBIN_MODE:-}" = "enterprise" ]; then
     echo ""
     echo "=============================================="
@@ -270,7 +294,6 @@ if [ "${RBIN_MODE:-}" = "enterprise" ]; then
     run_script_with_check "25-install-dotnet.sh" ".NET SDK" "command -v dotnet" "dotnet --version 2>&1 | head -1"
     run_script_with_check "26-install-java.sh" "Java" "command -v java" "java -version 2>&1 | head -1"
     run_script_with_check "27-configure-github-token.sh" "GitHub Token" "true" "" "false"
-    run_script_with_check "28-install-insomnia.sh" "Insomnia" "command -v insomnia" "insomnia --version 2>&1 | head -1"
 fi
 
 echo ""
@@ -324,6 +347,11 @@ echo "   → zsh --version"
 echo "   → starship --version"
 echo "   → cursor --version"
 echo "   → cursor-agent --version"
+echo "   → codex --version"
+echo "   → cn version"
+echo "   → rtk --version"
+echo "   → rtk init --show"
+echo "   → graphify --version"
 echo ""
 echo "4️⃣  DOCKER SETUP (if Docker was installed)"
 echo "   → Start Docker Desktop application"
