@@ -4,9 +4,27 @@
 #
 # Usage:
 #   source lib/brew_helper.sh
+#   ensure_homebrew_in_path
 #   ensure_homebrew_writable
 
+ensure_homebrew_in_path() {
+    if command -v brew &> /dev/null; then
+        if [ -x "$(brew --prefix 2>/dev/null)/bin/brew" ]; then
+            eval "$(brew shellenv)" 2>/dev/null || \
+                export PATH="$(brew --prefix)/bin:$(brew --prefix)/sbin:$PATH"
+        fi
+        return 0
+    fi
+
+    if [ -x /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+}
+
 ensure_homebrew_writable() {
+    ensure_homebrew_in_path
     if ! command -v brew &> /dev/null; then
         return 0
     fi

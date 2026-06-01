@@ -110,9 +110,15 @@ else
     # Method 3: Try official install script as last resort (might work in some cases)
     if [ "$INSTALLED" = false ]; then
         echo "→ Trying official install script as last resort..."
+        # Unset PLATFORM if set by run.sh (PLATFORM=linux breaks Starship's installer)
+        saved_platform="${PLATFORM-}"
+        unset PLATFORM
         if curl -sS https://starship.rs/install.sh | sh -s -- --yes 2>&1; then
             INSTALLED=true
             echo "✓ Starship installed via official script"
+        fi
+        if [ -n "$saved_platform" ]; then
+            export PLATFORM="$saved_platform"
         fi
     fi
     

@@ -28,40 +28,63 @@ fi
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+
+if [ -f "$PROJECT_ROOT/lib/brew_helper.sh" ]; then
+    # shellcheck source=lib/brew_helper.sh
+    source "$PROJECT_ROOT/lib/brew_helper.sh"
+    ensure_homebrew_in_path
+fi
+
 echo "=============================================="
 echo "========= [09] INSTALLING CURSOR ============"
 echo "=============================================="
 
-echo "Installing Cursor via Homebrew..."
+CURSOR_APP="/Applications/Cursor.app"
+INSTALLED=false
+
+if [ -d "$CURSOR_APP" ]; then
+    echo "✓ Cursor.app is already in Applications"
+    INSTALLED=true
+fi
 
 if command -v brew &> /dev/null; then
-    # Reinstall if already installed
-    if brew list --cask cursor &> /dev/null; then
-        echo "Reinstalling Cursor..."
+    echo "Installing Cursor via Homebrew..."
+
+    if [ -d "$CURSOR_APP" ]; then
+        if brew list --cask cursor &> /dev/null 2>&1; then
+            echo "→ Upgrading Cursor via Homebrew..."
+            brew upgrade --cask cursor 2>/dev/null || brew reinstall --cask cursor 2>/dev/null || true
+        else
+            echo "→ Registering existing Cursor.app with Homebrew (--adopt)..."
+            if brew install --cask --adopt cursor; then
+                echo "✓ Cursor registered with Homebrew"
+            else
+                echo "⚠️  Homebrew could not adopt Cursor.app (app is still usable)"
+            fi
+        fi
+        INSTALLED=true
+    elif brew list --cask cursor &> /dev/null 2>&1; then
+        echo "→ Reinstalling Cursor via Homebrew..."
         brew reinstall --cask cursor
+        INSTALLED=true
     else
-        brew install --cask cursor
+        echo "→ Installing Cursor via Homebrew..."
+        if brew install --cask cursor; then
+            INSTALLED=true
+        fi
     fi
 
-    echo "✓ Cursor installed successfully via Homebrew"
-
-    # Wait a moment for the app to be fully available
-    sleep 2
-
-    if [ -d "/Applications/Cursor.app" ]; then
-        echo "✓ Cursor.app found in Applications"
-    fi
-
-    # Check for command-line tool
-    if command -v cursor &> /dev/null; then
-        echo "✓ Cursor command-line tool is available"
-        cursor --version 2>/dev/null || echo "⚠️  Version check failed, but Cursor is installed"
-    else
-        echo "⚠️  Cursor command-line tool not found in PATH"
-        echo "   This is normal - the app is installed, but CLI may need manual setup"
+    if [ "$INSTALLED" = true ]; then
+        echo "✓ Cursor installed successfully via Homebrew"
+        sleep 2
     fi
 else
     echo "⚠️  Homebrew not found"
+fi
+
+if [ "$INSTALLED" = false ]; then
     echo ""
     echo "Please install Cursor manually:"
     echo "  1. Visit: https://cursor.sh"
@@ -70,6 +93,20 @@ else
     echo ""
     echo "Or install Homebrew first, then run this script again"
     exit 1
+fi
+
+if [ -d "$CURSOR_APP" ]; then
+    echo "✓ Cursor.app found in Applications"
+    version="$(defaults read "$CURSOR_APP/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")"
+    echo "✓ Cursor version: $version"
+fi
+
+if command -v cursor &> /dev/null; then
+    echo "✓ Cursor command-line tool is available"
+    cursor --version 2>/dev/null || echo "⚠️  Version check failed, but Cursor is installed"
+else
+    echo "⚠️  Cursor command-line tool not found in PATH"
+    echo "   This is normal — the app is installed; CLI setup runs in a later script"
 fi
 
 echo "=============================================="

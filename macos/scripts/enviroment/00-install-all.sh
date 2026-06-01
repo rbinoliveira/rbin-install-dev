@@ -259,6 +259,9 @@ run_script_with_check "11.2-install-codex.sh" "Codex CLI" "command -v codex || n
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
 run_script_with_check "11.5-install-code-notify.sh" "Code-Notify" "command -v cn || npm list -g code-notify &>/dev/null || [ -x \"$HOME/.local/bin/cn\" ]" "cn version 2>&1 | head -1 || npm list -g code-notify 2>&1 | grep code-notify | head -1"
 
+# Danger mode: claude-danger and codex-danger wrappers (auto-approve all)
+run_script_with_check "11.3-configure-danger-mode.sh" "Danger Mode (claude-danger + codex-danger)" "[ -x \"$HOME/.local/bin/claude-danger\" ] && [ -x \"$HOME/.local/bin/codex-danger\" ]" ""
+
 # Configuration scripts
 run_script_with_check "12-configure-terminal.sh" "Terminal Configuration" "true" "" "false"
 
