@@ -152,10 +152,7 @@ EOF
     if command -v osascript &> /dev/null; then
       osascript <<EOF
 tell application "Terminal"
-  # Tab 1: Claude
   do script "cd '$current_dir' && echo '🤖 Claude CLI' && claude"
-
-  # Tab 2: Cursor
   tell application "System Events" to keystroke "t" using command down
   do script "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent" in front window
 end tell
@@ -166,21 +163,116 @@ EOF
     echo "Opening AI agents in current directory: $current_dir"
 
     if command -v gnome-terminal &> /dev/null; then
-      # GNOME Terminal
       gnome-terminal --tab --title="Claude CLI" -- bash -c "cd '$current_dir' && echo '🤖 Claude CLI' && claude; exec zsh" \
                      --tab --title="Cursor CLI" -- bash -c "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent; exec zsh"
     elif command -v konsole &> /dev/null; then
-      # Konsole
       konsole --new-tab -e zsh -c "cd '$current_dir' && echo '🤖 Claude CLI' && claude; exec zsh" \
               --new-tab -e zsh -c "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent; exec zsh"
     elif command -v xterm &> /dev/null; then
-      # xterm (fallback)
       xterm -e zsh -c "cd '$current_dir' && echo '🤖 Claude CLI' && claude; exec zsh" &
       xterm -e zsh -c "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent; exec zsh" &
     else
       echo "⚠️  Terminal detection failed. Please open tabs manually:"
       echo "   Tab 1: cd '$current_dir' && claude"
       echo "   Tab 2: cd '$current_dir' && cursor-agent"
+    fi
+  fi
+}
+
+# Open two Claude Code sessions (account 1 + account 2) in separate tabs
+claudes() {
+  local current_dir=$(pwd)
+
+  if [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]]; then
+    if command -v osascript &> /dev/null; then
+      osascript <<EOF
+tell application "iTerm"
+  tell current window
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🤖 Claude conta 1' && claude"
+    end tell
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🤖 Claude conta 2' && claude2"
+    end tell
+  end tell
+end tell
+EOF
+    fi
+  elif [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+    if command -v osascript &> /dev/null; then
+      osascript <<EOF
+tell application "Terminal"
+  do script "cd '$current_dir' && echo '🤖 Claude conta 1' && claude"
+  tell application "System Events" to keystroke "t" using command down
+  do script "cd '$current_dir' && echo '🤖 Claude conta 2' && claude2" in front window
+end tell
+EOF
+    fi
+  else
+    echo "Opening two Claude accounts in: $current_dir"
+    if command -v gnome-terminal &> /dev/null; then
+      gnome-terminal --tab --title="Claude 1" -- bash -c "cd '$current_dir' && claude; exec zsh" \
+                     --tab --title="Claude 2" -- bash -c "cd '$current_dir' && claude2; exec zsh"
+    elif command -v konsole &> /dev/null; then
+      konsole --new-tab -e zsh -c "cd '$current_dir' && claude; exec zsh" \
+              --new-tab -e zsh -c "cd '$current_dir' && claude2; exec zsh"
+    elif command -v xterm &> /dev/null; then
+      xterm -e zsh -c "cd '$current_dir' && claude; exec zsh" &
+      xterm -e zsh -c "cd '$current_dir' && claude2; exec zsh" &
+    else
+      echo "   Tab 1: cd '$current_dir' && claude"
+      echo "   Tab 2: cd '$current_dir' && claude2"
+    fi
+  fi
+}
+
+# Open two Claude Code sessions in danger mode (account 1 + account 2)
+claudes-danger() {
+  local current_dir=$(pwd)
+
+  if [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]]; then
+    if command -v osascript &> /dev/null; then
+      osascript <<EOF
+tell application "iTerm"
+  tell current window
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🔥 Claude conta 1 (danger)' && claude1-danger"
+    end tell
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🔥 Claude conta 2 (danger)' && claude2-danger"
+    end tell
+  end tell
+end tell
+EOF
+    fi
+  elif [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+    if command -v osascript &> /dev/null; then
+      osascript <<EOF
+tell application "Terminal"
+  do script "cd '$current_dir' && echo '🔥 Claude conta 1 (danger)' && claude1-danger"
+  tell application "System Events" to keystroke "t" using command down
+  do script "cd '$current_dir' && echo '🔥 Claude conta 2 (danger)' && claude2-danger" in front window
+end tell
+EOF
+    fi
+  else
+    echo "Opening two Claude accounts (danger) in: $current_dir"
+    if command -v gnome-terminal &> /dev/null; then
+      gnome-terminal --tab --title="Claude 1 danger" -- bash -c "cd '$current_dir' && claude1-danger; exec zsh" \
+                     --tab --title="Claude 2 danger" -- bash -c "cd '$current_dir' && claude2-danger; exec zsh"
+    elif command -v konsole &> /dev/null; then
+      konsole --new-tab -e zsh -c "cd '$current_dir' && claude1-danger; exec zsh" \
+              --new-tab -e zsh -c "cd '$current_dir' && claude2-danger; exec zsh"
+    elif command -v xterm &> /dev/null; then
+      xterm -e zsh -c "cd '$current_dir' && claude1-danger; exec zsh" &
+      xterm -e zsh -c "cd '$current_dir' && claude2-danger; exec zsh" &
+    else
+      echo "   Tab 1: cd '$current_dir' && claude1-danger"
+      echo "   Tab 2: cd '$current_dir' && claude2-danger"
     fi
   fi
 }

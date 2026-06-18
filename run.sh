@@ -17,6 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Parse command-line arguments
 FORCE_MODE=false
+FORCE_INSTALL=false
 VERBOSE_MODE=false
 
 for arg in "$@"; do
@@ -25,18 +26,25 @@ for arg in "$@"; do
             FORCE_MODE=true
             shift
             ;;
+        --force-install)
+            FORCE_INSTALL=true
+            shift
+            ;;
         --verbose|-v)
             VERBOSE_MODE=true
             export LOG_LEVEL="DEBUG"
             shift
             ;;
         -h|--help)
-            echo "Usage: $0 [--force] [--verbose]"
+            echo "Usage: $0 [--force-install] [--force] [--verbose]"
             echo ""
             echo "Options:"
-            echo "  --force       Skip all confirmation prompts"
-            echo "  --verbose, -v Enable verbose logging (DEBUG level)"
-            echo "  --help        Show this help message"
+            echo "  --force-install  Reinstall everything, even if already installed"
+            echo "  --force          Skip interactive confirmation prompts"
+            echo "  --verbose, -v    Enable verbose logging (DEBUG level)"
+            echo "  --help           Show this help message"
+            echo ""
+            echo "Default: install missing tools only; configuration scripts always run."
             exit 0
             ;;
         *)
@@ -49,6 +57,7 @@ done
 
 # Export modes for use in other scripts
 export FORCE_MODE
+export FORCE_INSTALL
 export VERBOSE_MODE
 
 # ────────────────────────────────────────────────────────────────
@@ -78,6 +87,7 @@ else
     log_info "Rbin Scripts started"
     log_info "Platform: $PLATFORM_NAME"
     log_info "Force mode: $FORCE_MODE"
+    log_info "Force install: $FORCE_INSTALL"
     log_info "Verbose mode: $VERBOSE_MODE"
 fi
 
@@ -101,6 +111,12 @@ fi
 if [ -f "$SCRIPT_DIR/lib/check_installed.sh" ]; then
     # shellcheck source=lib/check_installed.sh
     source "$SCRIPT_DIR/lib/check_installed.sh"
+fi
+
+# Source sudo helper (one password for the whole install)
+if [ -f "$SCRIPT_DIR/lib/sudo_helper.sh" ]; then
+    # shellcheck source=lib/sudo_helper.sh
+    source "$SCRIPT_DIR/lib/sudo_helper.sh"
 fi
 
 # ────────────────────────────────────────────────────────────────
@@ -292,10 +308,12 @@ install_development_environment() {
         return 1
     fi
 
-    # Always use reinstall mode
-    export INSTALL_MODE="reinstall"
-    export FORCE_REINSTALL=true
-    
+    if [ "${FORCE_INSTALL:-false}" = true ]; then
+        export INSTALL_MODE="reinstall"
+    else
+        export INSTALL_MODE="install-missing"
+    fi
+
     # Show numbered list of scripts and allow selection
     local all_scripts=($(get_all_scripts))
     
@@ -303,7 +321,14 @@ install_development_environment() {
     echo "📋 Available Installation Scripts"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Select scripts to install (will always reinstall):"
+    if [ "${FORCE_INSTALL:-false}" = true ]; then
+        echo "Mode: reinstall everything (--force-install)"
+    else
+        echo "Mode: install missing only · configs always updated"
+        echo "      (use --force-install to reinstall all tools)"
+    fi
+    echo ""
+    echo "Select scripts to run:"
     echo "  (Use the numbers shown below — they match the [NN] shown when each script runs)"
     echo ""
     
@@ -438,6 +463,7 @@ install_development_environment() {
     log_info "Starting installation: $install_script"
 
     # Execute installation script (RBIN_MODE is exported for 00-install-all.sh)
+    # Sudo keepalive runs inside 00-install-all.sh (same process as brew/sudo)
     if bash "$install_script"; then
         echo ""
         echo "✅ Installation completed successfully!"

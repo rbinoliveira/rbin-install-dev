@@ -28,6 +28,14 @@ fi
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+
+if [ -f "$PROJECT_ROOT/lib/sudo_helper.sh" ]; then
+    # shellcheck source=lib/sudo_helper.sh
+    source "$PROJECT_ROOT/lib/sudo_helper.sh"
+fi
+
 echo "=============================================="
 echo "========= [08] INSTALLING NERD FONTS ========="
 echo "=============================================="
@@ -40,6 +48,50 @@ fi
 
 FONT_DIR="$HOME/Library/Fonts"
 mkdir -p "$FONT_DIR"
+
+# Optional system-wide copy (off by default — ~/Library/Fonts is enough for dev tools)
+copy_fonts_to_system_if_requested() {
+    local label="$1"
+    shift
+    local copied=false
+
+    if [ "${FONT_INSTALL_GLOBAL:-false}" != "true" ]; then
+        echo ""
+        echo "✓ $label disponível em ~/Library/Fonts"
+        echo "  (cópia para /Library/Fonts/ omitida — suficiente para iTerm2, Cursor, etc.)"
+        return 0
+    fi
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🌍 Copiando $label para /Library/Fonts/ (FONT_INSTALL_GLOBAL=true)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    for pattern in "$@"; do
+        # shellcheck disable=SC2086
+        if ! ls $FONT_DIR/$pattern 2>/dev/null | head -1 | grep -q .; then
+            continue
+        fi
+        if type sudo_run &>/dev/null; then
+            # shellcheck disable=SC2086
+            if sudo_run cp $FONT_DIR/$pattern /Library/Fonts/; then
+                copied=true
+                break
+            fi
+        # shellcheck disable=SC2086
+        elif sudo -n cp $FONT_DIR/$pattern /Library/Fonts/ 2>/dev/null; then
+            copied=true
+            break
+        fi
+    done
+
+    if [ "$copied" = true ]; then
+        echo "✅ $label disponível em ~/Library/Fonts e /Library/Fonts/"
+    else
+        echo "⚠️  Não foi possível copiar para /Library/Fonts/"
+        echo "   A fonte já está em ~/Library/Fonts — suficiente para uso normal."
+    fi
+}
 
 # Function to install a font via Homebrew
 install_font_via_brew() {
@@ -113,28 +165,7 @@ if brew install --cask font-caskaydia-cove-nerd-font 2>&1; then
            ls "$FONT_DIR/CascadiaCode"*.ttf 2>/dev/null | head -1 > /dev/null; then
             echo "✓ Font installed successfully via Homebrew"
             BREW_INSTALLED=true
-            
-            # Step 4: Copy to global location for all users
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "🌍 Installing font globally for ALL users"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "Copying font to /Library/Fonts/ (system-wide installation)..."
-            echo "This will make the font available for all users on this Mac."
-            echo ""
-            if sudo cp "$FONT_DIR/CaskaydiaCove"*.ttf /Library/Fonts/ 2>/dev/null || \
-               sudo cp "$FONT_DIR/CascadiaCode"*.ttf /Library/Fonts/ 2>/dev/null; then
-                echo "✅ Font copied to /Library/Fonts/ (available for ALL users)"
-                echo "   Location: ~/Library/Fonts (current user)"
-                echo "   Location: /Library/Fonts (all users)"
-            else
-                echo "⚠️  Could not copy to /Library/Fonts/ (may need sudo password)"
-                echo "   Font is installed for current user only (~/Library/Fonts)"
-                echo ""
-                echo "   To install globally later, run:"
-                echo "   sudo cp ~/Library/Fonts/CaskaydiaCove*.ttf /Library/Fonts/"
-                echo "   Or: sudo cp ~/Library/Fonts/CascadiaCode*.ttf /Library/Fonts/"
-            fi
+            copy_fonts_to_system_if_requested "CaskaydiaCove Nerd Font" "CaskaydiaCove*.ttf" "CascadiaCode*.ttf"
         else
             echo "⚠️  Homebrew reported success but font files not found"
             BREW_INSTALLED=false
@@ -180,28 +211,7 @@ if [ "$BREW_INSTALLED" = false ]; then
                ls "$FONT_DIR/CascadiaCode"*.ttf 2>/dev/null | head -1 > /dev/null; then
                 echo "✓ Font installed successfully"
                 FONT_EXISTS=true
-                
-                # Copy to global location for all users
-                echo ""
-                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                echo "🌍 Installing font globally for ALL users"
-                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                echo "Copying font to /Library/Fonts/ (system-wide installation)..."
-                echo "This will make the font available for all users on this Mac."
-                echo ""
-                if sudo cp "$FONT_DIR/CaskaydiaCove"*.ttf /Library/Fonts/ 2>/dev/null || \
-                   sudo cp "$FONT_DIR/CascadiaCode"*.ttf /Library/Fonts/ 2>/dev/null; then
-                    echo "✅ Font copied to /Library/Fonts/ (available for ALL users)"
-                    echo "   Location: ~/Library/Fonts (current user)"
-                    echo "   Location: /Library/Fonts (all users)"
-                else
-                    echo "⚠️  Could not copy to /Library/Fonts/ (may need sudo password)"
-                    echo "   Font is installed for current user only (~/Library/Fonts)"
-                    echo ""
-                    echo "   To install globally later, run:"
-                    echo "   sudo cp ~/Library/Fonts/CaskaydiaCove*.ttf /Library/Fonts/"
-                    echo "   Or: sudo cp ~/Library/Fonts/CascadiaCode*.ttf /Library/Fonts/"
-                fi
+                copy_fonts_to_system_if_requested "CaskaydiaCove Nerd Font" "CaskaydiaCove*.ttf" "CascadiaCode*.ttf"
             else
                 echo "⚠️  Font files extracted but not found. Checking extracted files..."
                 find "$FONT_DIR" -name "*Cascadia*" -o -name "*Caskaydia*" 2>/dev/null | head -5
@@ -236,22 +246,7 @@ if brew install --cask font-jetbrains-mono-nerd-font 2>&1; then
         # Check if fonts actually exist
         if ls "$FONT_DIR/JetBrainsMono"*.ttf 2>/dev/null | head -1 > /dev/null; then
             echo "✓ JetBrains Mono installed successfully via Homebrew"
-            
-            # Step 4: Copy to global location for all users
-            echo ""
-            echo "Installing font globally for ALL users..."
-            echo "Copying to /Library/Fonts/ (system-wide installation)..."
-            if sudo cp "$FONT_DIR/JetBrainsMono"*.ttf /Library/Fonts/ 2>/dev/null; then
-                echo "✅ Font copied to /Library/Fonts/ (available for ALL users)"
-                echo "   Location: ~/Library/Fonts (current user)"
-                echo "   Location: /Library/Fonts (all users)"
-            else
-                echo "⚠️  Could not copy to /Library/Fonts/ (may need sudo password)"
-                echo "   Font is installed for current user only (~/Library/Fonts)"
-                echo ""
-                echo "   To install globally later, run:"
-                echo "   sudo cp ~/Library/Fonts/JetBrainsMono*.ttf /Library/Fonts/"
-            fi
+            copy_fonts_to_system_if_requested "JetBrains Mono Nerd Font" "JetBrainsMono*.ttf"
         else
             echo "⚠️  Homebrew reported success but font files not found"
         fi

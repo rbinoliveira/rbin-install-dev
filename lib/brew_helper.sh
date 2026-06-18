@@ -39,11 +39,17 @@ ensure_homebrew_writable() {
     echo "   Fixing ownership and permissions (sudo required)..."
     echo ""
 
-    sudo chown -R "$(whoami)" "$hombrew_prefix" 2>/dev/null || {
+    if type sudo_run &>/dev/null; then
+        sudo_run chown -R "$(whoami)" "$hombrew_prefix" 2>/dev/null || {
+            echo "❌ Could not fix Homebrew ownership. Run manually:"
+            echo "   sudo chown -R $(whoami) $hombrew_prefix"
+            return 1
+        }
+    elif ! sudo chown -R "$(whoami)" "$hombrew_prefix" 2>/dev/null; then
         echo "❌ Could not fix Homebrew ownership. Run manually:"
         echo "   sudo chown -R $(whoami) $hombrew_prefix"
         return 1
-    }
+    fi
 
     local dir
     for dir in \
@@ -77,4 +83,41 @@ ensure_homebrew_writable() {
 
     echo "❌ Homebrew is still not writable after permission fix."
     return 1
+}
+
+_brew_helper_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$_brew_helper_dir/sudo_helper.sh" ]; then
+    # shellcheck source=lib/sudo_helper.sh
+    source "$_brew_helper_dir/sudo_helper.sh"
+fi
+
+# Install or upgrade a cask without destructive reinstall (avoids extra sudo prompts).
+brew_cask_install_smart() {
+    local cask="$1"
+    local app_name="${2:-}"
+
+    ensure_homebrew_in_path
+
+    if type refresh_sudo_if_needed &>/dev/null; then
+        refresh_sudo_if_needed 2>/dev/null || true
+    fi
+
+    if brew list --cask "$cask" &>/dev/null 2>&1; then
+        if [ -n "$app_name" ] && [ -d "/Applications/${app_name}.app" ]; then
+            echo "✓ $cask already installed (/Applications/${app_name}.app)"
+            echo "→ Checking for updates (upgrade only — no reinstall)..."
+            if brew upgrade --cask "$cask" 2>/dev/null; then
+                echo "✓ $cask upgraded (or already latest)"
+            else
+                echo "✓ $cask is up to date"
+            fi
+            return 0
+        fi
+        echo "→ $cask is registered but ${app_name:-app} is missing — installing..."
+        brew install --cask "$cask"
+        return $?
+    fi
+
+    echo "Installing $cask..."
+    brew install --cask "$cask"
 }

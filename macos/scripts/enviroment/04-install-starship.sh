@@ -104,8 +104,10 @@ echo "Installing Starship prompt..."
 
 STARSHIP_INSTALLED=false
 
-# Check if Homebrew is available (preferred method for macOS)
-if command -v brew &> /dev/null; then
+if command -v starship &> /dev/null && [ "${FORCE_INSTALL:-false}" != "true" ]; then
+    echo "✓ Starship already installed — updating configuration only"
+    STARSHIP_INSTALLED=true
+elif command -v brew &> /dev/null; then
     echo "→ Installing Starship via Homebrew..."
     if brew list starship &> /dev/null; then
         if brew upgrade starship 2>/dev/null || brew reinstall starship 2>/dev/null; then

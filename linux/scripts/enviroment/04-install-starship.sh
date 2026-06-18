@@ -34,10 +34,17 @@ echo "=============================================="
 
 echo "Installing Starship prompt..."
 
-# Check if Starship is already installed
+NEED_STARSHIP_INSTALL=true
 if command -v starship &> /dev/null; then
-    echo "✓ Starship is already installed: $(starship --version)"
-else
+    if [ "${FORCE_INSTALL:-false}" = "true" ]; then
+        echo "→ Reinstalling Starship (--force-install)..."
+    else
+        echo "✓ Starship already installed — updating configuration only"
+        NEED_STARSHIP_INSTALL=false
+    fi
+fi
+
+if [ "$NEED_STARSHIP_INSTALL" = true ]; then
     INSTALLED=false
     
     # Method 1: Try package manager (preferred method)
