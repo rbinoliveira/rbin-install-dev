@@ -265,6 +265,11 @@ run_script_with_check "11-configure-terminal.sh" "Terminal Configuration" "true"
 
 run_script_with_check "12-configure-ssh.sh" "SSH Configuration" "true" "" "false"
 
+# Personal mode: two personal Git/GitHub accounts (~/dev/<acc>, per-folder SSH + identity)
+if [ "${RBIN_MODE:-personal}" = "personal" ]; then
+    run_script_with_check "12.5-configure-dev-accounts.sh" "Dev Accounts (two GitHub identities)" "true" "" "false"
+fi
+
 # Cursor configuration
 run_script_with_check "15-configure-cursor.sh" "Cursor Configuration" "true" "" "false"
 
@@ -333,6 +338,25 @@ if [ -f ~/.ssh/id_ed25519.pub ]; then
     echo "      → Click 'Add key'"
 else
     echo "   → SSH key was not generated. Run script 12-configure-ssh.sh manually"
+fi
+# Personal mode: per-account SSH keys (two GitHub identities via ~/dev/<acc>)
+if [ "${RBIN_MODE:-personal}" = "personal" ]; then
+    shopt -s nullglob
+    acc_keys=("$HOME"/.ssh/id_ed25519_*.pub)
+    shopt -u nullglob
+    if [ ${#acc_keys[@]} -gt 0 ]; then
+        echo ""
+        echo "   👥 PER-ACCOUNT KEYS — add EACH to its OWN GitHub account:"
+        for pub in "${acc_keys[@]}"; do
+            acc="$(basename "$pub" .pub)"; acc="${acc#id_ed25519_}"
+            echo ""
+            echo "   → Account folder ~/dev/$acc"
+            echo "      View: cat $pub"
+            echo "      Copy: cat $pub | xclip -sel clip"
+        done
+        echo ""
+        echo "   ⚠️  Log in to the matching GitHub account before pasting each key."
+    fi
 fi
 echo ""
 echo "3️⃣  VERIFY INSTALLATIONS"

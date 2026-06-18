@@ -28,9 +28,9 @@ get_env_var() {
     
     # If not in environment, try to read from .env file
     if [ -z "$value" ]; then
-        # Find project root (assuming we're in a subdirectory)
+        # Find project root (env_helper.sh lives in <root>/lib/)
         local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        local project_root="$(cd "$script_dir/../.." && pwd)"
+        local project_root="$(cd "$script_dir/.." && pwd)"
         local env_file="$project_root/.env"
         
         if [ -f "$env_file" ]; then
@@ -95,7 +95,7 @@ get_env_var() {
 
 check_env_file() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local project_root="$(cd "$script_dir/../.." && pwd)"
+    local project_root="$(cd "$script_dir/.." && pwd)"
     local env_file="$project_root/.env"
     
     if [ -f "$env_file" ]; then
@@ -111,7 +111,7 @@ check_env_file() {
 
 get_env_file_path() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local project_root="$(cd "$script_dir/../.." && pwd)"
+    local project_root="$(cd "$script_dir/.." && pwd)"
     echo "$project_root/.env"
 }
 
