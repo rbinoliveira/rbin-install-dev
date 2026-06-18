@@ -28,28 +28,40 @@ fi
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+
+if [ -f "$PROJECT_ROOT/lib/brew_helper.sh" ]; then
+    # shellcheck source=lib/brew_helper.sh
+    source "$PROJECT_ROOT/lib/brew_helper.sh"
+fi
+
 echo "=============================================="
 echo "========= [16] INSTALLING DOCKER ============="
 echo "=============================================="
 
-# Check if Homebrew is installed
 if ! command -v brew &> /dev/null; then
   echo "❌ Homebrew is required. Please install it first."
   exit 1
 fi
 
 echo "Installing Docker Desktop via Homebrew..."
-# Reinstall if already installed
-if brew list --cask docker &> /dev/null; then
-  echo "Reinstalling Docker Desktop..."
-  brew reinstall --cask docker
-else
-  brew install --cask docker
-fi
-echo "✓ Docker Desktop installed"
+
+# Homebrew cask name varies; prefer docker-desktop (current name)
+DOCKER_CASK=""
+for candidate in docker-desktop docker; do
+    if brew info --cask "$candidate" &>/dev/null; then
+        DOCKER_CASK="$candidate"
+        break
+    fi
+done
+DOCKER_CASK="${DOCKER_CASK:-docker-desktop}"
+
+# Upgrade-only when already installed — reinstall removes launchctl services and asks sudo again
+brew_cask_install_smart "$DOCKER_CASK" "Docker"
+echo "✓ Docker Desktop ready"
 
 echo "Starting Docker Desktop..."
-# Use full path to ensure Docker.app is found after installation
 if [ -d "/Applications/Docker.app" ]; then
   open /Applications/Docker.app
 else

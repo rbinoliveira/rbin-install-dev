@@ -46,52 +46,49 @@ check_script_installed() {
     local script_name="$1"
 
     case "$script_name" in
-        "01-configure-git.sh")
-            # Git config is always checked, skip this
-            return 1
-            ;;
         "02-install-zsh.sh")
             check_installed "zsh" || return 1
             ;;
+        "02.5-install-iterm2.sh")
+            [ -d "/Applications/iTerm.app" ] || \
+                (command -v brew &>/dev/null && brew list --cask iterm2 &>/dev/null) || return 1
+            ;;
         "03-install-zinit.sh")
-            [ -d "$HOME/.zinit" ] || return 1
+            [ -d "$HOME/.zinit/bin" ] || return 1
             ;;
         "04-install-starship.sh")
             check_installed "starship" || return 1
             ;;
         "05-install-node-nvm.sh")
-            [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ] || return 1
+            [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ] && check_installed "node" || return 1
             ;;
         "06-install-yarn.sh")
             check_installed "yarn" || return 1
             ;;
         "07-install-tools.sh")
-            # Check if all tools are installed
             check_installed "zoxide" && \
             check_installed "fzf" && \
             (check_installed "fd" || check_installed "fdfind") && \
-            check_installed "bat" && \
+            (check_installed "bat" || check_installed "batcat") && \
             check_installed "lsd" && \
             check_installed "lazygit" || return 1
             ;;
         "08-install-font-cascadia.sh")
-            # Check if CaskaydiaCove Nerd Font is installed
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                # macOS: check Homebrew or font directory
-                if brew list --cask font-caskaydia-cove-nerd-font &>/dev/null 2>&1; then
-                    return 0
-                elif [ -d "$HOME/Library/Fonts/CascadiaCode" ]; then
-                    return 0
-                fi
-            else
-                # Linux: check font directory
-                if [ -d "$HOME/.local/share/fonts/CascadiaCode" ]; then
-                    return 0
-                fi
+            if [ -d "$HOME/.local/share/fonts/CascadiaCode" ]; then
+                return 0
             fi
+            fc-list 2>/dev/null | grep -qi 'CaskaydiaCove' && return 0
             return 1
             ;;
-        "09-install-cursor.sh")
+        "08-install-font-caskaydia.sh")
+            if brew list --cask font-caskaydia-cove-nerd-font &>/dev/null 2>&1; then
+                return 0
+            fi
+            ls "$HOME/Library/Fonts/CaskaydiaCove"*.ttf 2>/dev/null | head -1 | grep -q . && return 0
+            ls "$HOME/Library/Fonts/CascadiaCode"*.ttf 2>/dev/null | head -1 | grep -q . && return 0
+            return 1
+            ;;
+        "09-install-cursor.sh"|"10-install-cursor.sh")
             check_installed "cursor" || [ -d "/Applications/Cursor.app" ] || return 1
             ;;
         "10-install-claude.sh"|"11-install-claude.sh")
@@ -103,23 +100,12 @@ check_script_installed() {
         "10.5-install-code-notify.sh"|"11.5-install-code-notify.sh")
             check_installed "cn" || npm list -g code-notify &>/dev/null || [ -x "$HOME/.local/bin/cn" ] || return 1
             ;;
-        "11-configure-terminal.sh")
-            # Configuration script, always run
-            return 1
-            ;;
-        "12-configure-ssh.sh")
-            # Configuration script, always run
-            return 1
-            ;;
-        "14-configure-cursor.sh")
-            # Configuration script, always run
-            return 1
-            ;;
         "16-install-docker.sh"|"17-install-docker.sh")
-            check_installed "docker" || return 1
+            check_installed "docker" || [ -d "/Applications/Docker.app" ] || return 1
             ;;
         "18-install-tableplus.sh"|"19-install-tableplus.sh")
-            check_installed "tableplus" || [ -d "/Applications/TablePlus.app" ] || return 1
+            check_installed "tableplus" || [ -d "/Applications/TablePlus.app" ] || \
+                [ -f "$HOME/.local/bin/tableplus" ] || return 1
             ;;
         "19-install-cursor-cli.sh"|"20-install-cursor-cli.sh")
             check_installed "cursor-agent" || return 1
@@ -128,10 +114,21 @@ check_script_installed() {
             check_installed "rtk" || [ -x "$HOME/.local/bin/rtk" ] || return 1
             ;;
         "19.6-install-graphify.sh"|"20.6-install-graphify.sh")
-            check_installed "graphify" || [ -x "$HOME/.local/bin/graphify" ] || return 1
+            check_installed "graphify" || command -v uv &>/dev/null || return 1
+            ;;
+        "22-install-aws-vpn-client.sh")
+            check_installed "awsvpnclient" || [ -d "/Applications/AWS VPN Client/AWS VPN Client.app" ] || return 1
+            ;;
+        "23-install-aws-cli.sh")
+            check_installed "aws" || return 1
+            ;;
+        "25-install-dotnet.sh")
+            check_installed "dotnet" || return 1
+            ;;
+        "26-install-java.sh")
+            check_installed "java" || return 1
             ;;
         *)
-            # Unknown script, don't skip
             return 1
             ;;
     esac

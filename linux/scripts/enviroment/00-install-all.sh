@@ -101,33 +101,41 @@ echo "  Git Name: $GIT_USER_NAME"
 echo "  Git Email: $GIT_USER_EMAIL"
 echo "=============================================="
 echo ""
+if [ "${FORCE_INSTALL:-false}" = true ]; then
+    echo "Install mode: reinstall everything (--force-install)"
+else
+    echo "Install mode: missing tools only · configs always updated"
+fi
+echo ""
 echo "⚠️  ATTENTION:"
 echo "   - After Docker installation (final step), you may need to"
 echo "     logout/login to use Docker without sudo (Linux only)."
 echo ""
 
+# Keep sudo session alive in THIS shell (same process that runs brew/sudo)
+if [ -f "$PROJECT_ROOT/lib/sudo_helper.sh" ]; then
+    # shellcheck source=lib/sudo_helper.sh
+    source "$PROJECT_ROOT/lib/sudo_helper.sh"
+    if [ -n "${SUDO_KEEPALIVE_PID:-}" ]; then
+        stop_sudo_keepalive
+    fi
+    start_sudo_keepalive || exit 1
+    trap 'stop_sudo_keepalive' EXIT
+fi
+
 # ────────────────────────────────────────────────────────────────
 # Helper Function: Check and Confirm Installation
 # ────────────────────────────────────────────────────────────────
 
-check_and_confirm_installation() {
-    local tool_name="$1"
-    local check_command="$2"
-    local version_command="${3:-}"
-    local skip_if_installed="${4:-false}"
+if [ -f "$PROJECT_ROOT/lib/check_installed.sh" ]; then
+    # shellcheck source=lib/check_installed.sh
+    source "$PROJECT_ROOT/lib/check_installed.sh"
+fi
 
-    # If skip_if_installed is true, skip without asking
-    if [ "$skip_if_installed" = true ]; then
-        echo "Skipping $tool_name installation..."
-        log_info "$tool_name installation skipped"
-        return 1
-    fi
-
-    # Always use reinstall mode - always install/reinstall everything, no prompts
-    echo "→ $tool_name will be installed/reinstalled (reinstall mode)"
-    log_info "$tool_name will be installed/reinstalled (reinstall mode)"
-    return 0
-}
+if [ -f "$PROJECT_ROOT/lib/install_mode.sh" ]; then
+    # shellcheck source=lib/install_mode.sh
+    source "$PROJECT_ROOT/lib/install_mode.sh"
+fi
 
 # Wrapper function to run script with installation check
 run_script_with_check() {
@@ -160,7 +168,7 @@ run_script_with_check() {
     echo "=============================================="
 
     # Check and confirm installation
-    if check_and_confirm_installation "$tool_name" "$check_command" "$version_command" "$skip_if_installed"; then
+    if check_and_confirm_installation "$tool_name" "$check_command" "$version_command" "$skip_if_installed" "$script_name"; then
         # Execute script
         bash "$SCRIPT_DIR/$script_name"
     else
@@ -248,6 +256,9 @@ run_script_with_check "10.5-install-code-notify.sh" "Code-Notify" "command -v cn
 
 # Danger mode: claude-danger and codex-danger wrappers (auto-approve all)
 run_script_with_check "11.3-configure-danger-mode.sh" "Danger Mode (claude-danger + codex-danger)" "[ -x \"$HOME/.local/bin/claude-danger\" ] && [ -x \"$HOME/.local/bin/codex-danger\" ]" ""
+
+# Claude multi-account: claude1 / claude2 via CLAUDE_CONFIG_DIR
+run_script_with_check "11.4-configure-claude-accounts.sh" "Claude Multi-Account (claude1 + claude2)" "[ -x \"$HOME/.local/bin/claude1\" ] && [ -x \"$HOME/.local/bin/claude2\" ]" ""
 
 # Configuration scripts
 run_script_with_check "11-configure-terminal.sh" "Terminal Configuration" "true" "" "false"
