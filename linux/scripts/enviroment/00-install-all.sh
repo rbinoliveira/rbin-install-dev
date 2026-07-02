@@ -257,17 +257,17 @@ run_script_with_check "10.5-install-code-notify.sh" "Code-Notify" "command -v cn
 # Danger mode: claude-danger and codex-danger wrappers (auto-approve all)
 run_script_with_check "11.3-configure-danger-mode.sh" "Danger Mode (claude-danger + codex-danger)" "[ -x \"$HOME/.local/bin/claude-danger\" ] && [ -x \"$HOME/.local/bin/codex-danger\" ]" ""
 
-# Claude multi-account: claude1 / claude2 via CLAUDE_CONFIG_DIR
-run_script_with_check "11.4-configure-claude-accounts.sh" "Claude Multi-Account (claude1 + claude2)" "[ -x \"$HOME/.local/bin/claude1\" ] && [ -x \"$HOME/.local/bin/claude2\" ]" ""
+# Claude multi-account: claude1 / claude2 / claude3 via CLAUDE_CONFIG_DIR
+run_script_with_check "11.4-configure-claude-accounts.sh" "Claude Multi-Account" "[ -x \"$HOME/.local/bin/claude1\" ] && [ -x \"$HOME/.local/bin/claude2\" ]" ""
 
 # Configuration scripts
 run_script_with_check "11-configure-terminal.sh" "Terminal Configuration" "true" "" "false"
 
 run_script_with_check "12-configure-ssh.sh" "SSH Configuration" "true" "" "false"
 
-# Personal mode: two personal Git/GitHub accounts (~/dev/<acc>, per-folder SSH + identity)
+# Personal mode: personal Git/GitHub accounts (~/dev/<acc>, per-folder SSH + identity)
 if [ "${RBIN_MODE:-personal}" = "personal" ]; then
-    run_script_with_check "12.5-configure-dev-accounts.sh" "Dev Accounts (two GitHub identities)" "true" "" "false"
+    run_script_with_check "12.5-configure-dev-accounts.sh" "Dev Accounts (GitHub identities)" "true" "" "false"
 fi
 
 # Cursor configuration

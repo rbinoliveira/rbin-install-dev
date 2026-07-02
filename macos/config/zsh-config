@@ -167,12 +167,34 @@ EOF
   fi
 }
 
-# Open two Claude Code sessions (account 1 + account 2) in separate tabs
+# Open Claude Code sessions (accounts 1–3 when configured) in separate tabs
 claudes() {
   local current_dir=$(pwd)
+  local has_third=false
+  command -v claude3 &>/dev/null && has_third=true
 
   if [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]]; then
-    osascript <<EOF
+    if [ "$has_third" = true ]; then
+      osascript <<EOF
+tell application "iTerm"
+  tell current window
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🤖 Claude conta 1' && claude"
+    end tell
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🤖 Claude conta 2' && claude2"
+    end tell
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🤖 Claude conta 3' && claude3"
+    end tell
+  end tell
+end tell
+EOF
+    else
+      osascript <<EOF
 tell application "iTerm"
   tell current window
     create tab with default profile
@@ -186,35 +208,82 @@ tell application "iTerm"
   end tell
 end tell
 EOF
+    fi
   elif [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
-    osascript <<EOF
+    if [ "$has_third" = true ]; then
+      osascript <<EOF
+tell application "Terminal"
+  do script "cd '$current_dir' && echo '🤖 Claude conta 1' && claude"
+  tell application "System Events" to keystroke "t" using command down
+  do script "cd '$current_dir' && echo '🤖 Claude conta 2' && claude2" in front window
+  tell application "System Events" to keystroke "t" using command down
+  do script "cd '$current_dir' && echo '🤖 Claude conta 3' && claude3" in front window
+end tell
+EOF
+    else
+      osascript <<EOF
 tell application "Terminal"
   do script "cd '$current_dir' && echo '🤖 Claude conta 1' && claude"
   tell application "System Events" to keystroke "t" using command down
   do script "cd '$current_dir' && echo '🤖 Claude conta 2' && claude2" in front window
 end tell
 EOF
+    fi
   else
-    echo "Opening two Claude accounts in: $current_dir"
+    echo "Opening Claude accounts in: $current_dir"
     if command -v gnome-terminal &> /dev/null; then
-      gnome-terminal --tab --title="Claude 1" -- bash -c "cd '$current_dir' && claude; exec bash" \
-                     --tab --title="Claude 2" -- bash -c "cd '$current_dir' && claude2; exec bash"
+      if [ "$has_third" = true ]; then
+        gnome-terminal --tab --title="Claude 1" -- bash -c "cd '$current_dir' && claude; exec bash" \
+                       --tab --title="Claude 2" -- bash -c "cd '$current_dir' && claude2; exec bash" \
+                       --tab --title="Claude 3" -- bash -c "cd '$current_dir' && claude3; exec bash"
+      else
+        gnome-terminal --tab --title="Claude 1" -- bash -c "cd '$current_dir' && claude; exec bash" \
+                       --tab --title="Claude 2" -- bash -c "cd '$current_dir' && claude2; exec bash"
+      fi
     elif command -v konsole &> /dev/null; then
       konsole --new-tab -e bash -c "cd '$current_dir' && claude; exec bash" \
               --new-tab -e bash -c "cd '$current_dir' && claude2; exec bash"
+      if [ "$has_third" = true ]; then
+        konsole --new-tab -e bash -c "cd '$current_dir' && claude3; exec bash"
+      fi
     else
       echo "   Tab 1: cd '$current_dir' && claude"
       echo "   Tab 2: cd '$current_dir' && claude2"
+      if [ "$has_third" = true ]; then
+        echo "   Tab 3: cd '$current_dir' && claude3"
+      fi
     fi
   fi
 }
 
-# Open two Claude Code sessions in danger mode (account 1 + account 2)
+# Open Claude Code sessions in danger mode (accounts 1–3 when configured)
 claudes-danger() {
   local current_dir=$(pwd)
+  local has_third=false
+  command -v claude3-danger &>/dev/null && has_third=true
 
   if [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]]; then
-    osascript <<EOF
+    if [ "$has_third" = true ]; then
+      osascript <<EOF
+tell application "iTerm"
+  tell current window
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🔥 Claude conta 1 (danger)' && claude1-danger"
+    end tell
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🔥 Claude conta 2 (danger)' && claude2-danger"
+    end tell
+    create tab with default profile
+    tell current session of current tab
+      write text "cd '$current_dir' && echo '🔥 Claude conta 3 (danger)' && claude3-danger"
+    end tell
+  end tell
+end tell
+EOF
+    else
+      osascript <<EOF
 tell application "iTerm"
   tell current window
     create tab with default profile
@@ -228,25 +297,50 @@ tell application "iTerm"
   end tell
 end tell
 EOF
+    fi
   elif [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
-    osascript <<EOF
+    if [ "$has_third" = true ]; then
+      osascript <<EOF
+tell application "Terminal"
+  do script "cd '$current_dir' && echo '🔥 Claude conta 1 (danger)' && claude1-danger"
+  tell application "System Events" to keystroke "t" using command down
+  do script "cd '$current_dir' && echo '🔥 Claude conta 2 (danger)' && claude2-danger" in front window
+  tell application "System Events" to keystroke "t" using command down
+  do script "cd '$current_dir' && echo '🔥 Claude conta 3 (danger)' && claude3-danger" in front window
+end tell
+EOF
+    else
+      osascript <<EOF
 tell application "Terminal"
   do script "cd '$current_dir' && echo '🔥 Claude conta 1 (danger)' && claude1-danger"
   tell application "System Events" to keystroke "t" using command down
   do script "cd '$current_dir' && echo '🔥 Claude conta 2 (danger)' && claude2-danger" in front window
 end tell
 EOF
+    fi
   else
-    echo "Opening two Claude accounts (danger) in: $current_dir"
+    echo "Opening Claude accounts (danger) in: $current_dir"
     if command -v gnome-terminal &> /dev/null; then
-      gnome-terminal --tab --title="Claude 1 danger" -- bash -c "cd '$current_dir' && claude1-danger; exec bash" \
-                     --tab --title="Claude 2 danger" -- bash -c "cd '$current_dir' && claude2-danger; exec bash"
+      if [ "$has_third" = true ]; then
+        gnome-terminal --tab --title="Claude 1 danger" -- bash -c "cd '$current_dir' && claude1-danger; exec bash" \
+                       --tab --title="Claude 2 danger" -- bash -c "cd '$current_dir' && claude2-danger; exec bash" \
+                       --tab --title="Claude 3 danger" -- bash -c "cd '$current_dir' && claude3-danger; exec bash"
+      else
+        gnome-terminal --tab --title="Claude 1 danger" -- bash -c "cd '$current_dir' && claude1-danger; exec bash" \
+                       --tab --title="Claude 2 danger" -- bash -c "cd '$current_dir' && claude2-danger; exec bash"
+      fi
     elif command -v konsole &> /dev/null; then
       konsole --new-tab -e bash -c "cd '$current_dir' && claude1-danger; exec bash" \
               --new-tab -e bash -c "cd '$current_dir' && claude2-danger; exec bash"
+      if [ "$has_third" = true ]; then
+        konsole --new-tab -e bash -c "cd '$current_dir' && claude3-danger; exec bash"
+      fi
     else
       echo "   Tab 1: cd '$current_dir' && claude1-danger"
       echo "   Tab 2: cd '$current_dir' && claude2-danger"
+      if [ "$has_third" = true ]; then
+        echo "   Tab 3: cd '$current_dir' && claude3-danger"
+      fi
     fi
   fi
 }

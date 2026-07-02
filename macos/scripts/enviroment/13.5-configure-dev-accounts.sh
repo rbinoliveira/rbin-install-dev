@@ -32,9 +32,8 @@ echo "=============================================="
 echo "===== [13.5] CONFIGURE DEV ACCOUNTS =========="
 echo "=============================================="
 echo ""
-echo "Sets up two personal Git/GitHub accounts side by side."
-echo "Each account gets its own folder under ~/dev, its own SSH key,"
-echo "and an automatic git identity (name + email) via includeIf."
+echo "Sets up personal Git/GitHub accounts side by side under ~/dev."
+echo "Each account gets its own folder, SSH key, and git identity via includeIf."
 echo ""
 
 # ────────────────────────────────────────────────────────────────
@@ -42,6 +41,18 @@ echo ""
 # ────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env"
+
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    while IFS= read -r line || [ -n "$line" ]; do
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${line// }" ]] && continue
+        eval "export $line" 2>/dev/null || true
+    done < "$ENV_FILE"
+    set +a
+fi
+
 if [ -f "$PROJECT_ROOT/lib/env_helper.sh" ]; then
     # shellcheck source=lib/env_helper.sh
     source "$PROJECT_ROOT/lib/env_helper.sh"
@@ -159,16 +170,23 @@ EOF
 configure_account 1
 configure_account 2
 
+if [ -n "${DEV_ACCOUNT_3_DIR:-}" ]; then
+    configure_account 3
+fi
+
 echo ""
 echo "=============================================="
 echo "=========== [13.5] DONE ====================="
 echo "=============================================="
 echo ""
-echo "Two accounts are configured. Inside each folder, Git automatically"
+echo "Dev accounts are configured. Inside each folder, Git automatically"
 echo "uses the matching name/email and SSH key — no manual switching:"
 echo ""
 echo "  ~/dev/${DEV_ACCOUNT_1_DIR}/...  → ${DEV_ACCOUNT_1_GITHUB} <${DEV_ACCOUNT_1_EMAIL}>"
 echo "  ~/dev/${DEV_ACCOUNT_2_DIR}/...  → ${DEV_ACCOUNT_2_GITHUB} <${DEV_ACCOUNT_2_EMAIL}>"
+if [ -n "${DEV_ACCOUNT_3_DIR:-}" ]; then
+    echo "  ~/dev/${DEV_ACCOUNT_3_DIR}/...  → ${DEV_ACCOUNT_3_GITHUB} <${DEV_ACCOUNT_3_EMAIL}>"
+fi
 echo ""
 echo "Verify inside a repo with:  git config user.name && git config user.email"
 echo ""

@@ -238,7 +238,7 @@ Runs all installation scripts in sequence automatically.
 | **11-install-claude.sh** | Installs Claude Code CLI |
 | **11.2-install-codex.sh** (macOS) / **10.2-install-codex.sh** (Linux) | Installs OpenAI Codex CLI (`codex`) |
 | **11.5-install-code-notify.sh** (macOS) / **10.5-install-code-notify.sh** (Linux) | Installs Code-Notify (`cn`) for Claude, Codex, and Gemini CLI |
-| **11.4-configure-claude-accounts.sh** | Configures `claude1` / `claude2` for two isolated Claude Code accounts (`CLAUDE_CONFIG_DIR`) |
+| **11.4-configure-claude-accounts.sh** | Configures `claude1` / `claude2` / `claude3` for isolated Claude Code accounts (`CLAUDE_CONFIG_DIR`) |
 | **11-configure-terminal.sh** (Linux) | Configures GNOME Terminal with Dracula theme |
 | **12-configure-terminal.sh** (macOS) | Configures iTerm2 with Dracula theme |
 | **12-configure-ssh.sh** (Linux) | Configures SSH for Git |
@@ -620,7 +620,7 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **11-install-claude.sh** | Instala Claude Code CLI |
 | **11.2-install-codex.sh** (macOS) / **10.2-install-codex.sh** (Linux) | Instala OpenAI Codex CLI (`codex`) |
 | **11.5-install-code-notify.sh** (macOS) / **10.5-install-code-notify.sh** (Linux) | Instala Code-Notify (`cn`) para Claude, Codex e Gemini CLI |
-| **11.4-configure-claude-accounts.sh** | Configura `claude1` / `claude2` para duas contas Claude Code isoladas (`CLAUDE_CONFIG_DIR`) |
+| **11.4-configure-claude-accounts.sh** | Configura `claude1` / `claude2` / `claude3` para contas Claude Code isoladas (`CLAUDE_CONFIG_DIR`) |
 | **11-configure-terminal.sh** (Linux) | Configura GNOME Terminal com tema Dracula |
 | **12-configure-terminal.sh** (macOS) | Configura iTerm2 com tema Dracula |
 | **12-configure-ssh.sh** (Linux) | Configura SSH para Git |

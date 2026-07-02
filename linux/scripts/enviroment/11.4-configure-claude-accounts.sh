@@ -27,12 +27,26 @@ fi
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env"
+
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    while IFS= read -r line || [ -n "$line" ]; do
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${line// }" ]] && continue
+        eval "export $line" 2>/dev/null || true
+    done < "$ENV_FILE"
+    set +a
+fi
+
 echo "=============================================="
 echo "==== [11.4] CONFIGURE CLAUDE ACCOUNTS ========"
 echo "=============================================="
 echo ""
 echo "Sets up isolated Claude Code configs via CLAUDE_CONFIG_DIR."
-echo "Use claude1 / claude2 to run two accounts side by side."
+echo "Use claude1 / claude2 / claude3 for separate accounts side by side."
 echo ""
 
 expand_path() {
@@ -41,8 +55,15 @@ expand_path() {
     echo "$p"
 }
 
-CLAUDE_DIR_1="$(expand_path "${CLAUDE_CONFIG_DIR_1:-$HOME/.claude}")"
 CLAUDE_DIR_2="$(expand_path "${CLAUDE_CONFIG_DIR_2:-$HOME/.claude-work}")"
+
+if [ -n "${CLAUDE_CONFIG_DIR_3:-}" ]; then
+    CLAUDE_DIR_3="$(expand_path "$CLAUDE_CONFIG_DIR_3")"
+elif [ -n "${DEV_ACCOUNT_3_DIR:-}" ]; then
+    CLAUDE_DIR_3="$HOME/.claude-${DEV_ACCOUNT_3_DIR}"
+else
+    CLAUDE_DIR_3=""
+fi
 
 BIN_DIR="$HOME/.local/bin"
 mkdir -p "$BIN_DIR"
@@ -86,7 +107,12 @@ install_wrapper "claude2" "$CLAUDE_DIR_2" ""
 install_wrapper "claude1-danger" "" "--dangerously-skip-permissions"
 install_wrapper "claude2-danger" "$CLAUDE_DIR_2" "--dangerously-skip-permissions"
 
-# Ensure ~/.local/bin is in PATH
+if [ -n "$CLAUDE_DIR_3" ]; then
+    mkdir -p "$CLAUDE_DIR_3"
+    install_wrapper "claude3" "$CLAUDE_DIR_3" ""
+    install_wrapper "claude3-danger" "$CLAUDE_DIR_3" "--dangerously-skip-permissions"
+fi
+
 add_to_path_if_missing() {
     local rc_file="$1"
     local path_line='export PATH="$HOME/.local/bin:$PATH"'
@@ -110,18 +136,33 @@ echo "=============================================="
 echo ""
 echo "Account 1 (default): ~/.claude (same as \`claude\` / \`claude1\`)"
 echo "Account 2 (second):  $CLAUDE_DIR_2"
+if [ -n "$CLAUDE_DIR_3" ]; then
+    echo "Account 3 (third):   $CLAUDE_DIR_3"
+fi
 echo ""
-echo "First-time setup for account 2:"
+echo "First-time setup for extra accounts:"
 echo "  claude2 auth login"
+if [ -n "$CLAUDE_DIR_3" ]; then
+    echo "  claude3 auth login"
+fi
 echo ""
-echo "Daily use (two terminals, no logout):"
-echo "  claude  or  claude1    # your existing account (unchanged)"
-echo "  claude2                # second account"
-echo "  claude1-danger         # account 1, danger mode"
-echo "  claude2-danger         # account 2, danger mode"
-echo "  claudes                # open claude + claude2 in two tabs"
-echo "  claudes-danger         # open both in danger mode"
+echo "Daily use (separate terminals, no logout):"
+echo "  claude  or  claude1    # account 1 (unchanged)"
+echo "  claude2                # account 2"
+if [ -n "$CLAUDE_DIR_3" ]; then
+    echo "  claude3                # account 3"
+fi
+echo "  claude1-danger / claude2-danger"
+if [ -n "$CLAUDE_DIR_3" ]; then
+    echo "  claude3-danger"
+    echo "  claudes                # open all configured accounts in tabs"
+    echo "  claudes-danger         # same, danger mode"
+else
+    echo "  claudes                # open claude + claude2 in two tabs"
+    echo "  claudes-danger         # open both in danger mode"
+fi
 echo ""
-echo "Optional: set CLAUDE_CONFIG_DIR_2 in .env to customize the second path."
+echo "Optional: set CLAUDE_CONFIG_DIR_2 / CLAUDE_CONFIG_DIR_3 in .env."
+echo "Account 3 is enabled when DEV_ACCOUNT_3_DIR or CLAUDE_CONFIG_DIR_3 is set."
 echo "Re-run script 11.4 after changing .env to refresh wrappers."
 echo ""
