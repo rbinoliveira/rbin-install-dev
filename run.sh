@@ -120,63 +120,11 @@ if [ -f "$SCRIPT_DIR/lib/sudo_helper.sh" ]; then
 fi
 
 # ────────────────────────────────────────────────────────────────
-# Mode Selection: Personal vs Enterprise (first question)
+# Mode: always personal (dev environment without AWS, Java or .NET)
 # ────────────────────────────────────────────────────────────────
-# Modo pessoal: ambiente dev sem AWS, Java ou .NET.
-# Modo empresa: inclui configurações AWS, Java e .NET.
 
-select_rbin_mode() {
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🚀 Rbin Scripts - Escolha o modo"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "  1) Modo pessoal"
-    echo "     Ambiente de desenvolvimento básico (sem AWS, Java ou .NET)"
-    echo ""
-    echo "  2) Modo empresa"
-    echo "     Inclui configurações de AWS, Java e .NET"
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-
-    while true; do
-        read -p "Selecione o modo [1/2]: " -n 1 -r
-        echo ""
-
-        if [[ "$REPLY" == "1" ]]; then
-            export RBIN_MODE="personal"
-            echo ""
-            echo "✓ Modo selecionado: Pessoal"
-            log_info "RBIN_MODE=personal"
-            break
-        elif [[ "$REPLY" == "2" ]]; then
-            export RBIN_MODE="enterprise"
-            echo ""
-            echo "✓ Modo selecionado: Empresa (AWS, Java, .NET)"
-            log_info "RBIN_MODE=enterprise"
-            break
-        else
-            echo "❌ Opção inválida. Digite 1 ou 2."
-            echo ""
-        fi
-    done
-    echo ""
-}
-
-# Ask mode first (before environment setup); default to personal if non-interactive
-if [ -t 0 ]; then
-    select_rbin_mode
-else
-    export RBIN_MODE="${RBIN_MODE:-personal}"
-    log_info "RBIN_MODE=$RBIN_MODE (non-interactive)"
-fi
-
-# Load AWS helper only in enterprise mode
-if [ "${RBIN_MODE:-}" = "enterprise" ] && [ -f "$SCRIPT_DIR/lib/aws_helper.sh" ]; then
-    # shellcheck source=lib/aws_helper.sh
-    source "$SCRIPT_DIR/lib/aws_helper.sh"
-fi
+export RBIN_MODE="personal"
+log_info "RBIN_MODE=personal"
 
 # ────────────────────────────────────────────────────────────────
 # Environment Variables Setup
@@ -193,7 +141,7 @@ setup_environment_variables() {
 
     # Use the shared validation library if available (required vars depend on mode)
     if type validate_required_env_variables >/dev/null 2>&1; then
-        if ! validate_required_env_variables "$env_file" "$env_example" "${RBIN_MODE:-personal}"; then
+        if ! validate_required_env_variables "$env_file" "$env_example" "personal"; then
             echo ""
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "❌ Environment validation failed!"
@@ -250,7 +198,7 @@ get_all_scripts() {
     local platform_dir="$SCRIPT_DIR/$PLATFORM/scripts/enviroment"
     local scripts=()
 
-    # Enterprise-only scripts (only shown when RBIN_MODE=enterprise)
+    # Enterprise-only scripts (never offered — install is always personal mode)
     local enterprise_scripts=(
         "22-install-aws-vpn-client.sh"
         "23-install-aws-cli.sh"
@@ -269,17 +217,15 @@ get_all_scripts() {
                 if [[ "$basename_script" =~ ^[0-9]+\.?[0-9]*-.*\.sh$ ]] && [[ "$basename_script" != "00-install-all.sh" ]]; then
                     # Skip inotify (removed step)
                     [[ "$basename_script" == "13-configure-inotify.sh" ]] && continue
-                    # In personal mode, skip enterprise-only scripts
-                    if [ "${RBIN_MODE:-personal}" = "personal" ]; then
-                        local is_enterprise=false
-                        for es in "${enterprise_scripts[@]}"; do
-                            if [[ "$basename_script" == "$es" ]]; then
-                                is_enterprise=true
-                                break
-                            fi
-                        done
-                        [[ "$is_enterprise" == true ]] && continue
-                    fi
+                    # Skip enterprise-only scripts
+                    local is_enterprise=false
+                    for es in "${enterprise_scripts[@]}"; do
+                        if [[ "$basename_script" == "$es" ]]; then
+                            is_enterprise=true
+                            break
+                        fi
+                    done
+                    [[ "$is_enterprise" == true ]] && continue
                     scripts+=("$basename_script")
                 fi
             fi
@@ -468,12 +414,6 @@ install_development_environment() {
         echo ""
         echo "✅ Installation completed successfully!"
         log_info "Installation completed successfully"
-        # Modo empresa: popular contas AWS no .env se disponível
-        if [ "${RBIN_MODE:-}" = "enterprise" ] && type populate_aws_accounts &>/dev/null 2>&1; then
-            if [ -f "$SCRIPT_DIR/.env" ]; then
-                populate_aws_accounts "$SCRIPT_DIR/.env"
-            fi
-        fi
         return 0
     else
         echo ""

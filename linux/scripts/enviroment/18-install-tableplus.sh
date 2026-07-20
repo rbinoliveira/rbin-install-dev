@@ -28,67 +28,106 @@ fi
 
 set -e
 
-# Function to install TablePlus via AppImage
-install_tableplus_appimage() {
-    # Create local bin directory if it doesn't exist
-    mkdir -p "$HOME/.local/bin"
-    mkdir -p "$HOME/.local/share/applications"
-
-    # Download TablePlus AppImage
-    TABLEPLUS_PATH="$HOME/.local/bin/tableplus"
-
-    echo "📥 Installing TablePlus via AppImage..."
-    echo ""
-    echo "Please visit https://tableplus.com/download to download the Linux AppImage"
-    echo "After downloading, place it in: $TABLEPLUS_PATH"
-    echo ""
-    read -p "Press Enter after you have downloaded and placed the AppImage, or type 'skip' to exit: " response
-
-    if [ "$response" = "skip" ]; then
-        echo "⚠️  Installation skipped"
-        return 0
+# Resolve the user's Downloads directory (handles localized names via XDG)
+get_downloads_dir() {
+    if command -v xdg-user-dir &> /dev/null; then
+        xdg-user-dir DOWNLOAD
+    else
+        echo "$HOME/Downloads"
     fi
+}
 
-    # Check if file exists
-    if [ -f "$TABLEPLUS_PATH" ]; then
-        chmod +x "$TABLEPLUS_PATH"
-        echo "✓ TablePlus found and made executable"
+# Find the newest TablePlus AppImage or .deb in the Downloads directory
+find_tableplus_download() {
+    local downloads_dir="$1"
+    ls -t "$downloads_dir"/[Tt]able[Pp]lus*.AppImage \
+          "$downloads_dir"/[Tt]able[Pp]lus*.deb \
+          "$downloads_dir"/tableplus*.AppImage \
+          "$downloads_dir"/tableplus*.deb 2>/dev/null | head -1
+}
 
-        # Create desktop entry
-        cat > "$HOME/.local/share/applications/tableplus.desktop" <<EOF
+# Install a found AppImage/.deb file
+install_tableplus_file() {
+    local file="$1"
+    local tableplus_path="$HOME/.local/bin/tableplus"
+
+    case "$file" in
+        *.deb)
+            echo "→ Installing .deb: $file"
+            if ! sudo dpkg -i "$file"; then
+                echo "→ Fixing dependencies..."
+                sudo apt-get --fix-broken install -y
+                sudo dpkg -i "$file"
+            fi
+            echo "✓ TablePlus installed successfully via .deb"
+            return 0
+            ;;
+        *.AppImage)
+            echo "→ Installing AppImage: $file"
+            mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications"
+            mv "$file" "$tableplus_path"
+            chmod +x "$tableplus_path"
+
+            # Create desktop entry
+            cat > "$HOME/.local/share/applications/tableplus.desktop" <<EOF
 [Desktop Entry]
 Name=TablePlus
 Comment=Modern database client
-Exec=$TABLEPLUS_PATH
+Exec=$tableplus_path
 Icon=tableplus
 Type=Application
 Categories=Development;Database;
 EOF
 
-        # Verify installation
-        if [ -f "$TABLEPLUS_PATH" ] && [ -x "$TABLEPLUS_PATH" ]; then
             echo "✓ TablePlus installed successfully"
             echo ""
-            echo "📝 TablePlus is available at: $TABLEPLUS_PATH"
+            echo "📝 TablePlus is available at: $tableplus_path"
             echo "   You can run it with: tableplus"
-            echo ""
-            echo "💡 To make it available system-wide, add to PATH:"
-            echo "   export PATH=\"\$HOME/.local/bin:\$PATH\""
-            echo "   (This is usually already in your .zshrc)"
-        else
-            echo "⚠️  TablePlus file found but is not executable"
+            return 0
+            ;;
+    esac
+    return 1
+}
+
+# Function to install TablePlus via AppImage (auto-detects file in Downloads)
+install_tableplus_appimage() {
+    local tableplus_path="$HOME/.local/bin/tableplus"
+    local downloads_dir
+    downloads_dir="$(get_downloads_dir)"
+
+    echo "📥 Installing TablePlus via AppImage/.deb..."
+    echo ""
+
+    while true; do
+        # Already placed manually at the final location?
+        if [ -f "$tableplus_path" ]; then
+            chmod +x "$tableplus_path"
+            echo "✓ TablePlus found at $tableplus_path and made executable"
+            return 0
         fi
-    else
-        echo "❌ TablePlus AppImage not found at: $TABLEPLUS_PATH"
+
+        # Auto-detect a downloaded file in Downloads
+        local found
+        found="$(find_tableplus_download "$downloads_dir")"
+        if [ -n "$found" ]; then
+            echo "✓ Found downloaded file: $found"
+            install_tableplus_file "$found"
+            return $?
+        fi
+
+        echo "No TablePlus file found in $downloads_dir yet."
         echo ""
-        echo "Please download TablePlus manually:"
-        echo "  1. Visit: https://tableplus.com/download"
-        echo "  2. Download the Linux AppImage"
-        echo "  3. Make it executable: chmod +x TablePlus.AppImage"
-        echo "  4. Move to: mv TablePlus.AppImage ~/.local/bin/tableplus"
-        echo "  5. Run this script again"
-        return 1
-    fi
+        echo "Please visit https://tableplus.com/download and download the"
+        echo "Linux AppImage (or .deb) — save it to your Downloads folder."
+        echo "I will detect and install it automatically."
+        echo ""
+        read -p "Press Enter after downloading (I'll check Downloads again), or type 'skip' to exit: " response
+
+        if [ "$response" = "skip" ]; then
+            echo "⚠️  Installation skipped"
+            return 0
+        fi
+    done
 }
 
 echo "=============================================="

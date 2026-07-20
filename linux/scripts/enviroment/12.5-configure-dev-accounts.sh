@@ -169,12 +169,25 @@ EOF
     PUBKEYS+=("${n}|${dir}|${github}|${key}.pub")
 }
 
+# Account 1 is required; accounts 2 and 3 are optional (asked one at a time, max 3)
 configure_account 1
-configure_account 2
 
-if [ -n "${DEV_ACCOUNT_3_DIR:-}" ]; then
-    configure_account 3
-fi
+for n in 2 3; do
+    dir_var="DEV_ACCOUNT_${n}_DIR"
+    # Already configured in .env → set up without asking
+    if [ -n "${!dir_var:-}" ]; then
+        configure_account "$n"
+        continue
+    fi
+    echo ""
+    read -p "Add account ${n}? [y/N]: " -n 1 -r
+    echo ""
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+        configure_account "$n"
+    else
+        break
+    fi
+done
 
 echo ""
 echo "=============================================="
@@ -184,11 +197,11 @@ echo ""
 echo "Dev accounts are configured. Inside each folder, Git automatically"
 echo "uses the matching name/email and SSH key — no manual switching:"
 echo ""
-echo "  ~/dev/${DEV_ACCOUNT_1_DIR}/...  → ${DEV_ACCOUNT_1_GITHUB} <${DEV_ACCOUNT_1_EMAIL}>"
-echo "  ~/dev/${DEV_ACCOUNT_2_DIR}/...  → ${DEV_ACCOUNT_2_GITHUB} <${DEV_ACCOUNT_2_EMAIL}>"
-if [ -n "${DEV_ACCOUNT_3_DIR:-}" ]; then
-    echo "  ~/dev/${DEV_ACCOUNT_3_DIR}/...  → ${DEV_ACCOUNT_3_GITHUB} <${DEV_ACCOUNT_3_EMAIL}>"
-fi
+for entry in "${PUBKEYS[@]}"; do
+    IFS='|' read -r n dir github pub <<< "$entry"
+    email_var="DEV_ACCOUNT_${n}_EMAIL"
+    echo "  ~/dev/${dir}/...  → ${github} <${!email_var}>"
+done
 echo ""
 echo "Verify inside a repo with:  git config user.name && git config user.email"
 echo ""

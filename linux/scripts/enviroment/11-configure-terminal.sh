@@ -43,56 +43,118 @@ echo "Installing required packages (dconf-cli, uuid-runtime)..."
 sudo apt-get update -y
 sudo apt-get install -y dconf-cli uuid-runtime
 
-echo "Checking if Dracula theme is installed..."
-# Check if Dracula colors are already applied (check for Dracula background color)
-DRACULA_INSTALLED=false
-if dconf read /org/gnome/terminal/legacy/profiles:/:*/background-color 2>/dev/null | grep -q "#282a36"; then
-  DRACULA_INSTALLED=true
-  echo "✓ Dracula colors found in existing profiles"
-else
-  # Check if dracula theme directory exists
-  if [ -d "$HOME/.local/share/gnome-terminal/colors/dracula" ] || [ -d "/usr/share/gnome-terminal/colors/dracula" ]; then
-    DRACULA_INSTALLED=true
+# ────────────────────────────────────────────────────────────────
+# GNOME Terminal (classic) — only if its schema is installed
+# ────────────────────────────────────────────────────────────────
+
+configure_gnome_terminal() {
+  echo "Checking if Dracula theme is installed..."
+  # Check if Dracula colors are already applied (check for Dracula background color)
+  if dconf read /org/gnome/terminal/legacy/profiles:/:*/background-color 2>/dev/null | grep -q "#282a36"; then
+    echo "✓ Dracula colors found in existing profiles"
+  elif [ -d "$HOME/.local/share/gnome-terminal/colors/dracula" ] || [ -d "/usr/share/gnome-terminal/colors/dracula" ]; then
     echo "✓ Dracula theme files found"
   else
     echo "⚠️  Dracula theme not found"
     echo "   Will apply Dracula colors manually to the new profile"
   fi
+
+  echo ""
+  echo "Creating new GNOME Terminal profile: rbin..."
+  local NEW_PROFILE_ID
+  NEW_PROFILE_ID=$(uuidgen)
+
+  # Add to GNOME Terminal list
+  local OLD_LIST NEW_LIST
+  OLD_LIST=$(gsettings get org.gnome.Terminal.ProfilesList list)
+  NEW_LIST=$(echo "$OLD_LIST" | sed "s/]/, '$NEW_PROFILE_ID']/")
+  gsettings set org.gnome.Terminal.ProfilesList list "$NEW_LIST"
+
+  local PROFILE_KEY="/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE_ID/"
+
+  dconf write "${PROFILE_KEY}visible-name" "'rbin'"
+  dconf write "${PROFILE_KEY}use-system-font" "false"
+  dconf write "${PROFILE_KEY}font" "'CaskaydiaCove Nerd Font 13'"
+  dconf write "${PROFILE_KEY}use-theme-colors" "false"
+  dconf write "${PROFILE_KEY}foreground-color" "'#f8f8f2'"
+  dconf write "${PROFILE_KEY}background-color" "'#282a36'"
+  dconf write "${PROFILE_KEY}palette" "['#000000', '#ff5555', '#50fa7b', '#f1fa8c', '#bd93f9', '#ff79c6', '#8be9fd', '#bbbbbb', '#44475a', '#ff6e6e', '#69ff94', '#ffffa5', '#d6caff', '#ff92df', '#a6f0ff', '#ffffff']"
+
+  echo "Setting rbin as default profile..."
+  gsettings set org.gnome.Terminal.ProfilesList default "'$NEW_PROFILE_ID'"
+
+  echo "Cleaning up old profiles..."
+  local ALL_PROFILES
+  ALL_PROFILES=$(gsettings get org.gnome.Terminal.ProfilesList list | tr -d "[],'")
+
+  for PID in $ALL_PROFILES; do
+    if [ "$PID" != "$NEW_PROFILE_ID" ]; then
+      echo "Removing old profile: $PID"
+      dconf reset -f "/org/gnome/terminal/legacy/profiles:/:$PID/"
+    fi
+  done
+
+  gsettings set org.gnome.Terminal.ProfilesList list "['$NEW_PROFILE_ID']"
+
+  echo "✓ GNOME Terminal profile applied."
+}
+
+# ────────────────────────────────────────────────────────────────
+# Ptyxis (default terminal on recent Ubuntu/GNOME)
+# ────────────────────────────────────────────────────────────────
+
+configure_ptyxis() {
+  echo "Creating new Ptyxis profile: rbin..."
+  # Ptyxis profile UUIDs are 32 hex chars (no dashes)
+  local NEW_PROFILE_ID
+  NEW_PROFILE_ID=$(uuidgen | tr -d '-')
+
+  local PROFILE_KEY="/org/gnome/Ptyxis/Profiles/$NEW_PROFILE_ID/"
+
+  dconf write "${PROFILE_KEY}label" "'rbin'"
+  # Ptyxis ships a built-in Dracula palette
+  dconf write "${PROFILE_KEY}palette" "'dracula'"
+
+  # Font is an app-level setting in Ptyxis (not per-profile)
+  gsettings set org.gnome.Ptyxis use-system-font false
+  gsettings set org.gnome.Ptyxis font-name 'CaskaydiaCove Nerd Font 13'
+
+  # Register profile and set as default
+  local OLD_UUIDS
+  OLD_UUIDS=$(gsettings get org.gnome.Ptyxis profile-uuids | tr -d "[],'")
+
+  gsettings set org.gnome.Ptyxis default-profile-uuid "$NEW_PROFILE_ID"
+
+  echo "Cleaning up old profiles..."
+  for PID in $OLD_UUIDS; do
+    if [ "$PID" != "$NEW_PROFILE_ID" ]; then
+      echo "Removing old profile: $PID"
+      dconf reset -f "/org/gnome/Ptyxis/Profiles/$PID/"
+    fi
+  done
+
+  gsettings set org.gnome.Ptyxis profile-uuids "['$NEW_PROFILE_ID']"
+
+  echo "✓ Ptyxis profile applied."
+}
+
+CONFIGURED=false
+
+if gsettings list-schemas 2>/dev/null | grep -q '^org\.gnome\.Terminal\.ProfilesList$'; then
+  configure_gnome_terminal
+  CONFIGURED=true
 fi
 
-echo ""
-echo "Creating new GNOME Terminal profile: rbin..."
-NEW_PROFILE_ID=$(uuidgen)
+if gsettings list-schemas 2>/dev/null | grep -q '^org\.gnome\.Ptyxis$'; then
+  configure_ptyxis
+  CONFIGURED=true
+fi
 
-# Add to GNOME Terminal list
-OLD_LIST=$(gsettings get org.gnome.Terminal.ProfilesList list)
-NEW_LIST=$(echo "$OLD_LIST" | sed "s/]/, '$NEW_PROFILE_ID']/")
-gsettings set org.gnome.Terminal.ProfilesList list "$NEW_LIST"
-
-PROFILE_KEY="/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE_ID/"
-
-dconf write "${PROFILE_KEY}visible-name" "'rbin'"
-dconf write "${PROFILE_KEY}use-system-font" "false"
-dconf write "${PROFILE_KEY}font" "'CaskaydiaCove Nerd Font 13'"
-dconf write "${PROFILE_KEY}use-theme-colors" "false"
-dconf write "${PROFILE_KEY}foreground-color" "'#f8f8f2'"
-dconf write "${PROFILE_KEY}background-color" "'#282a36'"
-dconf write "${PROFILE_KEY}palette" "['#000000', '#ff5555', '#50fa7b', '#f1fa8c', '#bd93f9', '#ff79c6', '#8be9fd', '#bbbbbb', '#44475a', '#ff6e6e', '#69ff94', '#ffffa5', '#d6caff', '#ff92df', '#a6f0ff', '#ffffff']"
-
-echo "Setting rbin as default profile..."
-gsettings set org.gnome.Terminal.ProfilesList default "'$NEW_PROFILE_ID'"
-
-echo "Cleaning up old profiles..."
-ALL_PROFILES=$(gsettings get org.gnome.Terminal.ProfilesList list | tr -d "[],'")
-
-for PID in $ALL_PROFILES; do
-  if [ "$PID" != "$NEW_PROFILE_ID" ]; then
-    echo "Removing old profile: $PID"
-    dconf reset -f "/org/gnome/terminal/legacy/profiles:/:$PID/"
-  fi
-done
-
-gsettings set org.gnome.Terminal.ProfilesList list "['$NEW_PROFILE_ID']"
+if [ "$CONFIGURED" = false ]; then
+  echo "⚠️  Neither GNOME Terminal nor Ptyxis found on this system."
+  echo "   Skipping terminal configuration."
+  exit 0
+fi
 
 echo "Profile successfully applied."
 
