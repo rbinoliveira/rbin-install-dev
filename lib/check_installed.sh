@@ -88,8 +88,8 @@ check_script_installed() {
             ls "$HOME/Library/Fonts/CascadiaCode"*.ttf 2>/dev/null | head -1 | grep -q . && return 0
             return 1
             ;;
-        "09-install-cursor.sh"|"10-install-cursor.sh")
-            check_installed "cursor" || [ -d "/Applications/Cursor.app" ] || return 1
+        "09-install-zed.sh"|"10-install-zed.sh")
+            check_installed "zed" || [ -d "/Applications/Zed.app" ] || [ -x "$HOME/.local/bin/zed" ] || return 1
             ;;
         "10-install-claude.sh"|"11-install-claude.sh")
             check_installed "claude" || npm list -g @anthropic-ai/claude-code &>/dev/null || return 1
@@ -106,9 +106,6 @@ check_script_installed() {
         "18-install-tableplus.sh"|"19-install-tableplus.sh")
             check_installed "tableplus" || [ -d "/Applications/TablePlus.app" ] || \
                 [ -f "$HOME/.local/bin/tableplus" ] || return 1
-            ;;
-        "19-install-cursor-cli.sh"|"20-install-cursor-cli.sh")
-            check_installed "cursor-agent" || return 1
             ;;
         "19.5-install-rtk.sh"|"20.5-install-rtk.sh")
             check_installed "rtk" || [ -x "$HOME/.local/bin/rtk" ] || return 1

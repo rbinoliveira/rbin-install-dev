@@ -74,17 +74,16 @@ check_item "Git" "command -v git"
 
 echo ""
 
-# Check Cursor
+# Check editors
 echo "📝 Editors:"
 echo "--------"
-check_item "Cursor" "[ -d '/Applications/Cursor.app' ]"
+check_item "Zed" "[ -d '/Applications/Zed.app' ]"
 
 echo ""
 
 # Check CLI tools
 echo "🔧 CLI Tools:"
 echo "--------"
-check_item "Cursor CLI (cursor-agent)" "command -v cursor-agent"
 check_item "Claude CLI" "command -v claude"
 check_item "Starship" "command -v starship"
 check_item "Zoxide" "command -v zoxide"

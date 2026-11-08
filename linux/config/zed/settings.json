@@ -1,0 +1,32 @@
+{
+  // Houston theme + CaskaydiaCove font
+  "theme": "Houston",
+  "icon_theme": "Material Icon Theme",
+  "auto_install_extensions": { "material-icon-theme": true },
+  "ui_font_size": 16,
+  "buffer_font_family": "CaskaydiaCove Nerd Font Mono",
+  "buffer_font_size": 15,
+  "buffer_font_weight": 400,
+  "buffer_font_features": { "calt": true },
+  "buffer_line_height": { "custom": 1.6 },
+  "tab_size": 2,
+  "wrap_guides": [80],
+  "minimap": { "show": "never" },
+
+  // File list and Git panels on the left
+  "project_panel": { "dock": "left", "auto_fold_dirs": false, "git_status": true },
+  "git_panel": { "dock": "left" },
+  "outline_panel": { "dock": "right" },
+  "agent": { "dock": "right" },
+
+  // Lightweight: no AI predictions, no telemetry, no auto-update
+  "show_edit_predictions": false,
+  "telemetry": { "diagnostics": false, "metrics": false },
+  "auto_update": false,
+
+  "terminal": {
+    "font_family": "CaskaydiaCove Nerd Font Mono",
+    "font_size": 14,
+    "dock": "bottom"
+  }
+}

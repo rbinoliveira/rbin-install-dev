@@ -3,7 +3,7 @@
 #
 # Tool Installation Module
 #
-# Handles installation of Claude Code and Cursor configuration.
+# Handles installation of Claude Code.
 #
 # Usage:
 #   source lib/install_tools.sh
@@ -105,32 +105,6 @@ install_claude() {
     fi
 }
 
-configure_cursor() {
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Configuring Cursor IDE"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-    # Check if Cursor is installed
-    if [ "$CURSOR_INSTALLED" != "true" ]; then
-        echo "ℹ️  Cursor IDE is not installed on this system."
-        echo ""
-        echo "To install Cursor:"
-        echo "  1. Visit https://cursor.sh/"
-        echo "  2. Download and install for your platform"
-        echo "  3. Re-run this script to configure"
-        echo ""
-        log_info "Cursor not installed, skipping configuration"
-        return 0
-    fi
-
-    echo "✓ Cursor IDE detected"
-    echo ""
-
-    log_info "Cursor detected"
-    return 0
-}
-
 # ────────────────────────────────────────────────────────────────
 # Main Installation Function
 # ────────────────────────────────────────────────────────────────
@@ -143,7 +117,6 @@ install_all_tools() {
     echo "This will install and configure:"
     echo "  • Node.js and npm (if not already installed)"
     echo "  • Claude Code CLI"
-    echo "  • Cursor IDE configuration"
     echo ""
 
     if [ "$FORCE_MODE" = false ]; then
@@ -161,7 +134,6 @@ install_all_tools() {
     # Track results
     local node_success=false
     local claude_success=false
-    local cursor_configured=false
 
     # Install Node.js/npm first
     if install_node_npm; then
@@ -174,11 +146,6 @@ install_all_tools() {
     # Install Claude
     if install_claude; then
         claude_success=true
-    fi
-
-    # Configure Cursor
-    if configure_cursor; then
-        cursor_configured=true
     fi
 
     # Summary
@@ -200,12 +167,6 @@ install_all_tools() {
         echo "✗ Claude Code CLI (failed or skipped)"
     fi
 
-    if [ "$cursor_configured" = true ]; then
-        echo "ℹ️  Cursor IDE (configure via Cursor settings)"
-    else
-        echo "ℹ️  Cursor IDE (not installed or skipped)"
-    fi
-
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
@@ -215,5 +176,4 @@ install_all_tools() {
 # Export functions
 export -f install_node_npm
 export -f install_claude
-export -f configure_cursor
 export -f install_all_tools

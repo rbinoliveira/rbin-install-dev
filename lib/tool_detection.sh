@@ -3,7 +3,7 @@
 #
 # Tool Detection Module
 #
-# Detects whether Claude and Cursor are already installed
+# Detects whether Claude is already installed
 # on the system and stores detection results for use by installation handlers.
 #
 # Usage:
@@ -64,86 +64,11 @@ detect_claude() {
 }
 
 # ────────────────────────────────────────────────────────────────
-# Cursor IDE Detection
-# ────────────────────────────────────────────────────────────────
-
-detect_cursor() {
-    export CURSOR_INSTALLED="false"
-    export CURSOR_VERSION="unknown"
-    export CURSOR_PATH=""
-    export CURSOR_CONFIG_EXISTS="false"
-
-    # Platform-specific detection
-    if is_macos; then
-        # Check for Cursor.app in Applications
-        if [ -d "/Applications/Cursor.app" ]; then
-            export CURSOR_PATH="/Applications/Cursor.app"
-            export CURSOR_INSTALLED="true"
-
-            # Try to get version from Info.plist
-            if [ -f "/Applications/Cursor.app/Contents/Info.plist" ]; then
-                if command -v defaults &> /dev/null; then
-                    local version
-                    version="$(defaults read /Applications/Cursor.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo "unknown")"
-                    export CURSOR_VERSION="$version"
-                fi
-            fi
-        fi
-
-        # Check for cursor command-line tool
-        if command -v cursor &> /dev/null; then
-            if [ "$CURSOR_INSTALLED" = "false" ]; then
-                export CURSOR_INSTALLED="true"
-            fi
-            export CURSOR_PATH="$(command -v cursor)"
-        fi
-
-        # Check for Cursor configuration
-        if [ -d "$HOME/Library/Application Support/Cursor" ]; then
-            export CURSOR_CONFIG_EXISTS="true"
-        fi
-
-    elif is_linux; then
-        # Check for cursor command
-        if command -v cursor &> /dev/null; then
-            export CURSOR_PATH="$(command -v cursor)"
-            export CURSOR_INSTALLED="true"
-
-            # Try to get version
-            if cursor --version &> /dev/null; then
-                local version_output
-                version_output="$(cursor --version 2>&1 | head -1)"
-                export CURSOR_VERSION="$version_output"
-            fi
-        fi
-
-        # Check common Linux installation paths
-        for app_path in "$HOME/.local/share/applications/cursor.desktop" \
-                        "/usr/share/applications/cursor.desktop" \
-                        "$HOME/.cursor" \
-                        "/opt/cursor"; do
-            if [ -e "$app_path" ]; then
-                if [ "$CURSOR_INSTALLED" = "false" ]; then
-                    export CURSOR_INSTALLED="true"
-                    export CURSOR_PATH="$app_path"
-                fi
-            fi
-        done
-
-        # Check for Cursor configuration
-        if [ -d "$HOME/.config/Cursor" ]; then
-            export CURSOR_CONFIG_EXISTS="true"
-        fi
-    fi
-}
-
-# ────────────────────────────────────────────────────────────────
 # Main Detection Function
 # ────────────────────────────────────────────────────────────────
 
 detect_all_tools() {
     detect_claude
-    detect_cursor
 }
 
 # ────────────────────────────────────────────────────────────────
@@ -165,17 +90,6 @@ print_detection_summary() {
         fi
     elif [ "$CLAUDE_INSTALLED" = "partial" ]; then
         echo "⚠ Partially installed (needs repair)"
-    else
-        echo "✗ Not installed"
-    fi
-
-    # Cursor
-    echo -n "Cursor IDE:     "
-    if [ "$CURSOR_INSTALLED" = "true" ]; then
-        echo "✓ Installed ($CURSOR_VERSION)"
-        if [ "$CURSOR_CONFIG_EXISTS" = "true" ]; then
-            echo "                └─ Configuration found"
-        fi
     else
         echo "✗ Not installed"
     fi
@@ -243,7 +157,6 @@ prompt_reinstall_if_needed() {
 
 # Export functions for use in other scripts
 export -f detect_claude
-export -f detect_cursor
 export -f detect_all_tools
 export -f print_detection_summary
 export -f prompt_reinstall_if_needed

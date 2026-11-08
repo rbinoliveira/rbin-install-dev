@@ -121,7 +121,7 @@ alias tf='bash .task-flow/scripts/task-flow.sh'
 ### FUNCTIONS
 ### -------------------------------
 
-# Open AI agents (Claude, Cursor) in 2 tabs in current directory
+# Open AI agents (Claude, Codex) in 2 tabs in current directory
 agents() {
   local current_dir=$(pwd)
 
@@ -138,10 +138,10 @@ tell application "iTerm"
       write text "cd '$current_dir' && echo '🤖 Claude CLI' && claude"
     end tell
 
-    # Tab 2: Cursor
+    # Tab 2: Codex
     create tab with default profile
     tell current session of current tab
-      write text "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent"
+      write text "cd '$current_dir' && echo '🖥️  Codex CLI' && codex"
     end tell
   end tell
 end tell
@@ -154,7 +154,7 @@ EOF
 tell application "Terminal"
   do script "cd '$current_dir' && echo '🤖 Claude CLI' && claude"
   tell application "System Events" to keystroke "t" using command down
-  do script "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent" in front window
+  do script "cd '$current_dir' && echo '🖥️  Codex CLI' && codex" in front window
 end tell
 EOF
     fi
@@ -164,17 +164,17 @@ EOF
 
     if command -v gnome-terminal &> /dev/null; then
       gnome-terminal --tab --title="Claude CLI" -- bash -c "cd '$current_dir' && echo '🤖 Claude CLI' && claude; exec zsh" \
-                     --tab --title="Cursor CLI" -- bash -c "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent; exec zsh"
+                     --tab --title="Codex CLI" -- bash -c "cd '$current_dir' && echo '🖥️  Codex CLI' && codex; exec zsh"
     elif command -v konsole &> /dev/null; then
       konsole --new-tab -e zsh -c "cd '$current_dir' && echo '🤖 Claude CLI' && claude; exec zsh" \
-              --new-tab -e zsh -c "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent; exec zsh"
+              --new-tab -e zsh -c "cd '$current_dir' && echo '🖥️  Codex CLI' && codex; exec zsh"
     elif command -v xterm &> /dev/null; then
       xterm -e zsh -c "cd '$current_dir' && echo '🤖 Claude CLI' && claude; exec zsh" &
-      xterm -e zsh -c "cd '$current_dir' && echo '🖥️  Cursor CLI' && cursor-agent; exec zsh" &
+      xterm -e zsh -c "cd '$current_dir' && echo '🖥️  Codex CLI' && codex; exec zsh" &
     else
       echo "⚠️  Terminal detection failed. Please open tabs manually:"
       echo "   Tab 1: cd '$current_dir' && claude"
-      echo "   Tab 2: cd '$current_dir' && cursor-agent"
+      echo "   Tab 2: cd '$current_dir' && codex"
     fi
   fi
 }

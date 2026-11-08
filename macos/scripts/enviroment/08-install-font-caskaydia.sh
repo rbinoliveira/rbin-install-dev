@@ -58,7 +58,7 @@ copy_fonts_to_system_if_requested() {
     if [ "${FONT_INSTALL_GLOBAL:-false}" != "true" ]; then
         echo ""
         echo "✓ $label disponível em ~/Library/Fonts"
-        echo "  (cópia para /Library/Fonts/ omitida — suficiente para iTerm2, Cursor, etc.)"
+        echo "  (cópia para /Library/Fonts/ omitida — suficiente para iTerm2, Zed, etc.)"
         return 0
     fi
 
@@ -431,4 +431,4 @@ else
     echo "   bash macos/scripts/helpers/fix-font-installation.sh"
 fi
 echo ""
-echo "▶ Next, run: bash 10-install-cursor.sh"
+echo "▶ Next, run: bash 10-install-zed.sh"

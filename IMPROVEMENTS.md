@@ -17,7 +17,7 @@ mantidas à mão, com **numeração diferente para a mesma ferramenta**:
 | Claude | `11` | `10` |
 | Codex | `11.2` | `10.2` |
 | SSH | `13` | `12` |
-| Cursor config | `16` | `15` |
+| Zed config | `16` | `15` |
 | RTK | `20.5` | `19.5` |
 
 Isso já me obrigou a criar o passo novo em **dois números distintos** (`13.5` mac / `12.5` linux)

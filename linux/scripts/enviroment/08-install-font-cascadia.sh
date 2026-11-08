@@ -80,4 +80,4 @@ fi
 echo "=============================================="
 echo "============== [08] DONE ===================="
 echo "=============================================="
-echo "▶ Next, run: bash 09-install-cursor.sh"
+echo "▶ Next, run: bash 09-install-zed.sh"

@@ -252,8 +252,8 @@ echo "PHASE 4: Application Setup"
 echo "=============================================="
 
 # Part 4: Applications and configuration
-# Cursor check
-run_script_with_check "10-install-cursor.sh" "Cursor" "[ -d \"/Applications/Cursor.app\" ] || command -v cursor" "[ -d \"/Applications/Cursor.app\" ] && defaults read /Applications/Cursor.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
+# Zed editor check
+run_script_with_check "10-install-zed.sh" "Zed" "[ -d \"/Applications/Zed.app\" ] || command -v zed" "[ -d \"/Applications/Zed.app\" ] && defaults read /Applications/Zed.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
 
 # Claude Code CLI check (requires Node.js)
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
@@ -281,8 +281,8 @@ run_script_with_check "13-configure-ssh.sh" "SSH Configuration" "true" "" "false
 # Personal Git/GitHub accounts (~/dev/<acc>, per-folder SSH + identity)
 run_script_with_check "13.5-configure-dev-accounts.sh" "Dev Accounts (GitHub identities)" "true" "" "false"
 
-# Cursor configuration
-run_script_with_check "16-configure-cursor.sh" "Cursor Configuration" "true" "" "false"
+# Zed configuration
+run_script_with_check "16-configure-zed.sh" "Zed Configuration" "true" "" "false"
 
 # Docker check
 run_script_with_check "17-install-docker.sh" "Docker" "command -v docker" "docker --version 2>&1 | head -1"
@@ -290,13 +290,10 @@ run_script_with_check "17-install-docker.sh" "Docker" "command -v docker" "docke
 # TablePlus check (macOS only)
 run_script_with_check "19-install-tableplus.sh" "TablePlus" "command -v tableplus || [ -d \"/Applications/TablePlus.app\" ]" "[ -d \"/Applications/TablePlus.app\" ] && defaults read /Applications/TablePlus.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown'"
 
-# Cursor CLI check
-run_script_with_check "20-install-cursor-cli.sh" "Cursor CLI" "command -v cursor-agent" "cursor-agent --version 2>&1 | head -1"
-
-# RTK (token optimizer — requires Claude, Codex, Cursor installed above)
+# RTK (token optimizer — requires Claude and Codex installed above)
 run_script_with_check "20.5-install-rtk.sh" "RTK" "command -v rtk || [ -x \"$HOME/.local/bin/rtk\" ]" "rtk --version 2>&1 | head -1"
 
-# Graphify (knowledge graph — requires Claude, Codex, Cursor installed above)
+# Graphify (knowledge graph — requires Claude and Codex installed above)
 run_script_with_check "20.6-install-graphify.sh" "Graphify" "command -v graphify || command -v uv" "graphify --version 2>&1 | head -1 || uv tool list 2>&1 | grep graphifyy | head -1"
 
 echo ""
@@ -365,8 +362,7 @@ echo "   → yarn -v"
 echo "   → docker --version"
 echo "   → zsh --version"
 echo "   → starship --version"
-echo "   → cursor --version"
-echo "   → cursor-agent --version"
+echo "   → zed --version"
 echo "   → codex --version"
 echo "   → cn version"
 echo "   → rtk --version"
@@ -378,10 +374,9 @@ echo "   → Start Docker Desktop application"
 echo "   → Wait for it to fully start"
 echo "   → Verify with: docker ps"
 echo ""
-echo "5️⃣  CURSOR IDE CONFIGURATION"
-echo "   → Open Cursor IDE"
-echo "   → Settings should be automatically applied"
-echo "   → If needed, restart Cursor to load all configurations"
+echo "5️⃣  ZED EDITOR"
+echo "   → Open Zed (zed .) — Houston theme and settings are already applied"
+echo "   → Icons (Material Icon Theme) install automatically on first launch"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

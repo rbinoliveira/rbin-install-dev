@@ -24,7 +24,7 @@ This repository contains **all development environment configurations**, includi
 - 📝 Configuration files (dotfiles)
 - 🎨 Themes and fonts
 - ⚙️ Automated installation scripts
-- 🔧 Cursor configurations
+- 🔧 Zed editor (Houston theme, CaskaydiaCove font)
 - 🛠️ Auxiliary tools
 - 🏢 Separate personal and work environments
 - 🔐 Environment variables for sensitive data
@@ -125,16 +125,15 @@ bash 05-install-node-nvm.sh
 bash 06-install-yarn.sh
 bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
-bash 09-install-cursor.sh
+bash 09-install-zed.sh
 bash 10-install-claude.sh
 bash 10.2-install-codex.sh
 bash 10.5-install-code-notify.sh
 bash 11-configure-terminal.sh
 bash 12-configure-ssh.sh
-bash 15-configure-cursor.sh
+bash 15-configure-zed.sh
 bash 16-install-docker.sh       # ⚠️ Logout/login after this
 bash 18-install-tableplus.sh
-bash 19-install-cursor-cli.sh
 bash 19.5-install-rtk.sh
 bash 19.6-install-graphify.sh
 ```
@@ -167,18 +166,16 @@ bash 05-install-node-nvm.sh
 bash 06-install-yarn.sh
 bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
-bash 09-install-vscode.sh
-bash 10-install-cursor.sh
+bash 10-install-zed.sh
 bash 11-install-claude.sh
 bash 11.2-install-codex.sh
 bash 11.5-install-code-notify.sh
 bash 11.4-configure-claude-accounts.sh
 bash 12-configure-terminal.sh
 bash 13-configure-ssh.sh
-bash 16-configure-cursor.sh
+bash 16-configure-zed.sh
 bash 17-install-docker.sh
 bash 19-install-tableplus.sh
-bash 20-install-cursor-cli.sh
 bash 20.5-install-rtk.sh
 bash 20.6-install-graphify.sh
 ```
@@ -233,8 +230,8 @@ Runs all installation scripts in sequence automatically.
 | **06-install-yarn.sh** | Installs Yarn via Corepack |
 | **07-install-tools.sh** | Installs various development tools and utilities |
 | **08-install-font-caskaydia.sh** | Installs CaskaydiaCove Nerd Font |
-| **09-install-cursor.sh** (Linux) | Installs Cursor Editor |
-| **10-install-cursor.sh** (macOS) | Installs Cursor Editor |
+| **09-install-zed.sh** (Linux) | Installs Zed Editor |
+| **10-install-zed.sh** (macOS) | Installs Zed Editor |
 | **11-install-claude.sh** | Installs Claude Code CLI |
 | **11.2-install-codex.sh** (macOS) / **10.2-install-codex.sh** (Linux) | Installs OpenAI Codex CLI (`codex`) |
 | **11.5-install-code-notify.sh** (macOS) / **10.5-install-code-notify.sh** (Linux) | Installs Code-Notify (`cn`) for Claude, Codex, and Gemini CLI |
@@ -243,17 +240,15 @@ Runs all installation scripts in sequence automatically.
 | **12-configure-terminal.sh** (macOS) | Configures iTerm2 with Dracula theme |
 | **12-configure-ssh.sh** (Linux) | Configures SSH for Git |
 | **13-configure-ssh.sh** (macOS) | Configures SSH for Git |
-| **15-configure-cursor.sh** | Applies Cursor configurations |
+| **15/16-configure-zed.sh** | Applies Zed settings and Houston theme |
 | **16-install-docker.sh** (Linux) | Installs Docker Engine ⚠️ Logout/login after |
 | **17-install-docker.sh** (macOS) | Installs Docker Desktop |
 | **18-install-tableplus.sh** (Linux) | Installs TablePlus database client |
 | **19-install-tableplus.sh** (macOS) | Installs TablePlus database client |
-| **19-install-cursor-cli.sh** (Linux) | Installs Cursor CLI |
-| **19.5-install-rtk.sh** (Linux) | Installs RTK and configures Claude, Codex, and Cursor |
-| **19.6-install-graphify.sh** (Linux) | Installs Graphify (uv + graphifyy) and registers Claude, Codex, and Cursor |
-| **20-install-cursor-cli.sh** (macOS) | Installs Cursor CLI |
-| **20.5-install-rtk.sh** (macOS) | Installs RTK and configures Claude, Codex, and Cursor |
-| **20.6-install-graphify.sh** (macOS) | Installs Graphify (uv + graphifyy) and registers Claude, Codex, and Cursor |
+| **19.5-install-rtk.sh** (Linux) | Installs RTK and configures Claude and Codex |
+| **19.6-install-graphify.sh** (Linux) | Installs Graphify (uv + graphifyy) and registers Claude and Codex |
+| **20.5-install-rtk.sh** (macOS) | Installs RTK and configures Claude and Codex |
+| **20.6-install-graphify.sh** (macOS) | Installs Graphify (uv + graphifyy) and registers Claude and Codex |
 
 ---
 
@@ -294,8 +289,7 @@ rbin-install-dev/
 ├── linux/                   # 🐧 Linux setup
 │   ├── config/              # Dotfiles & themes
 │   │   ├── starship.toml
-│   │   ├── user-settings.json
-│   │   ├── cursor-keyboard.json
+│   │   ├── zed/             # Zed settings.json + themes/houston.json
 │   │   └── zsh-config
 │   └── scripts/
 │       └── enviroment/      # Setup scripts (01-17)
@@ -411,7 +405,7 @@ Este repositório contém **todas as configurações de ambiente de desenvolvime
 - 📝 Arquivos de configuração (dotfiles)
 - 🎨 Temas e fontes
 - ⚙️ Scripts de instalação automatizados
-- 🔧 Configurações do Cursor
+- 🔧 Editor Zed (tema Houston, fonte CaskaydiaCove)
 - 🛠️ Ferramentas auxiliares
 - 🏢 Ambientes separados para pessoal e trabalho
 - 🔐 Variáveis de ambiente para dados sensíveis
@@ -507,16 +501,15 @@ bash 05-install-node-nvm.sh
 bash 06-install-yarn.sh
 bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
-bash 09-install-cursor.sh
+bash 09-install-zed.sh
 bash 10-install-claude.sh
 bash 10.2-install-codex.sh
 bash 10.5-install-code-notify.sh
 bash 11-configure-terminal.sh
 bash 12-configure-ssh.sh
-bash 15-configure-cursor.sh
+bash 15-configure-zed.sh
 bash 16-install-docker.sh       # ⚠️ Faça logout/login após isso
 bash 18-install-tableplus.sh
-bash 19-install-cursor-cli.sh
 bash 19.5-install-rtk.sh
 bash 19.6-install-graphify.sh
 ```
@@ -549,18 +542,16 @@ bash 05-install-node-nvm.sh
 bash 06-install-yarn.sh
 bash 07-install-tools.sh
 bash 08-install-font-caskaydia.sh
-bash 09-install-vscode.sh
-bash 10-install-cursor.sh
+bash 10-install-zed.sh
 bash 11-install-claude.sh
 bash 11.2-install-codex.sh
 bash 11.5-install-code-notify.sh
 bash 11.4-configure-claude-accounts.sh
 bash 12-configure-terminal.sh
 bash 13-configure-ssh.sh
-bash 16-configure-cursor.sh
+bash 16-configure-zed.sh
 bash 17-install-docker.sh
 bash 19-install-tableplus.sh
-bash 20-install-cursor-cli.sh
 bash 20.5-install-rtk.sh
 bash 20.6-install-graphify.sh
 ```
@@ -615,8 +606,8 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **06-install-yarn.sh** | Instala Yarn via Corepack |
 | **07-install-tools.sh** | Instala várias ferramentas de desenvolvimento e utilitários |
 | **08-install-font-caskaydia.sh** | Instala CaskaydiaCove Nerd Font |
-| **09-install-cursor.sh** (Linux) | Instala Cursor Editor |
-| **10-install-cursor.sh** (macOS) | Instala Cursor Editor |
+| **09-install-zed.sh** (Linux) | Instala o editor Zed |
+| **10-install-zed.sh** (macOS) | Instala o editor Zed |
 | **11-install-claude.sh** | Instala Claude Code CLI |
 | **11.2-install-codex.sh** (macOS) / **10.2-install-codex.sh** (Linux) | Instala OpenAI Codex CLI (`codex`) |
 | **11.5-install-code-notify.sh** (macOS) / **10.5-install-code-notify.sh** (Linux) | Instala Code-Notify (`cn`) para Claude, Codex e Gemini CLI |
@@ -625,17 +616,15 @@ Executa todos os scripts de instalação em sequência automaticamente.
 | **12-configure-terminal.sh** (macOS) | Configura iTerm2 com tema Dracula |
 | **12-configure-ssh.sh** (Linux) | Configura SSH para Git |
 | **13-configure-ssh.sh** (macOS) | Configura SSH para Git |
-| **15-configure-cursor.sh** | Aplica configurações do Cursor |
+| **15/16-configure-zed.sh** | Aplica configurações e tema Houston do Zed |
 | **16-install-docker.sh** (Linux) | Instala Docker Engine ⚠️ Faça logout/login após |
 | **17-install-docker.sh** (macOS) | Instala Docker Desktop |
 | **18-install-tableplus.sh** (Linux) | Instala cliente de banco de dados TablePlus |
 | **19-install-tableplus.sh** (macOS) | Instala cliente de banco de dados TablePlus |
-| **19-install-cursor-cli.sh** (Linux) | Instala Cursor CLI |
-| **19.5-install-rtk.sh** (Linux) | Instala RTK e configura Claude, Codex e Cursor |
-| **19.6-install-graphify.sh** (Linux) | Instala Graphify (uv + graphifyy) e registra Claude, Codex e Cursor |
-| **20-install-cursor-cli.sh** (macOS) | Instala Cursor CLI |
-| **20.5-install-rtk.sh** (macOS) | Instala RTK e configura Claude, Codex e Cursor |
-| **20.6-install-graphify.sh** (macOS) | Instala Graphify (uv + graphifyy) e registra Claude, Codex e Cursor |
+| **19.5-install-rtk.sh** (Linux) | Instala RTK e configura Claude e Codex |
+| **19.6-install-graphify.sh** (Linux) | Instala Graphify (uv + graphifyy) e registra Claude e Codex |
+| **20.5-install-rtk.sh** (macOS) | Instala RTK e configura Claude e Codex |
+| **20.6-install-graphify.sh** (macOS) | Instala Graphify (uv + graphifyy) e registra Claude e Codex |
 
 ---
 
@@ -676,8 +665,7 @@ rbin-install-dev/
 ├── linux/                   # 🐧 Configuração Linux
 │   ├── config/              # Dotfiles e temas
 │   │   ├── starship.toml
-│   │   ├── user-settings.json
-│   │   ├── cursor-keyboard.json
+│   │   ├── zed/             # Zed settings.json + themes/houston.json
 │   │   └── zsh-config
 │   └── scripts/
 │       └── enviroment/      # Scripts de configuração (01-17)

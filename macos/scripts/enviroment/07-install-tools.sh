@@ -118,5 +118,5 @@ fi
 echo "=============================================="
 echo "============== [07] DONE ===================="
 echo "=============================================="
-echo "▶ Next, run: bash 08-install-cursor.sh"
+echo "▶ Next, run: bash 08-install-font-caskaydia.sh"
 

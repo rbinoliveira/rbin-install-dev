@@ -110,7 +110,7 @@ install_graphify_package() {
 
 configure_graphify_agents() {
     echo ""
-    echo "Registering Graphify with Claude Code, Codex, and Cursor..."
+    echo "Registering Graphify with Claude Code and Codex..."
 
     echo "→ Claude Code..."
     if graphify claude install 2>/dev/null; then
@@ -130,10 +130,6 @@ configure_graphify_agents() {
     else
         echo "⚠️  graphify codex install had issues"
     fi
-
-    echo "→ Cursor..."
-    graphify cursor install 2>/dev/null && echo "  ✓ graphify cursor install" \
-        || echo "⚠️  graphify cursor install had issues"
 }
 
 if ! ensure_python; then

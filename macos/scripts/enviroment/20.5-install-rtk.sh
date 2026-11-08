@@ -60,16 +60,13 @@ configure_rtk_agents() {
     local init_flags=(--auto-patch)
 
     echo ""
-    echo "Configuring RTK for Claude Code, Codex, and Cursor..."
+    echo "Configuring RTK for Claude Code and Codex..."
 
     echo "→ Claude Code (default)..."
     rtk init -g "${init_flags[@]}" || echo "⚠️  rtk init for Claude Code had issues"
 
     echo "→ Codex (OpenAI)..."
     rtk init -g --codex "${init_flags[@]}" || echo "⚠️  rtk init for Codex had issues"
-
-    echo "→ Cursor..."
-    rtk init -g --agent cursor "${init_flags[@]}" || echo "⚠️  rtk init for Cursor had issues"
 
     echo ""
     echo "Verifying RTK agent configuration..."
@@ -86,8 +83,8 @@ echo "✓ RTK installed: $(rtk --version 2>/dev/null || rtk version 2>/dev/null 
 configure_rtk_agents
 
 echo ""
-echo "✓ RTK configured for Claude Code, Codex, and Cursor"
-echo "  Restart Claude Code, Codex, and Cursor after installation."
+echo "✓ RTK configured for Claude Code and Codex"
+echo "  Restart Claude Code and Codex after installation."
 echo "  Test: rtk gain"
 
 echo "=============================================="
