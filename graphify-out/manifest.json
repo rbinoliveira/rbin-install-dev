@@ -1,0 +1,422 @@
+{
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/.codex/hooks.json": {
+    "mtime": 1784287129.0,
+    "ast_hash": "7a9c61d812779289aaeb5d629e9e2ca0",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/bin/cli.js": {
+    "mtime": 1784221192.0,
+    "ast_hash": "c24d025d9b4d46f142ff8e71c26c26d9",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/apt_helper.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "82f522ea1e06c9a2e6e077e6279ec573",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/aws_helper.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "3ee6513255ad815b3225e6e71f6ac288",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/brew_helper.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "367046da06783441e9b775e040fff8ab",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/check_installed.sh": {
+    "mtime": 1794163310.8236234,
+    "ast_hash": "5ee9822b9a6f744dffa1eb2d0be4bbc5",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/env_helper.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "49db3df220aa1d42d3c15c5431db3ae7",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/env_validator.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "48c628ebdf75224276f3ae86d66fdf8d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/install_mode.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "a262d55bf3f92c9fa3e42c54fff312fc",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/install_tools.sh": {
+    "mtime": 1794163320.0366237,
+    "ast_hash": "0b472acbf7b457116119c94cec6c9f54",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/logging.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "fa9a3ee5c0bac94c427e65d1004fd218",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/platform.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "62a7acd505b91d651ea38e795f790b85",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/sudo_helper.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "d8ab2ede35e88795f0df860702711870",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/lib/tool_detection.sh": {
+    "mtime": 1794163320.0363417,
+    "ast_hash": "4c36dfbfb5d7657b3f4fd0d9b487daa7",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/config/zed/settings.json": {
+    "mtime": 1794163344.5429163,
+    "ast_hash": "d926683644a5bed1b13865a68340cbf1",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/config/zed/themes/houston.json": {
+    "mtime": 1794163261.7334244,
+    "ast_hash": "0a37ffc3f6694837aaeb13e04b4504c2",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/00-install-all.sh": {
+    "mtime": 1794163310.822199,
+    "ast_hash": "4eaad5451e7e866195d290cfe12b142b",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/01-configure-git.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "c81a4072ed59999b3d9aa231e5beb093",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/02-install-zsh.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "27950b76447ee5dc993b1b298359290b",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/03-install-zinit.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "40762c2de26bfc0ecf667d6b033b175f",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/04-install-starship.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "7c2e531a85f891f5c35541fce79ddf3f",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/05-install-node-nvm.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "bedeb9e2eaff98e315e8f1fc790ba86d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/06-install-yarn.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "36d3edd1e74e838f1fe338a73ecb537d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/07-install-tools.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "43c901baff544778ca51979127d1bed3",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/08-install-font-cascadia.sh": {
+    "mtime": 1794163310.823377,
+    "ast_hash": "a04d1e4fa1ec2ba0fc59912d5c966c61",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/09-install-zed.sh": {
+    "mtime": 1794163281.4037595,
+    "ast_hash": "eab3090103b0b145909223754c8b62d1",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/10-install-claude.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "20a49500ba7a13df2f708c9b7a400395",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/10.2-install-codex.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "3495d4b3949b504f3a9392ae0f82e0cc",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/10.5-install-code-notify.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "5cd900aaf5bf2c3a8c0b18c77e7cf05f",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/11-configure-terminal.sh": {
+    "mtime": 1784225700.0,
+    "ast_hash": "cb1e410b19086346b927bfb62bcffb6a",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/11.3-configure-danger-mode.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "f61106eff2a6c55be88ce590ecc2e47a",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/11.4-configure-claude-accounts.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "54be7e03ae9c7204678d7dce07da45a1",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/12-configure-ssh.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "5339862d1bf901ede012e1af1e2fc61e",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/12.5-configure-dev-accounts.sh": {
+    "mtime": 1784226047.0,
+    "ast_hash": "59e9004a5ae3eb8db47595ca3ca6d4cc",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/15-configure-zed.sh": {
+    "mtime": 1794163281.4290814,
+    "ast_hash": "49747c8dbb2fbd87b7a2575f7b1c1953",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/16-install-docker.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "3e8853d9b9c49f562989d62b1a23fc88",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/18-install-tableplus.sh": {
+    "mtime": 1784227690.0,
+    "ast_hash": "ce405e30c64840c480363a9d3aa6afa9",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/19.5-install-rtk.sh": {
+    "mtime": 1794163310.8224583,
+    "ast_hash": "d81efd4570a5fe2899175b021da16128",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/19.6-install-graphify.sh": {
+    "mtime": 1794163310.8227067,
+    "ast_hash": "2df1806dee0f5e4f118322fee3212859",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/22-install-aws-vpn-client.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "1393fc79114bbf0741c849599c703b09",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/23-install-aws-cli.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "9c7708f27477620b0980f31c05db0ae2",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/24-configure-aws-sso.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "319c6908a49b0d4ef62640bf06115b81",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/25-install-dotnet.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "ea14cc71dcac0358e5412d50c2ce90b1",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/linux/scripts/enviroment/26-install-java.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "346e529fc65aa6a25017f9da83aa755f",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/config/zed/settings.json": {
+    "mtime": 1794163344.5375712,
+    "ast_hash": "d926683644a5bed1b13865a68340cbf1",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/config/zed/themes/houston.json": {
+    "mtime": 1794163261.7113104,
+    "ast_hash": "0a37ffc3f6694837aaeb13e04b4504c2",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/00-install-all.sh": {
+    "mtime": 1794163310.821926,
+    "ast_hash": "9b2887792ebfb5c15f629643cf9f806e",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/01-configure-git.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "4c35171df91d1ccb707a80ed481dfa92",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/02-install-zsh.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "662c67d021211eb7109f881642c037b0",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/02.5-install-iterm2.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "d7be1257fa3521a9ac0864fa982d31fb",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/03-install-zinit.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "62b97ce6590396e5b191df0c2fe5a7ab",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/04-install-starship.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "296614f12e3ad89b4a29d7c29e719c37",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/05-install-node-nvm.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "bedeb9e2eaff98e315e8f1fc790ba86d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/06-install-yarn.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "36d3edd1e74e838f1fe338a73ecb537d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/07-install-tools.sh": {
+    "mtime": 1794163310.8228586,
+    "ast_hash": "ddca53a49217674d561c234fcbbafdf2",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/08-install-font-caskaydia.sh": {
+    "mtime": 1794163310.8232362,
+    "ast_hash": "cc59b0f15dfb326f55fc42629e780042",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/10-install-zed.sh": {
+    "mtime": 1794163281.388878,
+    "ast_hash": "2adee08f3b81e6a1396962b43f167e3d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/11-install-claude.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "70e0742ba6d7c60dced78ef88c2ad28e",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/11.2-install-codex.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "42964bd959fe9ef32575345bf797d83d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/11.3-configure-danger-mode.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "f61106eff2a6c55be88ce590ecc2e47a",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/11.4-configure-claude-accounts.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "a9c3f52b5b144a2a2a0c392bcf7d6ce5",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/11.5-install-code-notify.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "f78177da94a39e4cdc8695884f1e7abf",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/12-configure-terminal.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "487b3e0815b43884918d33198a3ccb4e",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/13-configure-ssh.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "789f7eb06a9fc8bc52ce0d7674631038",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/13.5-configure-dev-accounts.sh": {
+    "mtime": 1784226093.0,
+    "ast_hash": "acfa4618c68f22e471ded21a070ba6dd",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/16-configure-zed.sh": {
+    "mtime": 1794163281.4166303,
+    "ast_hash": "d447c9d7cddedce6bb4a6e32ebe521f6",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/17-install-docker.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "61fbdc03b301236081dc0470ef6f9307",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/19-install-tableplus.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "3e3c3a5bc54df8f0df3c310ef2b4d560",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/20.5-install-rtk.sh": {
+    "mtime": 1794163310.822302,
+    "ast_hash": "5e22ff49269408a87abeeddaee5e8313",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/20.6-install-graphify.sh": {
+    "mtime": 1794163310.8225503,
+    "ast_hash": "540a3898c39117236b62f3efe2531b5d",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/22-install-aws-vpn-client.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "08994b33460c8f6f356b991a5d44fd38",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/23-install-aws-cli.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "a0399230a0dd39ce4fdf33452103df43",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/24-configure-aws-sso.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "319c6908a49b0d4ef62640bf06115b81",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/25-install-dotnet.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "4c8c5927488670fbdc1408630122b916",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/enviroment/26-install-java.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "7e57fd75d904a7682240690aff34b53c",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/helpers/fix-font-installation.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "25a6d67b45873664838fccdab938ca9a",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/helpers/open-iterm-preferences.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "e1967c1263079035fab75ea4cf615fd5",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/helpers/test-fonts.sh": {
+    "mtime": 1784221192.0,
+    "ast_hash": "85e66b7f5bf299765b02ae6c7149b47f",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/macos/scripts/helpers/verify-installation.sh": {
+    "mtime": 1794163310.8234587,
+    "ast_hash": "f4f91f33a69753134295e8c2681ba3e8",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/package.json": {
+    "mtime": 1784221192.0,
+    "ast_hash": "09ea815cff5545c37f47353b3e91a096",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/run.sh": {
+    "mtime": 1784225287.0,
+    "ast_hash": "73247a0bee485a21bb9eed278ee073eb",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/IMPROVEMENTS.md": {
+    "mtime": 1794163334.872797,
+    "ast_hash": "f57dfbe03ddb48eed8a7fc95a16a10af",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/TASKS.md": {
+    "mtime": 1784221192.0,
+    "ast_hash": "d321c88ed6c4eb40d434bf0e710b46ad",
+    "semantic_hash": ""
+  },
+  "/Users/rubinho/dev/rubinho/outros/rbin-install-dev/readme.md": {
+    "mtime": 1794163334.8726327,
+    "ast_hash": "51c695809d4849e136d96ed47e6a8939",
+    "semantic_hash": ""
+  }
+}
